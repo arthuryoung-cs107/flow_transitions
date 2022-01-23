@@ -12,7 +12,7 @@ for i = 1:size(name_list_113micron, 1)
   Q113_all(i) = Q113(name_list_113micron{i}, pink(i, :), phi_vec_113microns(i));
 end
 FB1 = FB_experiment(Q113_all, 'FB1', pink(1, :), '*', '113 micron glass beads');
-FB1.LW = 0.5; 
+FB1.LW = 0.5;
 FB1.process_raws(raw_113micron_Qall_structure)
 
 % % % 2021 DATA, FROM ABHI
@@ -185,6 +185,8 @@ pos21 = [0 100];
 pos22 = [450 100];
 pos23 = [900 100];
 
+pos_spread = [0 500; 180 500; 360 500; 540 500; 720 500; 900 500; 0 100; 180 100; 360 100; 540 100; 720 100; 900 100];
+
 dim1 = [525 325];
 dim2 = [525 250];
 dim21 = [525 450];
@@ -192,3 +194,14 @@ dim222 = [525 600];
 
 ax21 = [0.1 0.1 0.85 0.475; 0.1 0.675 0.4 0.3; 0.545 0.675 0.4 0.3];
 ax222 = [0.075 0.725 0.4 0.275; 0.575 0.725 0.4 0.275; 0.075 0.4 0.4 0.275; 0.575 0.4 0.4 0.275; 0.075 0.075 0.4 0.275; 0.575 0.075 0.4 0.275];
+
+fig_specs{1} = {'Name', 'PF_NB_T_vs_omega'; 'Renderer', 'painters'; 'Position', [pos_spread(1, :), dim1];};
+fig_specs{2} = {'Name', 'PF_NB_Grat_vs_Res'; 'Renderer', 'painters'; 'Position', [pos_spread(2, :) dim2];};
+fig_specs{3} = {'Name', 'PF_NB_cf_vs_Res'; 'Renderer', 'painters'; 'Position', [pos_spread(3, :) dim21];};
+fig_specs{4} = {'Name', 'UB_XB_T_vs_omega'; 'Renderer', 'painters'; 'Position', [pos_spread(4, :) dim2];};
+fig_specs{5} = {'Name', 'UB_XB_cf_vs_Res'; 'Renderer', 'painters'; 'Position', [pos_spread(5, :) dim21];};
+fig_specs{6} = {'Name', 'PF_NB_UB_XB_FB_G_vs_Res'; 'Renderer', 'painters'; 'Position', [pos_spread(6, :) dim222];};
+fig_specs{7} = {'Name', 'FB_T_vs_omega'; 'Renderer', 'painters'; 'Position', [pos_spread(7, :) 525 330];};
+subfig_specs{1} = {'Name', 'FB_muapp_vs_omega'; 'Renderer', 'painters'; 'Position', [pos_spread(8, :) dim2];};
+subfig_specs{2} = {'Name', 'FB_mup_vs_q'; 'Renderer', 'painters'; 'Position', [pos_spread(9, :) dim2];};
+subfig_specs{3} = {'Name', 'FB_tauy_vs_q'; 'Renderer', 'painters'; 'Position', [pos_spread(10, :) dim2];};

@@ -62,12 +62,7 @@ classdef experiment < handle
       Latex_label = ['$$' obj.label '$$'];
     end
     function alpha_out = alpha(obj)
-      % alpha_out = approx_deriv_weighted_central(log(obj.Re_s), log(obj.cf)) + 2;
-      % alpha_out = approx_deriv_1stO_legrangian(log(obj.Re_s), log(obj.cf)) + 2;
-
-      alpha_out = approx_deriv_weighted_central(log(obj.Re_s), log(obj.G));
-      % alpha_out = approx_deriv_1stO_legrangian(log(obj.Re_s), log(obj.G));
-
+      alpha_out = approx_deriv_weighted_central(log(obj.Re_s), log(obj.cf)) + 2;
     end
     function Res_out = Re_s_alpha(obj)
       Res_out = obj.Re_s;
@@ -124,29 +119,38 @@ function prime_vec = approx_deriv_weighted_central(t_in, x_in)
   n = length(t_in);
   prime_vec = nan(size(x_in));
 
-  x = reshape(x_in(1:5), [1 5]);
-  t = reshape(t_in(1:5), [1 5]);
+  k = 5; %% number of points considered. Must be odd
+  l = (k-1)/2; %% number of points to left and right
+  p = l+1; %% index of central point
 
-  x_hat = [t(2) t(3) t(4) t(5)];
-  t_hat = [x(2) x(3) x(4) x(5)];
-  w = (abs((0.5*(t_hat + t(1)))-t(1))).^(-1);
-  m = sign(t(1)-t_hat).*((x(1)-x_hat))./(t(1)-t_hat);
-  prime_vec(1) = (sum(w.*m))/(sum(w));
-
-  x_hat = [t(1) t(3) t(4) t(5)];
-  t_hat = [x(1) x(3) x(4) x(5)];
-  w = (abs((0.5*(t_hat + t(1)))-t(1))).^(-1);
-  m = sign(t(1)-t_hat).*((x(1)-x_hat))./(t(1)-t_hat);
-  prime_vec(2) = (sum(w.*m))/(sum(w));
-  for i=3:(n-2)
-    x = reshape(x_in(i-2:i+2), [1 5]);
-    t = reshape(t_in(i-2:i+2), [1 5]);
-    x_hat = [t(1) t(2) t(4) t(5)];
-    t_hat = [x(1) x(2) x(4) x(5)];
-    w = (abs((0.5*(t_hat + t(3)))-t(3))).^(-1);
-    m = sign(t(3)-t_hat).*((x(3)-x_hat))./(t(3)-t_hat);
-
+  x = reshape(x_in(1:k), [1 k]);
+  t = reshape(t_in(1:k), [1 k]);
+  for i=1:l
+    ind = [1:(i-1), i+1:k];
+    t_hat = t(ind);
+    x_hat = x(ind);
+    w = (abs((0.5*(t_hat + t(i)))-t(i))).^(-1);
+    m = ((x(i)-x_hat))./(t(i)-t_hat);
     prime_vec(i) = (sum(w.*m))/(sum(w));
   end
-
+  for i=p:(n-l)
+    x = reshape(x_in(i-l:i+l), [1 k]);
+    t = reshape(t_in(i-l:i+l), [1 k]);
+    ind = [1:p-1, p+1:k];
+    t_hat = t(ind);
+    x_hat = x(ind);
+    w = (abs((0.5*(t_hat + t(p)))-t(p))).^(-1);
+    m = ((x(p)-x_hat))./(t(p)-t_hat);
+    prime_vec(i) = (sum(w.*m))/(sum(w));
+  end
+  x = reshape(x_in(n-k+1:n), [1 k]);
+  t = reshape(t_in(n-k+1:n), [1 k]);
+  for i=p+1:k
+    ind = [1:i-1, i+1:k];
+    t_hat = t(ind);
+    x_hat = x(ind);
+    w = (abs((0.5*(t_hat + t(i)))-t(i))).^(-1);
+    m = ((x(i)-x_hat))./(t(i)-t_hat);
+    prime_vec(n-k+i) = (sum(w.*m))/(sum(w));
+  end
 end

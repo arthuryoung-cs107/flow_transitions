@@ -9,9 +9,12 @@ phi_vec_113microns = [0.5541; 0.5541; 0.5541; 0.5541; 0.5524; 0.5503; 0.5482; 0.
 
 glass113_all = glass113.empty(size(name_list_113micron, 1), 0);
 for i = 1:size(name_list_113micron, 1)
-  glass113_all(i) = glass113(name_list_113micron{i}, pink(i, :), phi_vec_113microns(i));
+  % glass113_all(i) = glass113(name_list_113micron{i}, pink10(i, :), phi_vec_113microns(i));
+  glass113_all(i) = glass113(name_list_113micron{i}, grey15(4+i, :), phi_vec_113microns(i));
 end
-FB1 = FB_experiment(glass113_all, 'FB1', pink(1, :), '*', '113 micron glass beads');
+% FB1 = FB_experiment(glass113_all, 'FB1', pink10(1, :), '*', '113 micron glass beads');end
+FB1 = FB_experiment(glass113_all, 'FB1', grey15(1, :), '*', '113 micron glass beads');
+FB1.MS = 4;
 FB1.LW = 0.5;
 FB1.process_raws(raw_113micron_Qall_structure)
 
@@ -21,10 +24,14 @@ name_list_49micron = {'FB 49 microns, Q = 0.00 l/min'; 'FB 49 microns, Q = 0.05 
 
 glass49_all = glass49.empty(size(name_list_49micron, 1), 0);
 for i = 1:size(name_list_49micron, 1)
-  glass49_all(i) = glass49(name_list_49micron{i}, blue14(i, :));
+  % glass49_all(i) = glass49(name_list_49micron{i}, blue14(i, :));
+  glass49_all(i) = glass49(name_list_49micron{i}, grey15(i, :));
 end
 % FB2 = FB_experiment(glass49_all, 'FB1', blue14(1, :), '*', '49 micron glass beads');
-FB2 = FB_experiment(glass49_all, 'FB1', blue14(1, :), 'x', '49 micron glass beads');
+% FB2 = FB_experiment(glass49_all, 'FB1', blue14(1, :), 'x', '49 micron glass beads');
+FB2 = FB_experiment(glass49_all, 'FB1', grey15(1, :), 'x', '49 micron glass beads');
+FB2.LW = 0.5;
+FB2.LW_L = 2;
 FB2.process_raws(raw_FB2_structure)
 
 load ./raw_data_structures/PF1_rawdata.mat
@@ -169,6 +176,15 @@ EC050.init_Chuan('0.5');
 EC075.init_Chuan('0.75');
 EC100.init_Chuan('1.0');
 
+EC000.MS = FB1.MS;
+EC050.MS = FB1.MS;
+EC075.MS = FB1.MS;
+EC100.MS = FB1.MS;
+EC000.LW = FB1.LW;
+EC050.LW = FB1.LW;
+EC075.LW = FB1.LW;
+EC100.LW = FB1.LW;
+
 %%% done loading data
 
 r_i = 0.01208;
@@ -202,6 +218,6 @@ fig_specs{4} = {'Name', 'UB_XB_T_vs_omega'; 'Renderer', 'painters'; 'Position', 
 fig_specs{5} = {'Name', 'UB_XB_cf_vs_Res'; 'Renderer', 'painters'; 'Position', [pos_spread(5, :) dim21];};
 fig_specs{6} = {'Name', 'PF_NB_UB_XB_FB_G_vs_Res'; 'Renderer', 'painters'; 'Position', [pos_spread(6, :) dim222];};
 fig_specs{7} = {'Name', 'FB_T_vs_omega'; 'Renderer', 'painters'; 'Position', [pos_spread(7, :) 525 330];};
-subfig_specs{1} = {'Name', 'FB_muapp_vs_omega'; 'Renderer', 'painters'; 'Position', [pos_spread(8, :) dim2];};
-subfig_specs{2} = {'Name', 'FB_mup_vs_q'; 'Renderer', 'painters'; 'Position', [pos_spread(9, :) dim2];};
-subfig_specs{3} = {'Name', 'FB_tauy_vs_q'; 'Renderer', 'painters'; 'Position', [pos_spread(10, :) dim2];};
+fig_specs{8} = {'Name', 'FB_muapp_vs_omega'; 'Renderer', 'painters'; 'Position', [pos_spread(8, :) dim2];};
+fig_specs{9} = {'Name', 'FB_mup_vs_q'; 'Renderer', 'painters'; 'Position', [pos_spread(9, :) dim2];};
+fig_specs{10} = {'Name', 'FB_tauy_vs_q'; 'Renderer', 'painters'; 'Position', [pos_spread(10, :) dim2];};

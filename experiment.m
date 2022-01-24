@@ -65,7 +65,7 @@ classdef experiment < handle
       % alpha_out = approx_deriv_weighted_central(log(obj.Re_s), log(obj.cf)) + 2;
       % alpha_out = approx_deriv_1stO_legrangian(log(obj.Re_s), log(obj.cf)) + 2;
 
-      % alpha_out = approx_deriv_weighted_central(log(obj.Re_s), log(obj.G));
+      alpha_out = approx_deriv_weighted_central(log(obj.Re_s), log(obj.G));
       % alpha_out = approx_deriv_1stO_legrangian(log(obj.Re_s), log(obj.G));
 
     end

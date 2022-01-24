@@ -1,18 +1,10 @@
-classdef Q49 < fluid
+classdef glass113 < fluid
   properties
-    q_inc = 0.2;
-    tau_static = 159.582557507215e+000;
+    q_inc = 1.4;
+    tau_static = 225.046219998818e+000;
 
     Q;
     q;
-
-    %% specific to Abhi's experiment
-    RD_flow_lmin;
-    RU_flow_lmin;
-    RD_torque;
-    RU_torque;
-    RD_rpm;
-    RU_rpm;
 
     mu_flow_lmin;
 
@@ -30,35 +22,40 @@ classdef Q49 < fluid
     sim_appmu;
   end
   methods
-    function obj = Q49(name_, color_)
+    function obj = glass113(name_, color_, phi_)
       obj@fluid(name_, color_);
-      obj.phi = 0.50;
+      obj.phi = phi_;
       obj.phi_m = 0.5869;
       obj.rho_p = 2500;
       obj.rho_f = 1.225;
+
     end
-    function process_raw(obj, raw_)
+    function process_raw(obj, raw)
       obj.rho_b = obj.rho_p * obj.phi + obj.rho_f*(1.0-obj.phi);
 
-      obj.RD_flow_lmin = raw_(:, 2);
-      obj.RU_flow_lmin = raw_(:, 12);
-      obj.mu_flow_lmin = 0.5*(obj.RD_flow_lmin + flip(obj.RU_flow_lmin));
+      obj.range_array_full = obj.range_finder_old(raw);
+      obj.range_array = obj.steady_state(obj.range_array_full, raw);
+      raw_ = obj.spike_filter(obj.range_array, raw);
 
-      obj.Q = mean([obj.RD_flow_lmin; obj.RU_flow_lmin]);
+      obj.mu_torque = zeros(length(obj.range_array), 1);
+      obj.sigma_torque = zeros(length(obj.range_array), 1);
+      obj.mu_flow_lmin = zeros(length(obj.range_array), 1);
+      obj.mu_rpm = zeros(length(obj.range_array), 1);
+      obj.time_durations = zeros(length(obj.range_array), 1);
+      obj.meas_points = zeros(length(obj.range_array), 1);
 
-      obj.q = obj.Q/obj.q_inc;
-
-      obj.RD_torque = raw_(:, 3)/1000^(2); % in Newton meters
-      obj.RU_torque = raw_(:, 13)/1000^(2);
-      obj.mu_torque = 0.5*(obj.RU_torque + flip(obj.RD_torque));
-      obj.sigma_torque = (std([obj.RD_torque, flip(obj.RU_torque)]'))'/1000^(2);
-
-      obj.RD_rpm = raw_(:, 4);
-      obj.RU_rpm = raw_(:, 14);
-      obj.mu_rpm = 0.5*(obj.RU_rpm + flip(obj.RD_rpm));
-
+      for i = 1:length(obj.range_array)
+          obj.mu_torque(i) = mean(raw_(obj.range_array(1, i):obj.range_array(2, i),3)/1000^(2), 'omitnan');
+          obj.sigma_torque(i) = std(raw_(obj.range_array(1, i):obj.range_array(2, i),3)/1000^(2), 'omitnan');
+          obj.mu_flow_lmin(i) = mean(raw_(obj.range_array(1, i):obj.range_array(2, i),2), 'omitnan');
+          obj.mu_rpm(i) = mean(raw_(obj.range_array(1, i):obj.range_array(2, i), 6), 'omitnan');
+          obj.time_durations(i) = raw_(obj.range_array_full(2, i), 8) - raw_(obj.range_array_full(1, i), 8);
+          obj.meas_points(i) = raw_(obj.range_array_full(2, i), 1) - raw_(obj.range_array_full(1, i), 1);
+      end
       obj.omega = 2*pi/60*obj.mu_rpm;
       obj.tau = obj.mu_torque/(2*pi*(obj.r_i^2)*obj.h);
+      obj.Q = mean(obj.mu_flow_lmin);
+      obj.q = obj.Q/obj.q_inc;
 
       obj.compute_tau_y;
       obj.compute_appmu;
@@ -67,6 +64,54 @@ classdef Q49 < fluid
       obj.compute_gamma_S_bingham;
       obj.compute_Re_s;
       obj.G = obj.mu_torque/((obj.h)*(obj.mu_p*obj.mu_p)/(obj.rho_b));
+    end
+
+    function steady_array = steady_state(obj, range_array, raw)
+      steady_array = range_array;
+      steady_value = zeros(1, length(range_array));
+      steady_dev = zeros(1, length(range_array));
+      for i = 1:length(range_array)
+          steady_array(1, i) = range_array(2, i)-round((range_array(2, i)-range_array(1, i))*(0.90));
+          steady_value(i) = mean(raw(steady_array(1, i):steady_array(2, i), 3), 'omitnan');
+          steady_dev(i) = std(raw(steady_array(1, i):steady_array(2, i), 3), 'omitnan');
+      end
+      for i = 1:length(steady_array)
+          for j =  range_array(1, i):range_array(2, i)
+              if abs(raw(j, 3) - steady_value(i)) < 1*steady_dev(i)
+                  steady_array(1, i) = j;
+                  break
+              else
+                  continue
+              end
+          end
+      end
+    end
+    function new_raw = spike_filter(obj, steady_array, raw )
+      new_raw = raw;
+      steady_value = zeros(1, length(steady_array));
+      steady_dev = zeros(1, length(steady_array));
+      threshold = 2.0;
+      for i = 1:length(steady_array)
+          for j = steady_array(1, i):steady_array(2, i)
+              if raw(j, 3) < 0
+                  new_raw(j, 3) = NaN;
+              end
+          end
+      end
+      for i = 1:length(steady_array)
+          % steady_value(i) = nanmean(raw(steady_array(1, i):steady_array(2, i), 3));
+          % steady_dev(i) = nanstd(raw(steady_array(1, i):steady_array(2, i), 3));
+          steady_value(i) = mean(raw(steady_array(1, i):steady_array(2, i), 3), 'omitnan');
+          steady_dev(i) = std(raw(steady_array(1, i):steady_array(2, i), 3), 'omitnan');
+      end
+      for i = 1:length(steady_array)
+          for j = steady_array(1, i):steady_array(2, i)
+              if abs(raw(j, 3)-steady_value(i)) > threshold*steady_dev(i)
+                  new_raw(j, 3) = NaN;
+              end
+          end
+      end
+
     end
     function fig_out = plot_torques(obj, position)
       run figure_properties.m
@@ -95,6 +140,7 @@ classdef Q49 < fluid
       end
       obj.tau_c = ((r_i/r_o)^(-2))*(obj.tau_y);
     end
+
     function compute_appmu(obj)
       r_i = obj.r_i;
       r_o = obj.r_o;
@@ -110,7 +156,7 @@ classdef Q49 < fluid
           obj.appmu(i) = (obj.tau_y*log(obj.tau_y / obj.tau(i)) + 0.5*obj.tau(i)*(1 + (r_i/r_c)^2 ) )/obj.omega(i);
       end
     end
-    function compute_mu_plastic(obj);
+    function compute_mu_plastic(obj)
       obj.appmu_min = min(obj.appmu);
       obj.omega_appmu_min = obj.omega(find(obj.appmu == obj.appmu_min));
       obj.mu_p = obj.appmu_min;
@@ -129,7 +175,6 @@ classdef Q49 < fluid
         obj.mu_p = obj.appmu_min_sim;
         obj.omega_p = obj.omega_appmu_min_sim;
       end
-
     end
     function compute_gamma_S_bingham(obj)
       obj.gamma = zeros(size(obj.omega));
@@ -159,7 +204,7 @@ classdef Q49 < fluid
       end
     end
     function string_out = label(obj)
-      string_out = ['FB2 q=', num2str(round( obj.q, 1))];
+      string_out = ['FB1 q=', num2str(round( obj.q, 1))];
     end
   end
 end

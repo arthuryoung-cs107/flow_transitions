@@ -4,7 +4,7 @@ classdef experiment < handle
     color;
     specs;
     LW = 1.0;
-    MS = 5.0; 
+    MS = 5.0;
 
     mu_torque;
     sigma_torque;
@@ -62,23 +62,12 @@ classdef experiment < handle
       Latex_label = ['$$' obj.label '$$'];
     end
     function alpha_out = alpha(obj)
-      n = length(obj.Re_s);
-      alpha_out = nan(size(obj.cf));
-      logcf = log(obj.cf);
-      logRe = log(obj.Re_s);
+      % alpha_out = approx_deriv_weighted_central(log(obj.Re_s), log(obj.cf)) + 2;
+      % alpha_out = approx_deriv_1stO_legrangian(log(obj.Re_s), log(obj.cf)) + 2;
 
-      h1 = logRe(2)-logRe(1);
-      h2 = logRe(3)-logRe(2);
-      alpha_out(1) = -(2*h1+h2)/(h1*(h1+h2))*logcf(1) + (h1+h2)/(h1*h2)*logcf(2) - (h1)/(h2*(h1+h2))*logcf(3);
-      for i=2:(n-1)
-        h1 = logRe(i)-logRe(i-1);
-        h2 = logRe(i+1)-logRe(i);
-        alpha_out(i) = -(h2)/(h1*(h1+h2))*logcf(i-1) - (h1-h2)/(h1*h2)*logcf(i) + (h1)/(h2*(h1+h2))*logcf(i+1);
-      end
-      h1 = logRe(n-1)-logRe(n-2);
-      h2 = logRe(n)-logRe(n-1);
-      alpha_out(n) = (h2)/(h1*(h1+h2))*logcf(n-2) - (h1+h2)/(h1*h2)*logcf(n-1) + (h1+2*h2)/(h2*(h1+h2))*logcf(n);
-      alpha_out = alpha_out + 2;
+      % alpha_out = approx_deriv_weighted_central(log(obj.Re_s), log(obj.G));
+      % alpha_out = approx_deriv_1stO_legrangian(log(obj.Re_s), log(obj.G));
+
     end
     function Res_out = Re_s_alpha(obj)
       Res_out = obj.Re_s;
@@ -112,4 +101,52 @@ function prime_vec = approx_deriv_2ndO_legrangian(t, x)
         c = polyfit(t(i:i+3),x(i:i+3),1);
         prime_vec(i) = c(1);
     end
+end
+
+function prime_vec = approx_deriv_1stO_legrangian(t_in, x_in)
+  n = length(t_in);
+  prime_vec = nan(size(x_in));
+
+  h1 = t_in(2)-t_in(1);
+  h2 = t_in(3)-t_in(2);
+  prime_vec(1) = -(2*h1+h2)/(h1*(h1+h2))*x_in(1) + (h1+h2)/(h1*h2)*x_in(2) - (h1)/(h2*(h1+h2))*x_in(3);
+  for i=2:(n-1)
+    h1 = t_in(i)-t_in(i-1);
+    h2 = t_in(i+1)-t_in(i);
+    prime_vec(i) = -(h2)/(h1*(h1+h2))*x_in(i-1) - (h1-h2)/(h1*h2)*x_in(i) + (h1)/(h2*(h1+h2))*x_in(i+1);
+  end
+  h1 = t_in(n-1)-t_in(n-2);
+  h2 = t_in(n)-t_in(n-1);
+  prime_vec(n) = (h2)/(h1*(h1+h2))*x_in(n-2) - (h1+h2)/(h1*h2)*x_in(n-1) + (h1+2*h2)/(h2*(h1+h2))*x_in(n);
+end
+
+function prime_vec = approx_deriv_weighted_central(t_in, x_in)
+  n = length(t_in);
+  prime_vec = nan(size(x_in));
+
+  x = reshape(x_in(1:5), [1 5]);
+  t = reshape(t_in(1:5), [1 5]);
+
+  x_hat = [t(2) t(3) t(4) t(5)];
+  t_hat = [x(2) x(3) x(4) x(5)];
+  w = (abs((0.5*(t_hat + t(1)))-t(1))).^(-1);
+  m = sign(t(1)-t_hat).*((x(1)-x_hat))./(t(1)-t_hat);
+  prime_vec(1) = (sum(w.*m))/(sum(w));
+
+  x_hat = [t(1) t(3) t(4) t(5)];
+  t_hat = [x(1) x(3) x(4) x(5)];
+  w = (abs((0.5*(t_hat + t(1)))-t(1))).^(-1);
+  m = sign(t(1)-t_hat).*((x(1)-x_hat))./(t(1)-t_hat);
+  prime_vec(2) = (sum(w.*m))/(sum(w));
+  for i=3:(n-2)
+    x = reshape(x_in(i-2:i+2), [1 5]);
+    t = reshape(t_in(i-2:i+2), [1 5]);
+    x_hat = [t(1) t(2) t(4) t(5)];
+    t_hat = [x(1) x(2) x(4) x(5)];
+    w = (abs((0.5*(t_hat + t(3)))-t(3))).^(-1);
+    m = sign(t(3)-t_hat).*((x(3)-x_hat))./(t(3)-t_hat);
+
+    prime_vec(i) = (sum(w.*m))/(sum(w));
+  end
+
 end

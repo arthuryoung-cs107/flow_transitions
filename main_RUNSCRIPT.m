@@ -7,11 +7,11 @@ name_list_113micron = {'FB 113 microns, Q = 1.00 l/min'; 'FB 113 microns, Q = 1.
 
 phi_vec_113microns = [0.5541; 0.5541; 0.5541; 0.5541; 0.5524; 0.5503; 0.5482; 0.5460; 0.5439; 0.5418];
 
-Q113_all = Q113.empty(size(name_list_113micron, 1), 0);
+glass113_all = glass113.empty(size(name_list_113micron, 1), 0);
 for i = 1:size(name_list_113micron, 1)
-  Q113_all(i) = Q113(name_list_113micron{i}, pink(i, :), phi_vec_113microns(i));
+  glass113_all(i) = glass113(name_list_113micron{i}, pink(i, :), phi_vec_113microns(i));
 end
-FB1 = FB_experiment(Q113_all, 'FB1', pink(1, :), '*', '113 micron glass beads');
+FB1 = FB_experiment(glass113_all, 'FB1', pink(1, :), '*', '113 micron glass beads');
 FB1.LW = 0.5;
 FB1.process_raws(raw_113micron_Qall_structure)
 
@@ -19,12 +19,12 @@ FB1.process_raws(raw_113micron_Qall_structure)
 load ./raw_data_structures/FB2_rawdata.mat;
 name_list_49micron = {'FB 49 microns, Q = 0.00 l/min'; 'FB 49 microns, Q = 0.05 l/min'; 'FB 49 microns, Q = 0.10 l/min'; 'FB 49 microns, Q = 0.15 l/min' ; 'FB 49 microns, Q = 0.30 l/min' ; 'FB 49 microns, Q = 0.50 l/min' ; 'FB 49 microns, Q = 0.75 l/min' ; 'FB 49 microns, Q = 1.00 l/min' ; 'FB 49 microns, Q = 1.25 l/min' ; 'FB 49 microns, Q = 1.50 l/min' ; 'FB 49 microns, Q = 2.00 l/min' ; 'FB 49 microns, Q = 2.50 l/min' ; 'FB 49 microns, Q = 3.00 l/min'};
 
-Q49_all = Q49.empty(size(name_list_49micron, 1), 0);
+glass49_all = glass49.empty(size(name_list_49micron, 1), 0);
 for i = 1:size(name_list_49micron, 1)
-  Q49_all(i) = Q49(name_list_49micron{i}, blue14(i, :));
+  glass49_all(i) = glass49(name_list_49micron{i}, blue14(i, :));
 end
-% FB2 = FB_experiment(Q49_all, 'FB1', blue14(1, :), '*', '49 micron glass beads');
-FB2 = FB_experiment(Q49_all, 'FB1', blue14(1, :), 'x', '49 micron glass beads');
+% FB2 = FB_experiment(glass49_all, 'FB1', blue14(1, :), '*', '49 micron glass beads');
+FB2 = FB_experiment(glass49_all, 'FB1', blue14(1, :), 'x', '49 micron glass beads');
 FB2.process_raws(raw_FB2_structure)
 
 load ./raw_data_structures/PF1_rawdata.mat

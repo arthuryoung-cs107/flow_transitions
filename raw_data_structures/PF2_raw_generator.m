@@ -1,5 +1,5 @@
 clear
-path = '/Users/Arthur/Documents/anton_parr/';
+path = './anton_parr_data/';
 filename = 'Arthur_9_30_2019 7_20 PM_NB_density_long_laminar_run';
 
 raw_PF2_1 = rheometer_excel_parser2018([path filename], 1);

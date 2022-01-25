@@ -1,5 +1,5 @@
 clear
-path = '/Users/Arthur/Documents/anton_parr/';
+path = './anton_parr_data/';
 filename = 'Arthur_1_15_2020 3_46 PM_NB_rigor_30frac_PREMIX2.xlsx';
 
 raw_NB2_1 = rheometer_excel_parser2018([path filename], 1);

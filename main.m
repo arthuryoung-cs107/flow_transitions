@@ -8,24 +8,39 @@ run main_RUNSCRIPT.m
 %%%%%%%% --------------------------------------------------------------------------------------------
 fig_num = 1;
 figs(fig_num) = AYfig.figure(fig_specs{fig_num});
-  set(gca, 'YScale', 'log')
-  set(gca, 'XScale', 'log')
-  % ylim([1e-8, 1e-3]);
-  % xlim([0.0628  100]);
-  hold on
-  box on;
+  tile_object = tiledlayout(1, 2);
 
-    errorbar(PF1.omega, PF1.mu_torque, PF1.sigma_torque, PF1.specs,'Color', PF1.color, 'LineWidth', PF1.LW, 'MarkerSize', PF1.MS)
-    errorbar(PFR.omega, PFR.mu_torque, PFR.sigma_torque, PFR.specs,'Color', PFR.color, 'LineWidth', PFR.LW, 'MarkerSize', PFR.MS)
-    errorbar(NB1.omega_full, NB1.mu_torque_full, NB1.sigma_torque_full, NB1.specs,'Color', NB1.color, 'LineWidth', NB1.LW, 'MarkerSize', NB1.MS)
-    errorbar(NB2.omega, NB2.mu_torque, NB2.sigma_torque, NB2.specs,'Color', NB2.color, 'LineWidth', NB2.LW, 'MarkerSize', NB2.MS)
-    errorbar(NB3.omega, NB3.mu_torque, NB3.sigma_torque, NB3.specs,'Color', NB3.color, 'LineWidth', NB3.LW, 'MarkerSize', NB3.MS)
+    axa = nexttile;
+    box on;
+    set(gca, 'YScale', 'log')
+    set(gca, 'XScale', 'log')
+    hold(axa, 'on');
+      errorbar(axa, PF1.omega, PF1.mu_torque, PF1.sigma_torque, PF1.specs,'Color', PF1.color, 'LineWidth', PF1.LW, 'MarkerSize', PF1.MS)
+      errorbar(axa, PFR.omega, PFR.mu_torque, PFR.sigma_torque, PFR.specs,'Color', PFR.color, 'LineWidth', PFR.LW, 'MarkerSize', PFR.MS)
+    ylabel('$$T_{avg}$$ [N.m]', 'Interpreter', 'LaTeX','FontSize',12)
+    xlabel('$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
+    labels = {PF1.label, PFR.label};
+    legend(labels,'Location', 'SouthEast', 'Interpreter', 'Latex');
+    textbox_a = annotation('textbox', textbox_pos2_a,   'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
+    textbox_a.FontSize = 16;
 
-  ylabel('$$T_{avg}$$ [N.m]', 'Interpreter', 'LaTeX','FontSize',12)
-  xlabel('$$\omega_{i}$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
+    axb = nexttile;
+    box on;
+    set(gca, 'YScale', 'log')
+    set(gca, 'XScale', 'log')
+    hold(axb, 'on');
+      errorbar(axb, NB1.omega_full, NB1.mu_torque_full, NB1.sigma_torque_full, NB1.specs,'Color', NB1.color, 'LineWidth', NB1.LW, 'MarkerSize', NB1.MS)
+      errorbar(axb, NB2.omega, NB2.mu_torque, NB2.sigma_torque, NB2.specs,'Color', NB2.color, 'LineWidth', NB2.LW, 'MarkerSize', NB2.MS)
+      errorbar(axb, NB3.omega, NB3.mu_torque, NB3.sigma_torque, NB3.specs,'Color', NB3.color, 'LineWidth', NB3.LW, 'MarkerSize', NB3.MS)
+    xlabel('$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
+    labels = {NB1.label, NB2.label, NB3.label};
+    legend(labels,'Location', 'SouthEast', 'Interpreter', 'Latex');
+    textbox_b = annotation('textbox', textbox_pos2_b,   'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none');
+    textbox_b.FontSize = 16;
 
-  labels = {PF1.label, PFR.label, NB1.label, NB2.label, NB3.label};
-  legend(labels,'Location', 'NorthWest', 'Interpreter', 'Latex');
+  axis([axa axb],omega_tau_range)
+  tile_object.TileSpacing = 'compact';
+  tile_object.Padding = 'compact';
 
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% -----------------------------------------   2  ---------------------------------------------
@@ -46,11 +61,10 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
       plot(axa, NB2.Re_s_noKD, NB2.G_rat_noKD, NB2.specs,'Color', NB2.color, 'LineWidth', NB2.LW, 'MarkerSize', NB2.MS)
       plot(axa, NB3.Re_s_noKD, NB3.G_rat_noKD, NB3.specs,'Color', NB3.color, 'LineWidth', NB3.LW, 'MarkerSize', NB3.MS)
 
-    ylabel('$$G_{rat} = \frac{G}{G_{cc}}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+    ylabel('$$G_{rat} = G/G_{cc}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
     xlabel('$$Re_s \textrm{ (PRE-KD effective viscosity)}$$', 'Interpreter', 'LaTeX','FontSize',12)
-    textbox_a = annotation('textbox', [0.15, 0.825, 0.1, 0.1],  'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
+    textbox_a = annotation('textbox', textbox_pos2_low_a,  'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
     textbox_a.FontSize = 16;
-
 
     axb = nexttile;
     box on;
@@ -69,11 +83,12 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
     xlabel('$$Re_s \textrm{ (POST-KD effective viscosity)}$$', 'Interpreter', 'LaTeX','FontSize',12)
     labels = {PF1.label, PFR.label, NB1.label, NB2.label, NB3.label, RM10.label, RM20.label};
     legend(labels,'Location', 'NorthWest', 'Interpreter', 'Latex');
-    textbox_b = annotation('textbox', [0.85, 0.825, 0.1, 0.1],  'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none');
+    textbox_b = annotation('textbox', textbox_pos2_low_b,  'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none');
     textbox_b.FontSize = 16;
 
-  axis([axa axb],[1e-1 2e4 0.8 1e2])
-
+  axis([axa axb],Res_Grat_range)
+  tile_object.TileSpacing = 'compact';
+  tile_object.Padding = 'compact';
 
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% -----------------------------------------   3  ---------------------------------------------
@@ -96,7 +111,7 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
     xlabel('$$Re_s$$', 'Interpreter', 'LaTeX','FontSize',12)
     labels = {'$$ \frac{1}{\eta Re_s} $$', PF1.label, PFR.label, NB1.label, NB2.label, NB3.label, RK.label};
     legend(labels,'Location', 'NorthEast', 'Interpreter', 'Latex');
-    textbox_c = annotation('textbox', [0.12, 0.07, 0.1, 0.1],   'Interpreter', 'LaTeX', 'String', 'c)', 'LineStyle', 'none');
+    textbox_c = annotation('textbox', textbox_pos21_c,   'Interpreter', 'LaTeX', 'String', 'c)', 'LineStyle', 'none');
     textbox_c.FontSize = 16;
 
     axa = axes('Position', ax21(2, :));
@@ -112,7 +127,7 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
     xlabel('$$Re_s$$', 'Interpreter', 'LaTeX','FontSize',12)
     labels = {RV.label, LSa.label, LSb.label};
     legend(labels,'Location', 'SouthEast', 'Interpreter', 'Latex');
-    textbox_a = annotation('textbox', [0.12, 0.875, 0.1, 0.1], 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
+    textbox_a = annotation('textbox', textbox_pos21_a, 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
     textbox_a.FontSize = 16;
     %
     axb = axes('Position', ax21(3, :));
@@ -125,13 +140,11 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
     xlabel('$$Re_s$$', 'Interpreter', 'LaTeX','FontSize',12)
     labels = {NB1.label, NB2.label, NB3.label};
     legend(labels,'Location', 'SouthEast', 'Interpreter', 'Latex');
-    textbox_b = annotation('textbox', [0.55, 0.875, 0.1, 0.1],   'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none');
+    textbox_b = annotation('textbox', textbox_pos21_b,   'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none');
     textbox_b.FontSize = 16;
 
-  axis(axc,[1e-1 1e4 1e-4 1e4])
-  axis([axa axb],[1e0 5e5 0.9 2])
-
-
+    axis(axc,Res_cf_range)
+    axis([axa axb], Res_alpha_range)
 
 
 %%%%%%%% --------------------------------------------------------------------------------------------
@@ -152,7 +165,7 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
     xlabel('$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
     labels = {UB1.label, UB2.label};
     legend(labels,'Location', 'SouthEast', 'Interpreter', 'Latex');
-    textbox_a = annotation('textbox', [0.10, 0.85, 0.1, 0.1],   'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
+    textbox_a = annotation('textbox', textbox_pos2_a,   'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
     textbox_a.FontSize = 16;
 
     axb = nexttile;
@@ -165,10 +178,10 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
     xlabel('$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
     labels = {XB1.label, XB2.label};
     legend(labels,'Location', 'SouthEast', 'Interpreter', 'Latex');
-    textbox_b = annotation('textbox', [0.575, 0.85, 0.1, 0.1],   'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none');
+    textbox_b = annotation('textbox', textbox_pos2_b,   'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none');
     textbox_b.FontSize = 16;
 
-  axis([axa axb],[1e-2 2e2 1e-6 1e-2])
+  axis([axa axb],omega_tau_range)
   tile_object.TileSpacing = 'compact';
   tile_object.Padding = 'compact';
 
@@ -192,7 +205,7 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
   xlabel('$$Re_s$$', 'Interpreter', 'LaTeX','FontSize',12)
   labels = {'$$ \frac{1}{\eta Re_s} $$', UB1.label, UB2.label, XB1.label, XB2.label};
   legend(labels,'Location', 'NorthEast', 'Interpreter', 'Latex');
-  textbox_c = annotation('textbox', [0.12, 0.07, 0.1, 0.1],   'Interpreter', 'LaTeX', 'String', 'c)', 'LineStyle', 'none');
+  textbox_c = annotation('textbox', textbox_pos21_c, 'Interpreter', 'LaTeX', 'String', 'c)', 'LineStyle', 'none');
   textbox_c.FontSize = 16;
 
   axa = axes('Position', ax21(2, :));
@@ -207,7 +220,7 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
   xlabel('$$Re_s$$', 'Interpreter', 'LaTeX','FontSize',12)
   labels = {UB1.label, UB2.label};
   legend(labels,'Location', 'SouthEast', 'Interpreter', 'Latex');
-  textbox_a = annotation('textbox', [0.12, 0.875, 0.1, 0.1], 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
+  textbox_a = annotation('textbox', textbox_pos21_a, 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
   textbox_a.FontSize = 16;
   %
   axb = axes('Position', ax21(3, :));
@@ -221,11 +234,11 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
   xlabel('$$Re_s$$', 'Interpreter', 'LaTeX','FontSize',12)
   labels = {XB1.label, XB2.label};
   legend(labels,'Location', 'SouthEast', 'Interpreter', 'Latex');
-  textbox_b = annotation('textbox', [0.55, 0.875, 0.1, 0.1],   'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none');
+  textbox_b = annotation('textbox', textbox_pos21_b, 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none');
   textbox_b.FontSize = 16;
 
-  axis(axc,[1e-1 1e4 1e-4 1e4])
-  axis([axa axb],[1e0 5e5 -1 2])
+  axis(axc,Res_cf_range)
+  axis([axa axb], Res_alpha_range)
 
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% -----------------------------------------   6  ---------------------------------------------
@@ -247,7 +260,7 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
   ylabel('$$G$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
   labels = {'$$ \frac{2 \pi r_i r_o}{(r_o-r_i)^2} Re_s $$', PF1.label, PFR.label, 'PF1 $$\beta Re_s^{\alpha}$$', 'PF2 $$\beta Re_s^{\alpha}$$'};
   legend(labels,'Location', 'NorthWest', 'Interpreter', 'Latex');
-  textbox_a = annotation('textbox', [0.4, 0.675, 0.1, 0.1],   'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
+  textbox_a = annotation('textbox', textbox_pos222_a, 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
   textbox_a.FontSize = 16;
 
   axb = axes('Position', ax222(2, :));
@@ -264,7 +277,7 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
 
   labels = {'$$ \frac{2 \pi r_i r_o}{(r_o-r_i)^2} Re_s $$', NB1.label, NB2.label, NB3.label, 'NB $$\beta Re_s^{\alpha}$$'};
   legend(labels,'Location', 'NorthWest', 'Interpreter', 'Latex');
-  textbox_b = annotation('textbox', [0.9, 0.675, 0.1, 0.1],   'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none');
+  textbox_b = annotation('textbox', textbox_pos222_b, 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none');
   textbox_b.FontSize = 16;
 
   axc = axes('Position', ax222(3, :));
@@ -281,7 +294,7 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
   ylabel('$$G$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
   labels = {'$$ \frac{2 \pi r_i r_o}{(r_o-r_i)^2} Re_s $$', UB1.label, UB2.label, 'UB $$\beta Re_s^{\alpha}$$'};
   legend(labels,'Location', 'NorthWest', 'Interpreter', 'Latex');
-  textbox_c = annotation('textbox', [0.4, 0.35, 0.1, 0.1],   'Interpreter', 'LaTeX', 'String', 'c)', 'LineStyle', 'none');
+  textbox_c = annotation('textbox', textbox_pos222_c, 'Interpreter', 'LaTeX', 'String', 'c)', 'LineStyle', 'none');
   textbox_c.FontSize = 16;
 
   axd = axes('Position', ax222(4, :));
@@ -297,7 +310,7 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
 
   labels = {'$$ \frac{2 \pi r_i r_o}{(r_o-r_i)^2} Re_s $$', XB1.label, XB2.label, 'XB $$\beta Re_s^{\alpha}$$'};
   legend(labels,'Location', 'NorthWest', 'Interpreter', 'Latex');
-  textbox_d = annotation('textbox', [0.9, 0.35, 0.1, 0.1],   'Interpreter', 'LaTeX', 'String', 'd)', 'LineStyle', 'none');
+  textbox_d = annotation('textbox', textbox_pos222_d, 'Interpreter', 'LaTeX', 'String', 'd)', 'LineStyle', 'none');
   textbox_d.FontSize = 16;
 
   axe = axes('Position', ax222(5, :));
@@ -314,7 +327,7 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
 
   ylabel('$$G$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
   xlabel('$$Re_s$$', 'Interpreter', 'LaTeX','FontSize',12)
-  textbox_e = annotation('textbox', [0.4, 0.025, 0.1, 0.1],   'Interpreter', 'LaTeX', 'String', 'e)', 'LineStyle', 'none');
+  textbox_e = annotation('textbox', textbox_pos222_e, 'Interpreter', 'LaTeX', 'String', 'e)', 'LineStyle', 'none');
   textbox_e.FontSize = 16;
 
   axf = axes('Position', ax222(6, :));
@@ -325,15 +338,15 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
 
     fplot(axf, @(Re) G_obs_Res_slope*(Re), [1e-2 70],'--', 'Color', [0 0 0],'Linewidth', 2)
     for i=1:length(FB2.exp)
-      plot(axf, FB2.exp(i).Re_s, FB2.exp(i).G, FB2.specs, 'Color', FB2.exp(i).color,'LineWidth', 1, 'MarkerSize', 5.0, 'MarkerSize', 5)
+      plot(axf, FB2.exp(i).Re_s, FB2.exp(i).G, FB2.specs, 'Color', FB2.exp(i).color,'LineWidth', FB2.LW, 'MarkerSize', FB2.MS)
     end
     fplot(axf, @(Re) (FB2.powerfit.b).*(Re).^(FB2.powerfit.m), [71 10000],'-', 'Color', FB2.color,'Linewidth', 2, 'DisplayName', 'FB2 $$\beta Re_s^{\alpha}$$');
 
   xlabel('$$Re_s$$', 'Interpreter', 'LaTeX','FontSize',12)
-  textbox_f = annotation('textbox', [0.9, 0.025, 0.1, 0.1],   'Interpreter', 'LaTeX', 'String', 'f)', 'LineStyle', 'none');
+  textbox_f = annotation('textbox', textbox_pos222_f, 'Interpreter', 'LaTeX', 'String', 'f)', 'LineStyle', 'none');
   textbox_f.FontSize = 16;
 
-  axis([axa axb axc axd axe axf],[1e-2 2e4 1e-1 1e8])
+  axis([axa axb axc axd axe axf],Res_G_range)
 
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% -----------------------------------------   7  ---------------------------------------------
@@ -356,8 +369,8 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
       end
     ylabel('$$T_{avg}$$ [N.m]', 'Interpreter', 'LaTeX','FontSize',12)
     xlabel('$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
-    legend('Show', 'Location', 'SouthEast')
-    textbox_a = annotation('textbox', [0.1, 0.2, 0.1, 0.1],   'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
+    % legend('Show', 'Location', 'SouthEast')
+    textbox_a = annotation('textbox', textbox_pos2_low_a, 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
     textbox_a.FontSize = 16;
 
     axb = nexttile;
@@ -368,17 +381,14 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
     for i = 1:length(FB2.exp)
         errorbar(axb, FB2.exp(i).omega, FB2.exp(i).mu_torque, FB2.exp(i).sigma_torque, FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW, 'MarkerSize', FB2.MS, 'DisplayName', FB2.exp(i).label)
     end
-    ylabel('$$T_{avg}$$ [N.m]', 'Interpreter', 'LaTeX','FontSize',12)
     xlabel('$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
-    legend('Show', 'Location', 'SouthEast')
-    textbox_b = annotation('textbox', [0.6, 0.2, 0.1, 0.1],   'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none');
+    % legend('Show', 'Location', 'SouthEast')
+    textbox_b = annotation('textbox', textbox_pos2_low_b,   'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none');
     textbox_b.FontSize = 16;
 
-    axis([axa axb],[1e-2 2e2 1e-8 1e-2])
+    axis([axa axb],omega_tau_range)
     tile_object.TileSpacing = 'compact';
     tile_object.Padding = 'compact';
-
-
 
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% -----------------------------------------   8  ---------------------------------------------
@@ -395,9 +405,9 @@ sub_figs(fig_num) = AYfig.figure(fig_specs{fig_num});
       for i = 1:length(FB1.exp)
         plot(axa, FB1.exp(i).omega, FB1.exp(i).appmu, FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW, 'MarkerSize', FB1.MS, 'DisplayName', FB1.exp(i).label)
       end
-    ylabel('$$\mu_{app} [Pa.s]$$', 'Interpreter', 'LaTeX','FontSize',12)
+    ylabel('$$\mu_{app}$$ [Pa.s]', 'Interpreter', 'LaTeX','FontSize',12)
     xlabel('$$\omega_{i} [rad/s]$$', 'Interpreter', 'LaTeX','FontSize',12)
-    textbox_a = annotation('textbox', [0.1, 0.2, 0.1, 0.1],  'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
+    textbox_a = annotation('textbox', textbox_pos2_low_a,  'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
     textbox_a.FontSize = 16;
 
     axb = nexttile;
@@ -408,12 +418,11 @@ sub_figs(fig_num) = AYfig.figure(fig_specs{fig_num});
       for i = 1:length(FB2.exp)
           plot(axb, FB2.exp(i).omega, FB2.exp(i).appmu, FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW, 'MarkerSize', FB2.MS, 'DisplayName', FB2.exp(i).label)
       end
-    ylabel('$$\mu_{app} [Pa.s]$$', 'Interpreter', 'LaTeX','FontSize',12)
     xlabel('$$\omega_{i} [rad/s]$$', 'Interpreter', 'LaTeX','FontSize',12)
-    textbox_b = annotation('textbox', [0.6, 0.2, 0.1, 0.1],  'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none');
+    textbox_b = annotation('textbox', textbox_pos2_low_b,  'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none');
     textbox_b.FontSize = 16;
 
-  axis([axa axb],[1e-2 2e2 1e-2 2e4])
+  axis([axa axb],omega_appmu_range)
   tile_object.TileSpacing = 'compact';
   tile_object.Padding = 'compact';
 
@@ -430,9 +439,9 @@ sub_figs(fig_num) = AYfig.figure(fig_specs{fig_num});
       for i = 1:length(FB1.exp)
           plot(axa, FB1.exp(i).q, FB1.exp(i).mu_p, FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW_L, 'MarkerSize', FB1.MS_L, 'DisplayName', FB1.exp(i).label)
       end
-    ylabel('$$\tilde{\mu}_{p} [Pa.s]$$', 'Interpreter', 'LaTeX','FontSize',12)
+    ylabel('$$\tilde{\mu}_{p}$$ [Pa.s]', 'Interpreter', 'LaTeX','FontSize',12)
     xlabel('$$q = \frac{Q}{Q_{inc}}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
-    textbox_a = annotation('textbox', [0.1, 0.85, 0.1, 0.1],  'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
+    textbox_a = annotation('textbox', textbox_pos2_a,  'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
     textbox_a.FontSize = 16;
 
     axb = nexttile;
@@ -441,9 +450,8 @@ sub_figs(fig_num) = AYfig.figure(fig_specs{fig_num});
       for i = 1:length(FB2.exp)
           plot(axb, FB2.exp(i).q, FB2.exp(i).mu_p, FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW_L, 'MarkerSize', FB2.MS_L, 'DisplayName', FB2.exp(i).label)
       end
-    ylabel('$$\tilde{\mu}_{p} [Pa.s]$$', 'Interpreter', 'LaTeX','FontSize',12)
-    xlabel('$$q = \frac{Q}{Q_{inc}}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
-    textbox_b = annotation('textbox', [0.6, 0.85, 0.1, 0.1], 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none');
+    xlabel('$$q = Q/Q_{inc}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+    textbox_b = annotation('textbox', textbox_pos2_b, 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none');
     textbox_b.FontSize = 16;
 
   axis(axa,[0 2 0 1.0])
@@ -452,7 +460,7 @@ sub_figs(fig_num) = AYfig.figure(fig_specs{fig_num});
   tile_object.Padding = 'compact';
 
 %%%%%%%% --------------------------------------------------------------------------------------------
-%%%%%%%% ----------------------------   SUB FIG 3  ---------------------------------------------
+%%%%%%%% -----------------------------------------  10  ---------------------------------------------
 %%%%%%%% --------------------------------------------------------------------------------------------
 fig_num = 10;
 sub_figs(fig_num) = AYfig.figure(fig_specs{fig_num});
@@ -464,9 +472,9 @@ sub_figs(fig_num) = AYfig.figure(fig_specs{fig_num});
       for i = 1:length(FB1.exp)
           plot(axa, FB1.exp(i).q, (FB1.exp(i).tau_y)/(FB1.exp(i).tau_static), FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW_L, 'MarkerSize', FB1.MS_L, 'DisplayName', FB1.exp(i).label)
       end
-    ylabel('$$\frac{\tau_y}{\tau_{q = 0}}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
-    xlabel('$$q = \frac{Q}{Q_{inc}}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
-    textbox_a = annotation('textbox', [0.1, 0.85, 0.1, 0.1],  'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
+    ylabel('$$\tau_y/\tau_{q = 0}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+    xlabel('$$q = Q/Q_{inc}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+    textbox_a = annotation('textbox', textbox_pos2_a,  'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
     textbox_a.FontSize = 16;
 
     axb = nexttile;
@@ -475,9 +483,8 @@ sub_figs(fig_num) = AYfig.figure(fig_specs{fig_num});
       for i = 1:length(FB2.exp)
           plot(axb, FB2.exp(i).q, (FB2.exp(i).tau_y)/(FB2.exp(i).tau_static), FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW_L, 'MarkerSize', FB2.MS_L, 'DisplayName', FB2.exp(i).label)
       end
-    ylabel('$$\frac{\tau_y}{\tau_{q = 0}}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
-    xlabel('$$q = \frac{Q}{Q_{inc}}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
-    textbox_b = annotation('textbox', [0.6, 0.85, 0.1, 0.1],  'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none');
+    xlabel('$$q = Q/Q_{inc}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+    textbox_b = annotation('textbox', textbox_pos2_b,  'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none');
     textbox_b.FontSize = 16;
 
   axis(axa,[0 2 0 1.2])

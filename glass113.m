@@ -99,8 +99,6 @@ classdef glass113 < fluid
           end
       end
       for i = 1:length(steady_array)
-          % steady_value(i) = nanmean(raw(steady_array(1, i):steady_array(2, i), 3));
-          % steady_dev(i) = nanstd(raw(steady_array(1, i):steady_array(2, i), 3));
           steady_value(i) = mean(raw(steady_array(1, i):steady_array(2, i), 3), 'omitnan');
           steady_dev(i) = std(raw(steady_array(1, i):steady_array(2, i), 3), 'omitnan');
       end

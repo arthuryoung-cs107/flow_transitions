@@ -1,5 +1,5 @@
 clear
-path = '/Users/Arthur/Documents/anton_parr/';
+path = './anton_parr_data/';
 filename = 'Arthur_10_16_2019 8_56 PM_XB107_40frac_laminar_turbulent_run.xlsx';
 
 raw_XB1_1 = rheometer_excel_parser2018([path filename], 1);

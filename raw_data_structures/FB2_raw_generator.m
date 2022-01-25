@@ -1,5 +1,5 @@
 clear
-path = '/Users/Arthur/Documents/anton_parr/';
+path = './anton_parr_data/';
 name = 'Abhi_49micron_data_sorted2';
 
 raw_FB2_1 = rheometer_excel_parser_Abhi([path name], 1);

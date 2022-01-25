@@ -1,6 +1,5 @@
 clear
-path = '/Users/Arthur/Documents/anton_parr/';
-filename = 'Arthur_1_16_2020 4_30 PM_PureLiq_NBdens_ProfileCyl.xlsx';
+path = './anton_parr_data/';
 
 raw_PF4_1 = rheometer_excel_parserCB([path 'Arthur_9_25_2019 6_17 PM_CB_NB_dens2'], 1);
 raw_PF4_2 = rheometer_excel_parserCB([path 'Arthur_9_25_2019 6_17 PM_CB_NB_dens2'], 2);

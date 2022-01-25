@@ -83,8 +83,8 @@ classdef lit_data < handle
       obj.color = [0 0 0];
       obj.specs = ' .';
       obj.label = 'RV';
-      obj.MS = 10;
-      obj.LW = 2;
+      obj.MS = 8;
+      obj.LW = 1;
       switch id
         case 'alpha' % lower range of Reynolds numbers
           data_Ravelet = dlmread('./data_directory/DataRavelet_alphaFig5in.txt');

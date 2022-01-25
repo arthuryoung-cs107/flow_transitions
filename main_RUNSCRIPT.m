@@ -27,6 +27,7 @@ for i = 1:size(name_list_49micron, 1)
   glass49_all(i) = glass49(name_list_49micron{i}, grey15(i, :));
 end
 FB2 = FB_experiment(glass49_all, 'FB1', grey15(1, :), 'x', '49 micron glass beads');
+FB2.MS = 5;
 FB2.LW = 0.5;
 FB2.LW_L = 2;
 FB2.def_pos = fig_pos12(2, :);

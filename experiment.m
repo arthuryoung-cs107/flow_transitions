@@ -3,8 +3,10 @@ classdef experiment < handle
     label;
     color;
     specs;
-    LW = 1.0;
-    MS = 5.0;
+    % LW = 1.0;
+    % MS = 5.0;
+    LW = 0.7;
+    MS = 3.5;
     def_pos;
 
     mu_torque;

@@ -125,7 +125,7 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
       plot(axa, PFR.Re_s_alpha, PFR.alpha, PFR.specs,'Color', PFR.color, 'LineWidth', PFR.LW, 'MarkerSize', PFR.MS)
     ylabel('$$\alpha$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
     xlabel('$$Re_s$$', 'Interpreter', 'LaTeX','FontSize',12)
-    labels = {RV.label, LSa.label, LSb.label};
+    labels = {RV.label, LSa.label, LSb.label, PF1.label, PFR.label};
     legend(labels,'Location', 'SouthEast', 'Interpreter', 'Latex');
     textbox_a = annotation('textbox', textbox_pos21_a, 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
     textbox_a.FontSize = 16;

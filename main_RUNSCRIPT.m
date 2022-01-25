@@ -1,4 +1,5 @@
 run figure_properties.m
+fig_pos12 = fig_pos_gen(2, 6);
 
 % % % 2018 DATA, re-run using new processing class
 load ./raw_data_structures/FB1_rawdata.mat
@@ -14,6 +15,7 @@ end
 FB1 = FB_experiment(glass113_all, 'FB1', grey15(1, :), '*', '113 micron glass beads');
 FB1.MS = 4;
 FB1.LW = 0.5;
+FB1.def_pos = fig_pos12(1, :);
 FB1.process_raws(raw_FB1_structure)
 
 % % % 2021 DATA, FROM ABHI
@@ -27,6 +29,7 @@ end
 FB2 = FB_experiment(glass49_all, 'FB1', grey15(1, :), 'x', '49 micron glass beads');
 FB2.LW = 0.5;
 FB2.LW_L = 2;
+FB2.def_pos = fig_pos12(2, :);
 FB2.process_raws(raw_FB2_structure)
 
 load ./raw_data_structures/PF1_rawdata.mat

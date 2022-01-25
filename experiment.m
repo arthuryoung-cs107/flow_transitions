@@ -83,7 +83,7 @@ classdef experiment < handle
       hold on
       set(gca, 'YScale', 'log')
       set(gca, 'XScale', 'log')
-      for i=1:obj.len
+      for i=1:length(obj.exp)
         plot(obj.exp(i).omega, obj.exp(i).mu_torque, '- o','Color', obj.exp(i).color, 'LineWidth', 1.5, 'DisplayName', obj.exp(i).name)
       end
       ylabel('$$T$$ [N.m]', 'Interpreter', 'LaTeX','FontSize',12)

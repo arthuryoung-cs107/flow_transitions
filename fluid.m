@@ -151,7 +151,6 @@ classdef fluid < handle
         plot(raw_(obj.range_array(1, i):obj.range_array(2, i), 1)/obj.meas_points(i), raw_(obj.range_array(1, i):obj.range_array(2, i), 3)/(1e6), ' -', 'Color', colors_big(i, :), 'LineWidth', 1.0, 'MarkerFaceColor', colors_big(i, :), 'MarkerEdgeColor', colors_big(i, :), 'DisplayName', [num2str(obj.mu_rpm(i))])
       end
       legend('Show', 'Location', 'NorthEast')
-
     end
     function range_array = range_finder( obj, raw_array )
       range_array = [];
@@ -174,6 +173,36 @@ classdef fluid < handle
       end
     end
     function range_array = range_finder_old( obj, raw_array )
+      one_ind_raw = find(raw_array(:, 1)==1);
+      n_raw = length(one_ind_raw);
+      n = 0;
+      for i=1:n_raw
+        if raw_array(one_ind_raw(i) + 1, 1) == 2
+          n = n + 1;
+          one_ind(n) = one_ind_raw(i);
+        end
+      end
+      range_array = zeros(2, n);
+      range_array(1, :) = one_ind;
+      for i=1:n-1
+        index = one_ind(i+1)-1;
+        search_on = true;
+        while search_on
+          if isnan(raw_array(index, 1))
+            index = index - 1;
+          else
+            if raw_array(index-1, 1) == (raw_array(index, 1)-1)
+              range_array(2, i) = index;
+              search_on = false;
+            else
+              index = index - 1;
+            end
+          end
+        end
+      end
+      range_array(2, n) = size(raw_array, 1);
+    end
+    function range_array = range_finder_weird( obj, raw_array )
       range_array = [7; 0];
       index_check = 0;
       for i = 7:length(raw_array)
@@ -230,8 +259,6 @@ classdef fluid < handle
       steady_dev = zeros(1, length(range_array));
       for i = 1:length(range_array)
         steady_array(1, i) = range_array(2, i)-round((range_array(2, i)-range_array(1, i))/3); % takes last third of the data range for steady state value
-        % steady_value(i) = nanmean(raw(steady_array(1, i):steady_array(2, i), 3)); % finds mean of last third of data range
-        % steady_dev(i) = nanstd(raw(steady_array(1, i):steady_array(2, i), 3)); % finds standard deviation of last third of data range
         steady_value(i) = mean(raw(steady_array(1, i):steady_array(2, i), 3), 'omitnan');
         steady_dev(i) = std(raw(steady_array(1, i):steady_array(2, i), 3), 'omitnan');
       end
@@ -300,8 +327,6 @@ classdef fluid < handle
       for i = 1:length(steady_array)
           steady_section(1, i) = steady_array(2, i)-round((steady_array(2, i)-steady_array(1, i))/3); % takes last fifth of the steady data range for steady state value
           raw(steady_section(1, i):steady_section(2, i), 3)
-          % steady_value(i) = nanmean(raw(steady_section(1, i):steady_section(2, i), 3)); % finds mean of last fifth of steady data range, torque
-          % steady_dev(i) = nanstd(raw(steady_section(1, i):steady_section(2, i), 3)); % finds standard deviation of last fifth of steady data range, torque
           steady_value(i) = mean(raw(steady_section(1, i):steady_section(2, i), 3), 'omitnan'); % finds mean of last fifth of steady data range, torque
           steady_dev(i) = std(raw(steady_section(1, i):steady_section(2, i), 3), 'omitnan'); % finds standard deviation of last fifth of steady data range, torque
       end

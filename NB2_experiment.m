@@ -19,7 +19,7 @@ classdef NB2_experiment < experiment
       phi = 0.3;
       rho_p = 1042.657;
       for i=1:length(exp_list_in)
-        obj.exp(i).range_finder_flag = 2;
+        % obj.exp(i).range_finder_flag = 2;        
         obj.exp(i).steady_state_flag = 3;
         obj.exp(i).mu_f = mu_f;
         obj.exp(i).rho_f = rho_f;

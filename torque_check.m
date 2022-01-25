@@ -1,9 +1,10 @@
 clear
 close all
-run figure_properties
+run figure_properties.m
 
 % % % 2018 DATA, re-run using new processing class
-load ./raw_data_structures/fluidization_113micron_rawdata.mat
+load ./raw_data_structures/FB1_rawdata.mat
+
 name_list_113micron = {'FB 113 microns, Q = 1.00 l/min'; 'FB 113 microns, Q = 1.20 l/min' ; 'FB 113 microns, Q = 1.40 l/min' ; 'FB 113 microns, Q = 1.60 l/min' ; 'FB 113 microns, Q = 1.80 l/min' ; 'FB 113 microns, Q = 2.00 l/min' ; 'FB 113 microns, Q = 2.20 l/min' ; 'FB 113 microns, Q = 2.40 l/min' ; 'FB 113 microns, Q = 2.60 l/min' ; 'FB 113 microns, Q = 2.80 l/min'};
 
 phi_vec_113microns = [0.5541; 0.5541; 0.5541; 0.5541; 0.5524; 0.5503; 0.5482; 0.5460; 0.5439; 0.5418];
@@ -15,7 +16,7 @@ end
 FB1 = FB_experiment(glass113_all, 'FB1', grey15(1, :), '*', '113 micron glass beads');
 FB1.MS = 4;
 FB1.LW = 0.5;
-FB1.process_raws(raw_113micron_Qall_structure)
+FB1.process_raws(raw_FB1_structure)
 
 % % % 2021 DATA, FROM ABHI
 load ./raw_data_structures/FB2_rawdata.mat;

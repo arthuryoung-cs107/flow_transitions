@@ -65,7 +65,6 @@ classdef glass113 < fluid
       obj.compute_Re_s;
       obj.G = obj.mu_torque/((obj.h)*(obj.mu_p*obj.mu_p)/(obj.rho_b));
     end
-
     function steady_array = steady_state(obj, range_array, raw)
       steady_array = range_array;
       steady_value = zeros(1, length(range_array));
@@ -109,8 +108,39 @@ classdef glass113 < fluid
               end
           end
       end
-
     end
+    function plot_raw_torques(obj, raw_, raw)
+      run figure_properties.m
+      fig_pos2 = fig_pos_gen(2, 2);
+      fig_full = figure('Name', 'full measuring period', 'Renderer', 'painters', 'Position', fig_pos2(1, :));
+      ylabel('Torque [N.m]')
+      xlabel('time')
+      xlim([0, 1.5]);
+      set(gca, 'YScale', 'log')
+      hold on
+
+      fig_trimmed = figure('Name', 'trimmed measuring period', 'Renderer', 'painters', 'Position', fig_pos2(3, :));
+      ylabel('Torque [N.m]')
+      xlabel('time')
+      xlim([0, 1.5]);
+      set(gca, 'YScale', 'log')
+      hold on
+
+      plot_range = 1:obj.dat_num;
+
+      figure(fig_full.Number)
+      for i = plot_range
+          plot(raw(obj.range_array_full(1, i):obj.range_array_full(2, i), 1)/obj.meas_points(i), raw(obj.range_array_full(1, i):obj.range_array_full(2, i), 3)/(1e6), ' -', 'Color', colors_big(i, :), 'LineWidth', 1.0, 'MarkerFaceColor', colors_big(i, :), 'MarkerEdgeColor', colors_big(i, :), 'DisplayName', [num2str(obj.mu_rpm(i))])
+      end
+      legend('Show', 'Location', 'NorthEast')
+
+      figure(fig_trimmed.Number)
+      for i = plot_range
+        plot(raw_(obj.range_array(1, i):obj.range_array(2, i), 1)/obj.meas_points(i), raw_(obj.range_array(1, i):obj.range_array(2, i), 3)/(1e6), ' -', 'Color', colors_big(i, :), 'LineWidth', 1.0, 'MarkerFaceColor', colors_big(i, :), 'MarkerEdgeColor', colors_big(i, :), 'DisplayName', [num2str(obj.mu_rpm(i))])
+      end
+      legend('Show', 'Location', 'NorthEast')
+    end    
+    
     function fig_out = plot_torques(obj, position)
       run figure_properties.m
       fig_out = figure('Position', fig_pos(position, :));

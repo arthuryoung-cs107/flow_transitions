@@ -60,9 +60,11 @@ classdef fluid < handle
 
       switch obj.range_finder_flag
         case 1
-          obj.range_array_full = obj.range_finder_old(raw);
+          obj.range_array_full = range_finder(raw);
         case 2
-          obj.range_array_full = obj.range_finder(raw);
+          obj.range_array_full = range_finder_old(raw);
+        case 3
+          obj.range_array_full = range_finder_weird(raw);
       end
 
       switch obj.steady_state_flag
@@ -152,86 +154,8 @@ classdef fluid < handle
       end
       legend('Show', 'Location', 'NorthEast')
     end
-    function range_array = range_finder( obj, raw_array )
-      range_array = [];
-      i = 0;
-      interval_start = (1:5)';
-      data_end = 0;
-      current_range = [0; 0];
-      long_check = size(raw_array);
-      while data_end == 0
-        i = i + 1;
-        if raw_array(i:i+4, 1) == interval_start %% found the beginning of the interval
-            length_add = interval_length_finder(raw_array, i);
-            current_range = [i; i+length_add-1];
-            range_array = [range_array, current_range];
-            i = i+length_add-1; %% skips to the end of the interval
-        end
-        if current_range(2) == long_check(1)
-            data_end = 1;
-        end
-      end
-    end
-    function range_array = range_finder_old( obj, raw_array )
-      one_ind_raw = find(raw_array(:, 1)==1);
-      n_raw = length(one_ind_raw);
-      n = 0;
-      for i=1:n_raw
-        if raw_array(one_ind_raw(i) + 1, 1) == 2
-          n = n + 1;
-          one_ind(n) = one_ind_raw(i);
-        end
-      end
-      range_array = zeros(2, n);
-      range_array(1, :) = one_ind;
-      for i=1:n-1
-        index = one_ind(i+1)-1;
-        search_on = true;
-        while search_on
-          if isnan(raw_array(index, 1))
-            index = index - 1;
-          else
-            if raw_array(index-1, 1) == (raw_array(index, 1)-1)
-              range_array(2, i) = index;
-              search_on = false;
-            else
-              index = index - 1;
-            end
-          end
-        end
-      end
-      range_array(2, n) = size(raw_array, 1);
-    end
-    function range_array = range_finder_weird( obj, raw_array )
-      range_array = [7; 0];
-      index_check = 0;
-      for i = 7:length(raw_array)
-        if index_check == 0
-          if isnan(raw_array(i, 8)) == 1 % if beginning of gap or invalid value
-            if (isnan(raw_array(i+1, 8)) == 1 && isnan(raw_array(i+2,8)) == 1 && (raw_array(i+7) == 1 || raw_array(i+4) == 1)) % if gap, begins skip routine
-              index_check = 1;
-              continue
-            else % if invalid value, treats same as if it is not equal to nan
-              dimensions = size(range_array);
-              range_array(2, dimensions(2)) = i;
-              continue
-            end
-          else % if this is not equal to nan, regular data point
-            dimensions = size(range_array);
-            range_array(2, dimensions(2)) = i;
-            continue
-          end
-        else
-          if isnan(raw_array(i+1, 8)) == 0 %if next value detected to be data point
-            index_check = 0;
-            new_column = [i + 1; 0];
-            range_array = [range_array, new_column];
-            continue
-          else
-            continue
-          end
-        end
-      end
+    function range_array_out = range_finder(obj, raw_)
+      range_array_out = range_finder(raw_);
     end
     function steady_array = steady_state(obj, range_array, raw)
       steady_array = range_array;
@@ -363,7 +287,89 @@ function length = interval_length_finder(raw_array,i)
             length = raw_array(i - index, 2);
             length_found = 1;
         end
-
     end
+end
 
+function range_array = range_finder(raw_array)
+  one_ind_raw = find(raw_array(:, 1)==1);
+  n_raw = length(one_ind_raw);
+  n = 0;
+  for i=1:n_raw
+    if raw_array(one_ind_raw(i) + 1, 1) == 2
+      n = n + 1;
+      one_ind(n) = one_ind_raw(i);
+    end
+  end
+  range_array = zeros(2, n);
+  range_array(1, :) = one_ind;
+  for i=1:n-1
+    index = one_ind(i+1)-1;
+    search_on = true;
+    while search_on
+      if isnan(raw_array(index, 1))
+        index = index - 1;
+      else
+        if raw_array(index-1, 1) == (raw_array(index, 1)-1)
+          range_array(2, i) = index;
+          search_on = false;
+        else
+          index = index - 1;
+        end
+      end
+    end
+  end
+  range_array(2, n) = size(raw_array, 1);
+end
+
+function range_array = range_finder_old(raw_array )
+  range_array = [];
+  i = 0;
+  interval_start = (1:5)';
+  data_end = 0;
+  current_range = [0; 0];
+  long_check = size(raw_array);
+  while data_end == 0
+    i = i + 1;
+    if raw_array(i:i+4, 1) == interval_start %% found the beginning of the interval
+        length_add = interval_length_finder(raw_array, i);
+        current_range = [i; i+length_add-1];
+        range_array = [range_array, current_range];
+        i = i+length_add-1; %% skips to the end of the interval
+    end
+    if current_range(2) == long_check(1)
+        data_end = 1;
+    end
+  end
+end
+
+function range_array = range_finder_weird(raw_array )
+  range_array = [7; 0];
+  index_check = 0;
+  for i = 7:length(raw_array)
+    if index_check == 0
+      if isnan(raw_array(i, 8)) == 1 % if beginning of gap or invalid value
+        if (isnan(raw_array(i+1, 8)) == 1 && isnan(raw_array(i+2,8)) == 1 && (raw_array(i+7) == 1 || raw_array(i+4) == 1)) % if gap, begins skip routine
+          index_check = 1;
+          continue
+        else % if invalid value, treats same as if it is not equal to nan
+          dimensions = size(range_array);
+          range_array(2, dimensions(2)) = i;
+          continue
+        end
+      else % if this is not equal to nan, regular data point
+        dimensions = size(range_array);
+        range_array(2, dimensions(2)) = i;
+        continue
+      end
+    else
+      if isnan(raw_array(i+1, 8)) == 0 %if next value detected to be data point
+        index_check = 0;
+        new_column = [i + 1; 0];
+        range_array = [range_array, new_column];
+        continue
+      else
+        continue
+      end
+    end
+  end
 end

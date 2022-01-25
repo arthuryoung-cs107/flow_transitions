@@ -33,7 +33,7 @@ classdef glass113 < fluid
     function process_raw(obj, raw)
       obj.rho_b = obj.rho_p * obj.phi + obj.rho_f*(1.0-obj.phi);
 
-      obj.range_array_full = obj.range_finder_old(raw);
+      obj.range_array_full = obj.range_finder(raw);
       obj.range_array = obj.steady_state(obj.range_array_full, raw);
       raw_ = obj.spike_filter(obj.range_array, raw);
 
@@ -139,8 +139,8 @@ classdef glass113 < fluid
         plot(raw_(obj.range_array(1, i):obj.range_array(2, i), 1)/obj.meas_points(i), raw_(obj.range_array(1, i):obj.range_array(2, i), 3)/(1e6), ' -', 'Color', colors_big(i, :), 'LineWidth', 1.0, 'MarkerFaceColor', colors_big(i, :), 'MarkerEdgeColor', colors_big(i, :), 'DisplayName', [num2str(obj.mu_rpm(i))])
       end
       legend('Show', 'Location', 'NorthEast')
-    end    
-    
+    end
+
     function fig_out = plot_torques(obj, position)
       run figure_properties.m
       fig_out = figure('Position', fig_pos(position, :));

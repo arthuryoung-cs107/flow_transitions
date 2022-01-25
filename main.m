@@ -97,6 +97,7 @@ fig_num = 3;
 figs(fig_num) = AYfig.figure(fig_specs{fig_num});
 
     axc = axes('Position', ax21(1, :));
+    box on;
     set(gca, 'YScale', 'log')
     set(gca, 'XScale', 'log')
     hold(axc, 'on');
@@ -191,6 +192,7 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
 fig_num = 5;
 figs(fig_num) = AYfig.figure(fig_specs{fig_num});
   axc = axes('Position', ax21(1, :));
+  box on;
   set(gca, 'YScale', 'log')
   set(gca, 'XScale', 'log')
   hold(axc, 'on');
@@ -406,7 +408,7 @@ sub_figs(fig_num) = AYfig.figure(fig_specs{fig_num});
         plot(axa, FB1.exp(i).omega, FB1.exp(i).appmu, FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW, 'MarkerSize', FB1.MS, 'DisplayName', FB1.exp(i).label)
       end
     ylabel('$$\mu_{app}$$ [Pa.s]', 'Interpreter', 'LaTeX','FontSize',12)
-    xlabel('$$\omega_{i} [rad/s]$$', 'Interpreter', 'LaTeX','FontSize',12)
+    xlabel('$$\omega_{i}$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
     textbox_a = annotation('textbox', textbox_pos2_low_a,  'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
     textbox_a.FontSize = 16;
 
@@ -418,7 +420,7 @@ sub_figs(fig_num) = AYfig.figure(fig_specs{fig_num});
       for i = 1:length(FB2.exp)
           plot(axb, FB2.exp(i).omega, FB2.exp(i).appmu, FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW, 'MarkerSize', FB2.MS, 'DisplayName', FB2.exp(i).label)
       end
-    xlabel('$$\omega_{i} [rad/s]$$', 'Interpreter', 'LaTeX','FontSize',12)
+    xlabel('$$\omega_{i}$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
     textbox_b = annotation('textbox', textbox_pos2_low_b,  'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none');
     textbox_b.FontSize = 16;
 
@@ -440,7 +442,7 @@ sub_figs(fig_num) = AYfig.figure(fig_specs{fig_num});
           plot(axa, FB1.exp(i).q, FB1.exp(i).mu_p, FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW_L, 'MarkerSize', FB1.MS_L, 'DisplayName', FB1.exp(i).label)
       end
     ylabel('$$\tilde{\mu}_{p}$$ [Pa.s]', 'Interpreter', 'LaTeX','FontSize',12)
-    xlabel('$$q = \frac{Q}{Q_{inc}}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+    xlabel('$$q = Q/Q_{inc}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
     textbox_a = annotation('textbox', textbox_pos2_a,  'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
     textbox_a.FontSize = 16;
 
@@ -492,7 +494,7 @@ sub_figs(fig_num) = AYfig.figure(fig_specs{fig_num});
   tile_object.TileSpacing = 'compact';
   tile_object.Padding = 'compact';
 
-save_dir = '~/Desktop/JFM1_15Jan_2021_plots/';
+save_dir = '~/Desktop/JFM1_24Jan_2022_plots/';
 
 for i=1:length(figs)
   fig_it = figs(i);

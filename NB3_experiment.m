@@ -85,7 +85,7 @@ classdef NB3_experiment < experiment
       obj.omega = obj.omega(plot_range);
       obj.Re_s = obj.Re_s(plot_range);
 
-      obj.dat_num = obj.dat_num - 1;
+      obj.len = length(obj.mu_torque);
     end
   end
 end

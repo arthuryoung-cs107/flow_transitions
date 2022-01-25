@@ -90,9 +90,6 @@ classdef NB1_experiment < experiment
       obj.omega = obj.omega(plot_range);
       obj.Re_s = obj.Re_s(plot_range);
 
-
-
-
     end
   end
 end

@@ -23,6 +23,14 @@ classdef super_experiment < experiment
         cf_all = [cf_all obj.exp{i}.cf];
         Re_s_all = [Re_s_all obj.exp{i}.Re_s];
       end
+      reals = ~isnan(omega_all);
+      omega_all = omega_all(reals);
+      mu_torque_all = mu_torque_all(reals);
+      sigma_torque_all = sigma_torque_all(reals);
+      G_all = G_all(reals);
+      G_rat_all = G_rat_all(reals);
+      cf_all = cf_all(reals);
+      Re_s_all = Re_s_all(reals);
 
       [obj.omega, obj.ind_sort] = mink(omega_all, length(omega_all));
 

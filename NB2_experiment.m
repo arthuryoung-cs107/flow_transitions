@@ -82,6 +82,15 @@ classdef NB2_experiment < experiment
       obj.omega(15) = NaN;
       obj.Re_s(15) = NaN;
 
+      obj.mu_torque = rmmissing(obj.mu_torque);
+      obj.sigma_torque = rmmissing(obj.sigma_torque);
+      obj.G = rmmissing(obj.G);
+      obj.G_rat = rmmissing(obj.G_rat);
+      obj.cf = rmmissing(obj.cf);
+      obj.omega = rmmissing(obj.omega);
+      obj.Re_s = rmmissing(obj.Re_s);
+
+      obj.len = length(obj.mu_torque);      
     end
   end
 end

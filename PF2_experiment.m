@@ -9,7 +9,7 @@ classdef PF2_experiment < experiment
     cf_full;
     omega_full;
     Re_s_full;
-  
+
   end
   methods
     function obj = PF2_experiment(exp_list_in, color_, specs_)
@@ -78,6 +78,15 @@ classdef PF2_experiment < experiment
       obj.omega([1 5 9]) = NaN;
       obj.Re_s([1 5 9]) = NaN;
 
+      obj.mu_torque = rmmissing(obj.mu_torque);
+      obj.sigma_torque = rmmissing(obj.sigma_torque);
+      obj.G = rmmissing(obj.G);
+      obj.G_rat = rmmissing(obj.G_rat);
+      obj.cf = rmmissing(obj.cf);
+      obj.omega = rmmissing(obj.omega);
+      obj.Re_s = rmmissing(obj.Re_s);
+
+      obj.len = length(obj.mu_torque);
     end
   end
 end

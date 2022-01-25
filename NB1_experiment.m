@@ -81,7 +81,8 @@ classdef NB1_experiment < experiment
       obj.omega_full = obj.omega;
       obj.Re_s_full = obj.Re_s;
 
-      plot_range = 22:45;
+      % plot_range = 22:45;
+      plot_range = 1:45;
       obj.mu_torque = obj.mu_torque(plot_range);
       obj.sigma_torque = obj.sigma_torque(plot_range);
       obj.G = obj.G(plot_range);

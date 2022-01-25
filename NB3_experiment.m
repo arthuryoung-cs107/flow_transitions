@@ -20,6 +20,8 @@ classdef NB3_experiment < experiment
       obj.color = color_;
       obj.specs = specs_;
       obj.TV_range = 17:37;
+      fig_pos = fig_pos_gen(2, 6);
+      obj.def_pos = fig_pos(8, :);
 
       mu_f = 0.0020580;
       rho_f = 1042.657;

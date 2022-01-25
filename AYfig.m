@@ -17,5 +17,8 @@ classdef AYfig < handle
         fig_out.set(props_in_{i, 1}, props_in_{i, 2});
       end
     end
+    function struct_out = specs_gen(name_in_, pos_in_)
+      struct_out = {'Name', name_in_; 'Renderer', 'painters'; 'Position', pos_in_;};
+    end
   end
 end

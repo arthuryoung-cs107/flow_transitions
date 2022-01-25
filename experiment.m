@@ -5,6 +5,7 @@ classdef experiment < handle
     specs;
     LW = 1.0;
     MS = 5.0;
+    def_pos;
 
     mu_torque;
     sigma_torque;
@@ -77,13 +78,16 @@ classdef experiment < handle
       obj.powerfit = fit(obj.Re_s(obj.TV_range)', obj.G(obj.TV_range)','b*x^m', 'StartPoint', [70, 1]);
     end
     function inspect_torques(obj)
-      figure
+      fig_specs = AYfig.specs_gen(obj.label, obj.def_pos);
+      fig_out = AYfig.figure(fig_specs);
       hold on
       set(gca, 'YScale', 'log')
       set(gca, 'XScale', 'log')
       for i=1:obj.len
-        plot(obj.exp(i).mu_rpm, obj.exp(i).mu_torque, ' o','Color', obj.exp(i).color, 'LineWidth', 1.5, 'DisplayName', obj.exp(i).name)
+        plot(obj.exp(i).omega, obj.exp(i).mu_torque, '- o','Color', obj.exp(i).color, 'LineWidth', 1.5, 'DisplayName', obj.exp(i).name)
       end
+      ylabel('$$T$$ [N.m]', 'Interpreter', 'LaTeX','FontSize',12)
+      xlabel('$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
       legend('Show')
       hold off
     end

@@ -9,6 +9,8 @@ classdef UB1_experiment < experiment
       obj.color = color_;
       obj.specs = specs_;
       obj.TV_range = 37:45;
+      fig_pos = fig_pos_gen(2, 6);
+      obj.def_pos = fig_pos(9, :);
 
       mu_f = 0.00098069;
       rho_f = 994.0;

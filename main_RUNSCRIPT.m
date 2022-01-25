@@ -51,7 +51,7 @@ load ./raw_data_structures/PF3_rawdata.mat
 name_list_PF3 = {'PF3, rough, run 1'; 'PF3, rough, run 2'; 'PF3, rough, run 3'; 'PF3, rough, run 4'; 'PF3, rough, run 5';};
 PF3_all = fluid.empty(size(name_list_PF3, 1), 0);
 for i = 1:size(name_list_PF3, 1)
-  PF3_all(i) = fluid(name_list_PF3{i}, red12(i+length(name_list_PF2)));
+PF3_all(i) = fluid(name_list_PF3{i}, red12(i+length(name_list_PF2), :));
 end
 PF3 = PF3_experiment(PF3_all, red5, ' o');
 PF3.process_raws(raw_PF3_structure);

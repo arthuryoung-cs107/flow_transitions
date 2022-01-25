@@ -14,6 +14,8 @@ classdef PF4_experiment < experiment
       obj.exp(3).mu_f = 0.0021351;
       obj.exp(4).mu_f = 0.0021119;
       obj.exp(5).mu_f = 0.0021013;
+      fig_pos = fig_pos_gen(2, 6);
+      obj.def_pos = fig_pos(5, :);
 
       rho_f = 1042.657;
       phi_m = 0.613;

@@ -9,6 +9,8 @@ classdef XB2_experiment < experiment
       obj.color = color_;
       obj.specs = specs_;
       obj.TV_range = 37:45;
+      fig_pos = fig_pos_gen(2, 6);
+      obj.def_pos = fig_pos(12, :);
 
       mu_f = 0.0037046;
       rho_f = 1090.0;

@@ -19,6 +19,8 @@ classdef NB1_experiment < experiment
       obj.color = color_;
       obj.specs = specs_;
       obj.TV_range = 22:45;
+      fig_pos = fig_pos_gen(2, 6);
+      obj.def_pos = fig_pos(6, :);
 
       mu_f = 0.0020580;
       rho_f = 1042.657;
@@ -47,12 +49,12 @@ classdef NB1_experiment < experiment
       omega_mat = zeros(obj.dat_num, obj.len);
       Re_mat = zeros(obj.dat_num, obj.len);
 
-      T_mat(:, 1) = obj.exp(1).mu_torque(8:52);
-      G_mat(:, 1) = obj.exp(1).G(8:52);
-      G_rat_mat(:, 1) = obj.exp(1).G_rat(8:52);
-      cf_mat(:, 1) = obj.exp(1).cf(8:52);
-      omega_mat(:, 1) = obj.exp(1).omega(8:52);
-      Re_mat(:, 1) = obj.exp(1).Re_s(8:52);
+      T_mat(:, 1) = obj.exp(1).mu_torque(8:obj.exp(1).dat_num);
+      G_mat(:, 1) = obj.exp(1).G(8:obj.exp(1).dat_num);
+      G_rat_mat(:, 1) = obj.exp(1).G_rat(8:obj.exp(1).dat_num);
+      cf_mat(:, 1) = obj.exp(1).cf(8:obj.exp(1).dat_num);
+      omega_mat(:, 1) = obj.exp(1).omega(8:obj.exp(1).dat_num);
+      Re_mat(:, 1) = obj.exp(1).Re_s(8:obj.exp(1).dat_num);
 
       for i=2:obj.len
         T_mat(:, i) = obj.exp(i).mu_torque;

@@ -38,6 +38,11 @@ classdef NB2_experiment < experiment
         obj.exp(i).rho_p = rho_p;
         obj.exp(i).mu_eff = obj.Krieger_Dougherty(mu_f, phi, phi_m);
       end
+      obj.mu_f = mu_f;
+      obj.rho_f = rho_f;
+      obj.phi_m = phi_m;
+      obj.phi = phi;
+      obj.rho_p = rho_p;
     end
     function process_raws(obj, raws)
       for i=1:obj.len
@@ -90,7 +95,7 @@ classdef NB2_experiment < experiment
       obj.omega = rmmissing(obj.omega);
       obj.Re_s = rmmissing(obj.Re_s);
 
-      obj.len = length(obj.mu_torque);      
+      obj.len = length(obj.mu_torque);
     end
   end
 end

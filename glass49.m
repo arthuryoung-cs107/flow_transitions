@@ -159,7 +159,11 @@ classdef glass49 < fluid
       end
     end
     function string_out = label(obj)
-      string_out = ['FB2 q=', num2str(round( obj.q, 1))];
+      if round( obj.q, 1) >= 10.0
+        string_out = ['FB2 q=', num2str(round(obj.q, 1),2)];
+      else
+        string_out = ['FB2 q=', num2str(round(obj.q, 1),'%.1f')];
+      end
     end
   end
 end

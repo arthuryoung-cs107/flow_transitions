@@ -7,7 +7,15 @@ classdef experiment < handle
     % MS = 5.0;
     LW = 0.7;
     MS = 3.5;
+    LW_L = 1.0;
+    MS_L = 8.0;
     def_pos;
+
+    mu_f;
+    rho_f;
+    phi_m;
+    phi;
+    rho_p;
 
     mu_torque;
     sigma_torque;

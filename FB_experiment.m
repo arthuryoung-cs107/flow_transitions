@@ -2,9 +2,6 @@ classdef FB_experiment < experiment
   properties
     statement;
     ind_sort;
-
-    LW_L = 1.0;
-    MS_L = 8.0;
   end
   methods
     function obj = FB_experiment(exp_list_in, label_, color_, specs_, statement_)

@@ -13,8 +13,10 @@ for i = 1:size(name_list_113micron, 1)
   glass113_all(i) = glass113(name_list_113micron{i}, grey15(4+i, :), phi_vec_113microns(i));
 end
 FB1 = FB_experiment(glass113_all, 'FB1', grey15(1, :), '*', '113 micron glass beads');
-FB1.MS = 4;
-FB1.LW = 0.5;
+FB1.MS = 5;
+FB1.LW = 0.75;
+FB1.MS_L = 8;
+FB1.LW_L = 1;
 FB1.def_pos = fig_pos12(1, :);
 FB1.process_raws(raw_FB1_structure)
 
@@ -26,10 +28,11 @@ glass49_all = glass49.empty(size(name_list_49micron, 1), 0);
 for i = 1:size(name_list_49micron, 1)
   glass49_all(i) = glass49(name_list_49micron{i}, grey15(i, :));
 end
-FB2 = FB_experiment(glass49_all, 'FB1', grey15(1, :), 'x', '49 micron glass beads');
-FB2.MS = 5;
-FB2.LW = 0.5;
-FB2.LW_L = 2;
+FB2 = FB_experiment(glass49_all, 'FB1', grey15(1, :), '.', '49 micron glass beads');
+FB2.MS = 12.0;
+FB2.LW = 1.0;
+FB2.MS_L = 15.0;
+FB2.LW_L = 1.0;
 FB2.def_pos = fig_pos12(2, :);
 FB2.process_raws(raw_FB2_structure)
 
@@ -39,7 +42,10 @@ PF1_all = fluid.empty(size(name_list_PF1, 1), 0);
 for i = 1:size(name_list_PF1, 1)
   PF1_all(i) = fluid(name_list_PF1{i}, blue12(i, :));
 end
-PF1 = PF1_experiment(PF1_all, blue5, ' .');
+PF1 = PF1_experiment(PF1_all, blue5, 'x');
+PF1.MS = 5;
+% PF1.LW = 0.5;
+% PF1.LW_L = 2;
 PF1.process_raws(raw_PF1_structure);
 %
 load ./raw_data_structures/PF2_rawdata.mat
@@ -76,6 +82,8 @@ for i = 1:size(name_list_NB1, 1)
   NB1_all(i) = fluid(name_list_NB1{i}, green12(i, :));
 end
 NB1 = NB1_experiment(NB1_all, green5, ' s');
+NB1.MS = 3.75;
+NB1.LW = 0.8;
 NB1.process_raws(raw_NB1_structure);
 
 load ./raw_data_structures/NB2_rawdata.mat
@@ -188,11 +196,11 @@ eta = r_i/r_o; % gap ratio
 G_obs_Res_slope = (2*pi*r_i*r_o)/((r_o-r_i)^2);
 
 omega_tau_range = [1e-2 1e2 1e-9 1e-2];
-Res_G_range = [1e-2 2e4 1e-1 1e8];
+Res_G_range = [1e-2 1e4 1e0 1e8];
 Res_alpha_range = [1e0 5e5 -1 2];
 Res_cf_range = [1e-1 1e4 1e-4 1e4];
 Res_Grat_range = [1e-1 2e4 0.8 1e2];
-omega_appmu_range = [1e-2 2e2 1e-2 2e4];
+omega_appmu_range = [1e-2 2e2 6e-2 1e7];
 
 pos11 = [0 500];
 pos12 = [450 500];
@@ -203,29 +211,57 @@ pos23 = [900 100];
 
 pos_spread = [0 500; 180 500; 360 500; 540 500; 720 500; 900 500; 0 100; 180 100; 360 100; 540 100; 720 100; 900 100];
 
-textbox_pos2_a = [0.09, 0.85, 0.1, 0.1];
-textbox_pos2_b = [0.56, 0.85, 0.1, 0.1];
-textbox_pos2_low_a = [0.09, 0.15, 0.1, 0.1];
-textbox_pos2_low_b = [0.575, 0.15, 0.1, 0.1];
+textbox_pos2_a_NW = [0.09, 0.85, 0.1, 0.1];
+textbox_pos2_b_NW = [0.575, 0.85, 0.1, 0.1];
+textbox_pos2_a_SW = [0.09, 0.175, 0.1, 0.1];
+textbox_pos2_b_SW = [0.575, 0.175, 0.1, 0.1];
 
-textbox_pos21_a = [0.12, 0.875, 0.1, 0.1];
-textbox_pos21_b = [0.55, 0.875, 0.1, 0.1];
-textbox_pos21_c = [0.12, 0.07, 0.1, 0.1];
+textbox_pos21_a_NW = [0.12, 0.85, 0.1, 0.1];
+textbox_pos21_b_NW = [0.55, 0.85, 0.1, 0.1];
+textbox_pos21_c_NW = [0.12, 0.07, 0.1, 0.1];
+textbox_pos21_a_SW = [0.12, 0.675, 0.1, 0.1];
+textbox_pos21_b_SW = [0.55, 0.675, 0.1, 0.1];
+textbox_pos21_c_SW = [0.12, 0.1, 0.1, 0.1];
 
-textbox_pos222_a = [0.4, 0.675, 0.1, 0.1];
-textbox_pos222_b = [0.9, 0.675, 0.1, 0.1];
-textbox_pos222_c = [0.4, 0.35, 0.1, 0.1];
-textbox_pos222_d = [0.9, 0.35, 0.1, 0.1];
-textbox_pos222_e = [0.4, 0.025, 0.1, 0.1];
-textbox_pos222_f = [0.9, 0.025, 0.1, 0.1];
+textbox_pos222_a = [0.4, 0.625, 0.1, 0.1];
+textbox_pos222_b = [0.9, 0.625, 0.1, 0.1];
+textbox_pos222_c = [0.4, 0.32, 0.1, 0.1];
+textbox_pos222_d = [0.9, 0.32, 0.1, 0.1];
+textbox_pos222_e = [0.4, 0.008, 0.1, 0.1];
+textbox_pos222_f = [0.9, 0.008, 0.1, 0.1];
 
-dim1 = [525 325];
-dim2 = [525 250];
-dim21 = [525 450];
-dim222 = [525 600];
+textbox_pos22_a_NE = [0.425, 0.85, 0.1, 0.1];
+textbox_pos22_b_NE = [0.9, 0.85, 0.1, 0.1];
+textbox_pos22_c_NE = [0.425, 0.375, 0.1, 0.1];
+textbox_pos22_d_NE = [0.9, 0.375, 0.1, 0.1];
 
-ax21 = [0.1 0.1 0.85 0.475; 0.1 0.675 0.4 0.3; 0.545 0.675 0.4 0.3];
-ax222 = [0.075 0.725 0.4 0.275; 0.575 0.725 0.4 0.275; 0.075 0.4 0.4 0.275; 0.575 0.4 0.4 0.275; 0.075 0.075 0.4 0.275; 0.575 0.075 0.4 0.275];
+
+dim2_short = [580 250];
+dim2_tall = [580 330];
+
+dim21_short = [580 330];
+dim21_tall = [580 450];
+
+dim222_short = [580 600];
+dim222_tall = [580 800];
+
+dim22_short = [580 300];
+dim22_tall = [580 500];
+
+dim1 = [580 325];
+
+ax21_short = [0.1 0.1 0.85 0.475; 0.1 0.675 0.4 0.3; 0.545 0.675 0.4 0.3];
+ax21_tall = [0.1 0.1 0.85 0.475; 0.1 0.675 0.4 0.3; 0.545 0.675 0.4 0.3];
+
+dim2 = dim2_short;
+% dim2 = dim2_tall;
+dim21 = dim21_short;
+% dim222 = dim222_short;
+dim222 = dim222_tall;
+dim22 = dim22_short;
+
+% ax21 = ax21_tall;
+ax21 = ax21_short;
 
 fig_specs{1} = {'Name', 'PF_NB_T_vs_omega'; 'Renderer', 'painters'; 'Position', [pos_spread(1, :), dim2];};
 fig_specs{2} = {'Name', 'PF_NB_Grat_vs_Res'; 'Renderer', 'painters'; 'Position', [pos_spread(2, :) dim2];};
@@ -235,5 +271,5 @@ fig_specs{5} = {'Name', 'UB_XB_cf_vs_Res'; 'Renderer', 'painters'; 'Position', [
 fig_specs{6} = {'Name', 'PF_NB_UB_XB_FB_G_vs_Res'; 'Renderer', 'painters'; 'Position', [pos_spread(6, :) dim222];};
 fig_specs{7} = {'Name', 'FB_T_vs_omega'; 'Renderer', 'painters'; 'Position', [pos_spread(7, :) dim2];};
 fig_specs{8} = {'Name', 'FB_muapp_vs_omega'; 'Renderer', 'painters'; 'Position', [pos_spread(8, :) dim2];};
-fig_specs{9} = {'Name', 'FB_mup_vs_q'; 'Renderer', 'painters'; 'Position', [pos_spread(9, :) dim2];};
-fig_specs{10} = {'Name', 'FB_tauy_vs_q'; 'Renderer', 'painters'; 'Position', [pos_spread(10, :) dim2];};
+fig_specs{9} = {'Name', 'FB_mup_tauy_vs_q_2'; 'Renderer', 'painters'; 'Position', [pos_spread(9, :) dim2_short];};
+fig_specs{10} = {'Name', 'FB_mup_tauy_vs_q_22'; 'Renderer', 'painters'; 'Position', [pos_spread(10, :) dim22];};

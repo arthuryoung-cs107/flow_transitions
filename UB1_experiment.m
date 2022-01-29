@@ -8,9 +8,10 @@ classdef UB1_experiment < experiment
       obj.label = 'UB1';
       obj.color = color_;
       obj.specs = specs_;
-      obj.TV_range = 37:45;
       fig_pos = fig_pos_gen(2, 6);
       obj.def_pos = fig_pos(9, :);
+      obj.TV_range = 37:45;
+      obj.TV_lowRes = 360; 
 
       mu_f = 0.00098069;
       rho_f = 994.0;
@@ -30,6 +31,8 @@ classdef UB1_experiment < experiment
       obj.phi_m = phi_m;
       obj.phi = phi;
       obj.rho_p = rho_p;
+      obj.mu_eff = obj.Krieger_Dougherty(mu_f, phi, phi_m);
+
     end
   end
 end

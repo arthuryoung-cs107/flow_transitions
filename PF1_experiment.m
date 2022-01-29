@@ -10,7 +10,6 @@ classdef PF1_experiment < experiment
       obj.specs = specs_;
       fig_pos = fig_pos_gen(2, 6);
       obj.def_pos = fig_pos(3, :);
-
       obj.TV_range = 20:52;
 
       mu_f = 0.0057866;
@@ -30,7 +29,8 @@ classdef PF1_experiment < experiment
       obj.rho_f = rho_f;
       obj.phi_m = phi_m;
       obj.phi = phi;
-      obj.rho_p = rho_p;      
+      obj.rho_p = rho_p;
+      obj.mu_eff = obj.Krieger_Dougherty(mu_f, phi, phi_m);
     end
   end
 end

@@ -17,9 +17,9 @@ classdef PF2_experiment < experiment
       obj.label = 'PF2';
       obj.color = color_;
       obj.specs = specs_;
-      obj.TV_range = 6:45;
       fig_pos = fig_pos_gen(2, 6);
       obj.def_pos = fig_pos(4, :);
+      obj.TV_range = 6:45;
 
       mu_f = 0.0020580;
       rho_f = 1042.657;
@@ -38,7 +38,8 @@ classdef PF2_experiment < experiment
       obj.rho_f = rho_f;
       obj.phi_m = phi_m;
       obj.phi = phi;
-      obj.rho_p = rho_p;      
+      obj.rho_p = rho_p;
+      obj.mu_eff = obj.Krieger_Dougherty(mu_f, phi, phi_m);
     end
     function process_raws(obj, raws)
       for i=1:obj.len

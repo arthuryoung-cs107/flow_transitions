@@ -28,7 +28,7 @@ glass49_all = glass49.empty(size(name_list_49micron, 1), 0);
 for i = 1:size(name_list_49micron, 1)
   glass49_all(i) = glass49(name_list_49micron{i}, grey15(i, :));
 end
-FB2 = FB_experiment(glass49_all, 'FB1', grey15(1, :), '.', '49 micron glass beads');
+FB2 = FB_experiment(glass49_all, 'FB2', grey15(1, :), '.', '49 micron glass beads');
 FB2.MS = 12.0;
 FB2.LW = 1.0;
 FB2.MS_L = 15.0;
@@ -147,8 +147,15 @@ XBall = XB_all(XB1, XB2);
 
 PF1.gen_powerfit();
 PFR.gen_powerfit();
+NB1.gen_powerfit();
+NB2.gen_powerfit();
+NB3.gen_powerfit();
 NBall.gen_powerfit();
+UB1.gen_powerfit();
+UB2.gen_powerfit();
 UBall.gen_powerfit();
+XB1.gen_powerfit();
+XB2.gen_powerfit();
 XBall.gen_powerfit();
 FB1.gen_powerfit();
 FB2.gen_powerfit();
@@ -197,7 +204,7 @@ G_obs_Res_slope = (2*pi*r_i*r_o)/((r_o-r_i)^2);
 
 omega_tau_range = [1e-2 1e2 1e-9 1e-2];
 Res_G_range = [1e-2 1e4 1e0 1e8];
-Res_alpha_range = [1e0 5e5 -1 2];
+Res_alpha_range = [1e0 5e5 -1 2.1];
 Res_cf_range = [1e-1 1e4 1e-4 1e4];
 Res_Grat_range = [1e-1 2e4 0.8 1e2];
 omega_appmu_range = [1e-2 2e2 6e-2 1e7];
@@ -271,5 +278,5 @@ fig_specs{5} = {'Name', 'UB_XB_cf_vs_Res'; 'Renderer', 'painters'; 'Position', [
 fig_specs{6} = {'Name', 'PF_NB_UB_XB_FB_G_vs_Res'; 'Renderer', 'painters'; 'Position', [pos_spread(6, :) dim222];};
 fig_specs{7} = {'Name', 'FB_T_vs_omega'; 'Renderer', 'painters'; 'Position', [pos_spread(7, :) dim2];};
 fig_specs{8} = {'Name', 'FB_muapp_vs_omega'; 'Renderer', 'painters'; 'Position', [pos_spread(8, :) dim2];};
-fig_specs{9} = {'Name', 'FB_mup_tauy_vs_q_2'; 'Renderer', 'painters'; 'Position', [pos_spread(9, :) dim2_short];};
-fig_specs{10} = {'Name', 'FB_mup_tauy_vs_q_22'; 'Renderer', 'painters'; 'Position', [pos_spread(10, :) dim22];};
+fig_specs{9} = {'Name', 'FB_mup_tauy_vs_q_22'; 'Renderer', 'painters'; 'Position', [pos_spread(9, :) dim22];};
+fig_specs{10} = {'Name', 'FB_alpha_vs_Res'; 'Renderer', 'painters'; 'Position', [pos_spread(10, :) dim2];};

@@ -26,7 +26,6 @@ classdef PF_rough < super_experiment
       obj.PF2_in = PF2_in_;
       obj.PF3_in = PF3_in_;
 
-      obj.TV_range = obj.Re_s > 70.0;
       obj.color = red5;
       obj.specs = ' o';
       obj.label = 'PF2';

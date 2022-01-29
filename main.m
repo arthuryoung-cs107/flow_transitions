@@ -3,10 +3,12 @@ close all
 
 run main_RUNSCRIPT.m
 
+fig_num = 0;
+
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% -----------------------------------------   1  ---------------------------------------------
 %%%%%%%% --------------------------------------------------------------------------------------------
-fig_num = 1;
+fig_num = fig_num + 1;
 figs(fig_num) = AYfig.figure(fig_specs{fig_num});
   tile_object = tiledlayout(1, 2);
 
@@ -43,7 +45,8 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% -----------------------------------------   2  ---------------------------------------------
 %%%%%%%% --------------------------------------------------------------------------------------------
-fig_num = 2;
+
+fig_num = fig_num + 1;
 figs(fig_num) = AYfig.figure(fig_specs{fig_num});
   tile_object = tiledlayout(1, 2);
 
@@ -90,7 +93,8 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% -----------------------------------------   3  ---------------------------------------------
 %%%%%%%% --------------------------------------------------------------------------------------------
-fig_num = 3;
+
+fig_num = fig_num + 1;
 figs(fig_num) = AYfig.figure(fig_specs{fig_num});
 
     axc = axes('Position', ax21(1, :));
@@ -148,7 +152,8 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% -----------------------------------------   4  ---------------------------------------------
 %%%%%%%% --------------------------------------------------------------------------------------------
-fig_num = 4;
+
+fig_num = fig_num + 1;
 figs(fig_num) = AYfig.figure(fig_specs{fig_num});
   tile_object = tiledlayout(1, 2);
 
@@ -186,7 +191,8 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% -----------------------------------------   5  ---------------------------------------------
 %%%%%%%% --------------------------------------------------------------------------------------------
-fig_num = 5;
+
+fig_num = fig_num + 1;
 figs(fig_num) = AYfig.figure(fig_specs{fig_num});
   axc = axes('Position', ax21(1, :));
   box on;
@@ -242,7 +248,8 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% -----------------------------------------   6  ---------------------------------------------
 %%%%%%%% --------------------------------------------------------------------------------------------
-fig_num = 6;
+
+fig_num = fig_num + 1;
 figs(fig_num) = AYfig.figure(fig_specs{fig_num});
   tile_object = tiledlayout(3, 2);
 
@@ -351,7 +358,8 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% -----------------------------------------   7  ---------------------------------------------
 %%%%%%%% --------------------------------------------------------------------------------------------
-fig_num = 7;
+
+fig_num = fig_num + 1;
 figs(fig_num) = AYfig.figure(fig_specs{fig_num});
   tile_object = tiledlayout(1, 2);
 
@@ -393,7 +401,8 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% -----------------------------------------   8  ---------------------------------------------
 %%%%%%%% --------------------------------------------------------------------------------------------
-fig_num = 8;
+
+fig_num = fig_num + 1;
 figs(fig_num) = AYfig.figure(fig_specs{fig_num});
   tile_object = tiledlayout(1, 2);
 
@@ -432,51 +441,7 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
 %%%%%%%% -----------------------------------------   9  ---------------------------------------------
 %%%%%%%% --------------------------------------------------------------------------------------------
 
-fig_num = 9;
-figs(fig_num) = AYfig.figure(fig_specs{fig_num});
-  tile_object = tiledlayout(1, 2);
-
-    axa = nexttile;
-    box on;
-    set(gca, 'YScale', 'log')
-    hold(axa, 'on');
-      for i = 1:length(FB1.exp)
-          plot(axa, FB1.exp(i).q, FB1.exp(i).mu_p, FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW_L, 'MarkerSize', FB1.MS_L, 'DisplayName', FB1.exp(i).label)
-      end
-      for i = 1:length(FB2.exp)
-          plot(axa, FB2.exp(i).q, FB2.exp(i).mu_p, FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW_L, 'MarkerSize', FB2.MS_L, 'DisplayName', FB2.exp(i).label)
-      end
-
-    ylabel('$$\tilde{\mu}_{p}$$ [Pa.s]', 'Interpreter', 'LaTeX','FontSize',12)
-    xlabel('$$q = Q/Q_{inc}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
-    textbox_a = annotation('textbox', textbox_pos2_a_NW,  'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
-    textbox_a.FontSize = 16;
-
-    axb = nexttile;
-    box on;
-    set(gca, 'YScale', 'log')
-    hold(axb, 'on');
-      for i = 1:length(FB1.exp)
-          plot(axb, FB1.exp(i).q, (FB1.exp(i).tau_y)/(FB1.exp(i).tau_static), FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW_L, 'MarkerSize', FB1.MS_L, 'DisplayName', FB1.exp(i).label)
-      end
-      for i = 1:length(FB2.exp)
-          plot(axb, FB2.exp(i).q, (FB2.exp(i).tau_y)/(FB2.exp(i).tau_static), FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW_L, 'MarkerSize', FB2.MS_L, 'DisplayName', FB2.exp(i).label)
-      end
-    ylabel('$$\tau_y/\tau_{q = 0}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
-    xlabel('$$q = Q/Q_{inc}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
-    textbox_b = annotation('textbox', textbox_pos2_b_NW, 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none');
-    textbox_b.FontSize = 16;
-
-  axis(axa,[0 16 0 1.0])
-  axis(axb,[0 16 0 1.2])
-  tile_object.TileSpacing = 'compact';
-  tile_object.Padding = 'compact';
-
-%%%%%%%% --------------------------------------------------------------------------------------------
-%%%%%%%% -----------------------------------------  10  ---------------------------------------------
-%%%%%%%% --------------------------------------------------------------------------------------------
-
-fig_num = 10;
+fig_num = fig_num + 1;
 figs(fig_num) = AYfig.figure(fig_specs{fig_num});
   tile_object = tiledlayout(2, 2);
 
@@ -532,6 +497,46 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
   axis(axd,[0 16 0 1.0])
   tile_object.TileSpacing = 'compact';
   tile_object.Padding = 'compact';
+
+%%%%%%%% --------------------------------------------------------------------------------------------
+%%%%%%%% -----------------------------------------  10  ---------------------------------------------
+%%%%%%%% --------------------------------------------------------------------------------------------
+
+fig_num = fig_num + 1;
+figs(fig_num) = AYfig.figure(fig_specs{fig_num});
+  tile_object = tiledlayout(1, 2);
+
+    axa = nexttile;
+    box on;
+    set(gca, 'XScale', 'log')
+    hold(axa, 'on');
+      for i = 1:length(FB1.exp)
+        plot(axa, FB1.exp(i).Re_s_alpha, FB1.exp(i).alpha, FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW, 'MarkerSize', FB1.MS, 'DisplayName', FB1.exp(i).label)
+      end
+    ylabel('$$\alpha$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+    xlabel('$$Re_s$$', 'Interpreter', 'LaTeX','FontSize',12)
+    % legend('Show', 'Location', 'SouthEast', 'Interpreter', 'LaTeX', 'NumColumns', 2)
+    textbox_a = annotation('textbox', textbox_pos2_a_NW, 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none');
+    textbox_a.FontSize = 16;
+
+    axb = nexttile;
+    box on;
+    set(gca, 'XScale', 'log')
+    hold(axb, 'on');
+    for i = 1:length(FB2.exp)
+        plot(axb, FB2.exp(i).Re_s_alpha, FB2.exp(i).alpha, FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW, 'MarkerSize', FB2.MS, 'DisplayName', FB2.exp(i).label)
+    end
+    xlabel('$$Re_s$$', 'Interpreter', 'LaTeX','FontSize',12)
+    % legend('Show', 'Location', 'SouthEast', 'Interpreter', 'LaTeX', 'NumColumns', 2)
+    textbox_b = annotation('textbox', textbox_pos2_b_NW,   'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none');
+    textbox_b.FontSize = 16;
+
+    axis([axa axb], [1, 1e4, -1, 3])
+    tile_object.TileSpacing = 'compact';
+    tile_object.Padding = 'compact';
+
+% FB1.inspect_mu_plastic_fit
+% FB2.inspect_mu_plastic_fit
 
 save_dir = '~/Desktop/MATLAB_OUTPUT/';
 

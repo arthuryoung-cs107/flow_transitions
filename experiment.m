@@ -11,11 +11,14 @@ classdef experiment < handle
     MS_L = 8.0;
     def_pos;
 
+    TV_lowRes = 70;
+
     mu_f;
     rho_f;
     phi_m;
     phi;
     rho_p;
+    mu_eff;
 
     mu_torque;
     sigma_torque;
@@ -85,6 +88,7 @@ classdef experiment < handle
       Res_out = obj.Re_s(3:(length(obj.Re_s)-2));
     end
     function gen_powerfit(obj)
+      obj.TV_range = obj.Re_s > obj.TV_lowRes;
       obj.powerfit = fit(obj.Re_s(obj.TV_range)', obj.G(obj.TV_range)','b*x^m', 'StartPoint', [70, 1]);
     end
     function inspect_torques(obj)

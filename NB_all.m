@@ -13,7 +13,7 @@ classdef NB_all < super_experiment
       obj.NB2_in = NB2_in_;
       obj.NB3_in = NB3_in_;
 
-      obj.TV_range = obj.Re_s > 100.0;
+      obj.TV_lowRes = 100.0;
       obj.color = green3;
       obj.specs = ' s';
       obj.label = 'NB';

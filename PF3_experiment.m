@@ -37,6 +37,8 @@ classdef PF3_experiment < experiment
       obj.phi_m = phi_m;
       obj.phi = phi;
       obj.rho_p = rho_p;
+      obj.mu_eff = obj.Krieger_Dougherty(mu_f, phi, phi_m);
+      
     end
     function process_raws(obj, raws)
       for i=1:obj.len

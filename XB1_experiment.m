@@ -8,9 +8,10 @@ classdef XB1_experiment < experiment
       obj.label = 'XB1';
       obj.color = color_;
       obj.specs = specs_;
-      obj.TV_range = 33:45;
       fig_pos = fig_pos_gen(2, 6);
       obj.def_pos = fig_pos(11, :);
+      obj.TV_range = 33:45;
+      obj.TV_lowRes = 200;
 
       mu_f = 0.0036981;
       rho_f = 1075.0;
@@ -29,7 +30,9 @@ classdef XB1_experiment < experiment
       obj.rho_f = rho_f;
       obj.phi_m = phi_m;
       obj.phi = phi;
-      obj.rho_p = rho_p;      
+      obj.rho_p = rho_p;
+      obj.mu_eff = obj.Krieger_Dougherty(mu_f, phi, phi_m);
+
     end
   end
 end

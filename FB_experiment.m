@@ -2,6 +2,7 @@ classdef FB_experiment < experiment
   properties
     statement;
     ind_sort;
+    TV_lowomega = 11;
   end
   methods
     function obj = FB_experiment(exp_list_in, label_, color_, specs_, statement_)
@@ -49,9 +50,13 @@ classdef FB_experiment < experiment
       obj.G = G_all(obj.ind_sort);
       obj.Re_s = Re_s_all(obj.ind_sort);
 
-      obj.TV_range = obj.Re_s > 50.0;
+      % obj.TV_range = obj.Re_s > obj.TV_lowRes;
+      obj.TV_range = obj.omega > obj.TV_lowomega;
 
       obj.powerfit = fit(obj.Re_s(obj.TV_range), obj.G(obj.TV_range),'b*x^m', 'StartPoint', [70, 1]);
+      for i=1:obj.len
+        obj.exp(i).gen_powerfit; 
+      end
     end
   end
 end

@@ -24,7 +24,10 @@ classdef glass_particles < fluid
     alpha;
     Re_s_alpha;
 
+    TV_range;
     TV_lowRes = 50;
+    TV_lowomega = 11;
+    powerfit;
   end
   methods
     function obj = glass_particles(name_, color_)
@@ -152,6 +155,12 @@ classdef glass_particles < fluid
         string_out = [obj.tag, ' q=', num2str(round(obj.q, 1),'%.1f')];
       end
     end
+    function gen_powerfit(obj)
+      % obj.TV_range = obj.Re_s > obj.TV_lowRes;
+      obj.TV_range = obj.omega > obj.TV_lowomega;
+
+      obj.powerfit = fit(obj.Re_s(obj.TV_range), obj.G(obj.TV_range),'b*x^m', 'StartPoint', [70, 1]);
+    end
   end
 end
 
@@ -159,7 +168,7 @@ function prime_vec = approx_deriv_weighted_central(t_in, x_in)
   n = length(t_in);
   prime_vec = nan(size(x_in));
 
-  k = 5; %% number of points considered. Must be odd
+  k = 7; %% number of points considered. Must be odd
   l = (k-1)/2; %% number of points to left and right
   p = l+1; %% index of central point
 

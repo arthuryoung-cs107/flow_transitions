@@ -279,4 +279,5 @@ fig_specs{6} = {'Name', 'PF_NB_UB_XB_FB_G_vs_Res'; 'Renderer', 'painters'; 'Posi
 fig_specs{7} = {'Name', 'FB_T_vs_omega'; 'Renderer', 'painters'; 'Position', [pos_spread(7, :) dim2];};
 fig_specs{8} = {'Name', 'FB_muapp_vs_omega'; 'Renderer', 'painters'; 'Position', [pos_spread(8, :) dim2];};
 fig_specs{9} = {'Name', 'FB_mup_tauy_vs_q_22'; 'Renderer', 'painters'; 'Position', [pos_spread(9, :) dim22];};
-fig_specs{10} = {'Name', 'FB_alpha_vs_Res'; 'Renderer', 'painters'; 'Position', [pos_spread(10, :) dim2];};
+fig_specs{10} = {'Name', 'FB_alpha_vs_omega'; 'Renderer', 'painters'; 'Position', [pos_spread(10, :) dim22];};
+fig_specs{11} = {'Name', 'FB_alpha_fits'; 'Renderer', 'painters'; 'Position', [pos_spread(11, :) dim22];};

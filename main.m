@@ -491,10 +491,10 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
     textbox_d = annotation('textbox', textbox_pos22_d_NE, 'Interpreter', 'LaTeX', 'String', 'd)', 'LineStyle', 'none');
     textbox_d.FontSize = 16;
 
-  axis(axa,[0 2 0 1.2])
-  axis(axb,[0 16 0 1.2])
-  axis(axc,[0 2 0 1.0])
-  axis(axd,[0 16 0 1.0])
+  axis(axa,[0 2 1e-5 1.0])
+  axis(axb,[0 16 1e-5 1.0])
+  axis(axc,[0 2 5e-2 1.2])
+  axis(axd,[0 16 5e-2 1.2])
   tile_object.TileSpacing = 'compact';
   tile_object.Padding = 'compact';
 

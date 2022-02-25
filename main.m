@@ -345,6 +345,7 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
       for i=1:length(FB2.exp)
         legend_set_6f(i) = plot(axf, FB2.exp(i).Re_s, FB2.exp(i).G, FB2.specs, 'Color', FB2.exp(i).color,'LineWidth', FB2.LW, 'MarkerSize', FB2.MS, 'DisplayName', FB2.exp(i).label);
       end
+      plot(axf, PFR.Re_s, PFR.G, PFR.specs,'Color', PFR.color, 'LineWidth', PFR.LW, 'MarkerSize', PFR.MS, 'DisplayName', PFR.label);
       fplot(axf, @(Re) (FB2.powerfit.b).*(Re).^(FB2.powerfit.m), [71 10000],'-', 'Color', FB2.color,'Linewidth', 2, 'DisplayName', 'FB2 $$\beta Re_s^{\alpha}$$');
     legend(legend_set_6f,'Location', 'NorthWest', 'Interpreter', 'Latex', 'NumColumns', 2);
     xlabel('$$Re_s$$', 'Interpreter', 'LaTeX','FontSize',12)
@@ -559,7 +560,7 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
     tile_object.TileSpacing = 'compact';
     tile_object.Padding = 'compact';
 %%%%%%%% --------------------------------------------------------------------------------------------
-%%%%%%%% -----------------------------------------  10  ---------------------------------------------
+%%%%%%%% -----------------------------------------  11  ---------------------------------------------
 %%%%%%%% --------------------------------------------------------------------------------------------
 
 fig_num = fig_num + 1;
@@ -617,6 +618,69 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
   axis(axd,[0 16 -1 3])
   tile_object.TileSpacing = 'compact';
   tile_object.Padding = 'compact';
+
+%%%%%%%% --------------------------------------------------------------------------------------------
+%%%%%%%% -----------------------------------------  12  ---------------------------------------------
+%%%%%%%% --------------------------------------------------------------------------------------------
+
+fig_num = fig_num + 1;
+figs(fig_num) = AYfig.figure(fig_specs{fig_num});
+  tile_object = tiledlayout(1, 1);
+  alpha_high = 3.0;
+  alpha_low = -0.5;
+    axa = nexttile;
+    view(view_mat(1, :));
+    box on;
+
+    set(gca, 'XScale', 'log')
+
+    hold(axa, 'on');
+
+      for i=1:FB1.len
+        range_it = logical((FB1.exp(i).alpha > alpha_low) .* (FB1.exp(i).alpha < alpha_high));
+        legend_set_1a(i) = scatter3(axa, FB1.exp(i).omega(range_it), FB1.exp(i).q*ones(size(FB1.exp(i).omega(range_it))), FB1.exp(i).alpha(range_it), 's','CData', FB1.exp(i).alpha(range_it), 'LineWidth', FB1.LW_L, 'DisplayName', FB1.exp(i).label);
+      end
+      colormap('Cool')
+    ylabel('$$q$$ [N.m]', 'Interpreter', 'LaTeX','FontSize',12)
+    xlabel('$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
+    zlabel('$$\alpha$$', 'Interpreter', 'LaTeX','FontSize',12)
+    zlim([-0.5 3])
+
+  % axis(axa,omega_tau_range)
+  tile_object.TileSpacing = 'compact';
+  tile_object.Padding = 'compact';
+
+%%%%%%%% --------------------------------------------------------------------------------------------
+%%%%%%%% -----------------------------------------  13  ---------------------------------------------
+%%%%%%%% --------------------------------------------------------------------------------------------
+
+
+fig_num = fig_num + 1;
+figs(fig_num) = AYfig.figure(fig_specs{fig_num});
+  tile_object = tiledlayout(1, 1);
+
+  axa = nexttile;
+  view(view_mat(1, :));
+  box on;
+  set(gca, 'YScale', 'log')
+  set(gca, 'XScale', 'log')
+  hold(axa, 'on');
+
+    for i=1:FB2.len
+      range_it = logical((FB2.exp(i).alpha > alpha_low) .* (FB2.exp(i).alpha < alpha_high));
+      legend_set_1a(i) = scatter3(axa, FB2.exp(i).omega(range_it), FB2.exp(i).q*ones(size(FB2.exp(i).omega(range_it))), FB2.exp(i).alpha(range_it), 'o','CData', FB2.exp(i).q*ones(size(FB2.exp(i).omega(range_it))), 'LineWidth', FB1.LW_L, 'DisplayName', FB2.exp(i).label);
+    end
+    colormap('Cool')
+  ylabel('$$q$$ [N.m]', 'Interpreter', 'LaTeX','FontSize',12)
+  xlabel('$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
+  zlabel('$$\alpha$$', 'Interpreter', 'LaTeX','FontSize',12)
+  zlim([-1 3])
+%%%%%%%% --------------------------------------------------------------------------------------------
+%%%%%%%% -----------------------------------------  end plots  ---------------------------------------------
+%%%%%%%% --------------------------------------------------------------------------------------------
+%%%%%%%% --------------------------------------------------------------------------------------------
+%%%%%%%% -----------------------------------------  end plots  ---------------------------------------------
+%%%%%%%% --------------------------------------------------------------------------------------------
 
 % FB1.inspect_mu_plastic_fit
 % FB2.inspect_mu_plastic_fit

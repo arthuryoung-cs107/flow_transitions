@@ -281,3 +281,5 @@ fig_specs{8} = {'Name', 'FB_muapp_vs_omega'; 'Renderer', 'painters'; 'Position',
 fig_specs{9} = {'Name', 'FB_mup_tauy_vs_q_22'; 'Renderer', 'painters'; 'Position', [pos_spread(9, :) dim22];};
 fig_specs{10} = {'Name', 'FB_alpha_vs_omega'; 'Renderer', 'painters'; 'Position', [pos_spread(10, :) dim22];};
 fig_specs{11} = {'Name', 'FB_alpha_fits'; 'Renderer', 'painters'; 'Position', [pos_spread(11, :) dim22];};
+fig_specs{12} = {'Name', 'alpha_vs_omega_vs_'; 'Renderer', 'painters'; 'Position', [pos_spread(12, :) dim1];};
+fig_specs{13} = {'Name', 'alpha_vs_omega_vs_'; 'Renderer', 'painters'; 'Position', [pos_spread(12, :) dim1];};

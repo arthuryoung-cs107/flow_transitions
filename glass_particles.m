@@ -115,35 +115,30 @@ classdef glass_particles < fluid
         obj.omega_p = obj.omega_appmu_min_sim;
       end
     end
-    function compute_gamma_S_bingham(obj)
+    function compute_dimensionless(obj)
+      nu = obj.mu_p/obj.rho_b;
       obj.gamma = zeros(size(obj.omega));
       obj.S = zeros(size(obj.omega));
-      for i = 1:length(obj.gamma)
+      obj.Re_s = zeros(size(obj.omega));
+      obj.cf = zeros(size(obj.mu_torque));
+
+      for i = 1:length(obj.omega)
           if obj.tau(i) > obj.tau_c % no plug layer
               r_c = obj.r_o;
           else % plug layer
               r_c = (obj.r_i)*sqrt(obj.tau(i)/(obj.tau_y));
           end
+          d = r_c - obj.r_i;
           obj.gamma(i) = abs((1/obj.mu_p)*(2*(obj.mu_p*obj.omega(i) + obj.tau_y*log(r_c/obj.r_i))/(obj.r_i^(-2) - r_c^(-2))*(obj.r_i)^(-2) - obj.tau_y)); %% opposite of what we should find taking outward radial direction as positive, as a result of absolute value
 
           r_t = sqrt(obj.r_i * r_c);
           obj.S(i) = abs(1/obj.mu_p*(2*(obj.mu_p*obj.omega(i) + obj.tau_y*log(r_c/obj.r_i))/(obj.r_i^(-2) - r_c^(-2))*(r_t)^(-2) - obj.tau_y)); %%
-      end
-    end
-    function compute_Re_s(obj)
-      nu = obj.mu_p/obj.rho_b;
-      obj.Re_s = zeros(size(obj.omega));
-      for i = 1:length(obj.S)
-        if obj.tau(i) > obj.tau_c
-          d = obj.r_o - obj.r_i;
-        else
-          d = (obj.r_i)*sqrt(obj.tau(i)/(obj.tau_y)) - obj.r_i;
-        end
-        obj.Re_s(i) = obj.S(i)*d^(2)/nu;
+          obj.Re_s(i) = obj.S(i)*d^(2)/nu;
+          obj.cf(i) = obj.mu_torque(i)/(2*pi*obj.r_i*obj.r_i*obj.h*obj.S(i)*obj.S(i)*d*d);
       end
     end
     function alpha_out = alpha_comp(obj)
-      alpha_out = approx_deriv_weighted_central(log(obj.Re_s), log(obj.G));
+      alpha_out = approx_deriv_weighted_central(log(obj.Re_s), log(obj.cf))+2;
     end
     function Res_out = Re_s_alpha_comp(obj)
       Res_out = obj.Re_s;
@@ -168,7 +163,7 @@ function prime_vec = approx_deriv_weighted_central(t_in, x_in)
   n = length(t_in);
   prime_vec = nan(size(x_in));
 
-  k = 7; %% number of points considered. Must be odd
+  k = 9; %% number of points considered. Must be odd
   l = (k-1)/2; %% number of points to left and right
   p = l+1; %% index of central point
 

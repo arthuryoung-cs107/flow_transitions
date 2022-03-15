@@ -53,8 +53,7 @@ classdef glass49 < glass_particles
       obj.compute_appmu;
       obj.compute_mu_plastic;
 
-      obj.compute_gamma_S_bingham;
-      obj.compute_Re_s;
+      obj.compute_dimensionless;
       obj.G = obj.mu_torque/((obj.h)*(obj.mu_p*obj.mu_p)/(obj.rho_b));
     end
   end

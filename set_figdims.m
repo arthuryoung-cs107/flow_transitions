@@ -12,6 +12,14 @@ Res_cf_range = [1e-1 1e4 1e-4 1e4];
 Res_Grat_range = [1e-1 2e4 0.8 1e2];
 omega_appmu_range = [1e-2 2e2 6e-2 1e7];
 
+omega_range = [1e-2, 2e2];
+torque_range = [1e-7, 1e-2];
+Re_s_range = [1e-4, 2e4];
+G_range = [1e-1, 1e5];
+Grat_range = [5e-1, 3e1];
+cf_range = [1e1, 1e10];
+alpha_range = [0, 3];
+
 pos11 = [0 500];
 pos12 = [450 500];
 pos13 = [900 500];
@@ -59,6 +67,8 @@ dim22_short = [580 300];
 dim22_tall = [580 500];
 
 dim1 = [580 325];
+
+posdimfull = [1 1 1438 796];
 
 ax21_short = [0.1 0.1 0.85 0.475; 0.1 0.675 0.4 0.3; 0.545 0.675 0.4 0.3];
 ax21_tall = [0.1 0.1 0.85 0.475; 0.1 0.675 0.4 0.3; 0.545 0.675 0.4 0.3];

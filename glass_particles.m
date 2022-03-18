@@ -24,9 +24,17 @@ classdef glass_particles < fluid
     alpha;
     Re_s_alpha;
 
+    dimless_ind; 
+    Re_s_ns;
+    cf_ns;
+    G_ns;
+    alpha_ns;
+
     TV_range;
     TV_lowRes = 50;
-    TV_lowomega = 11;
+    % TV_lowomega = 10;
+    TV_lowomega = 6;
+    TV_lowalpha = 1.0;
     powerfit;
   end
   methods
@@ -46,6 +54,16 @@ classdef glass_particles < fluid
       hold on
       plot(obj.mu_rpm, obj.mu_torque, ' -', 'Color', green4, 'LineWidth', 1.0, 'DisplayName', 'mean')
       legend('Show', 'Location', 'SouthEast')
+    end
+    function sort_dimensionless(obj)
+      obj.Re_s_ns = obj.Re_s;
+      obj.cf_ns = obj.cf;
+      obj.G_ns = obj.G;
+      obj.alpha_ns = obj.alpha;
+
+      [obj.Re_s, obj.dimless_ind] = mink(obj.Re_s, length(obj.Re_s));
+      obj.cf = obj.cf_ns(obj.dimless_ind);
+      obj.G = obj.G_ns(obj.dimless_ind);
     end
     function compute_tau_y(obj)
       r_i = obj.r_i;
@@ -138,7 +156,16 @@ classdef glass_particles < fluid
       end
     end
     function alpha_out = alpha_comp(obj)
+      alpha_out = obj.alpha_G();
+    end
+    function alpha_out = alpha_cf(obj)
       alpha_out = approx_deriv_weighted_central(log(obj.Re_s), log(obj.cf))+2;
+    end
+    function alpha_out = alpha_G(obj)
+      alpha_out = approx_deriv_weighted_central(log(obj.Re_s), log(obj.G));
+    end
+    function alpha_out = alpha_T(obj)
+      alpha_out = approx_deriv_weighted_central(log(obj.omega), log(obj.mu_torque));
     end
     function Res_out = Re_s_alpha_comp(obj)
       Res_out = obj.Re_s;
@@ -153,6 +180,7 @@ classdef glass_particles < fluid
     function gen_powerfit(obj)
       % obj.TV_range = obj.Re_s > obj.TV_lowRes;
       obj.TV_range = obj.omega > obj.TV_lowomega;
+      % obj.TV_range = (obj.omega>obj.TV_lowomega).*(obj.alpha_T>obj.TV_lowalpha);
 
       obj.powerfit = fit(obj.Re_s(obj.TV_range), obj.G(obj.TV_range),'b*x^m', 'StartPoint', [70, 1]);
     end
@@ -163,7 +191,7 @@ function prime_vec = approx_deriv_weighted_central(t_in, x_in)
   n = length(t_in);
   prime_vec = nan(size(x_in));
 
-  k = 9; %% number of points considered. Must be odd
+  k = 5; %% number of points considered. Must be odd
   l = (k-1)/2; %% number of points to left and right
   p = l+1; %% index of central point
 

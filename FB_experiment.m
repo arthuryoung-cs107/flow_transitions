@@ -18,8 +18,8 @@ classdef FB_experiment < experiment
       for i=1:obj.len
         obj.exp(i).specs = obj.specs;
         obj.exp(i).process_raw(raws{i});
+        obj.exp(i).sort_dimensionless;
         obj.exp(i).alpha = obj.exp(i).alpha_comp();
-        obj.exp(i).Re_s_alpha = obj.exp(i).Re_s_alpha_comp();
       end
     end
     function inspect_mu_plastic_fit(obj)
@@ -55,7 +55,7 @@ classdef FB_experiment < experiment
 
       obj.powerfit = fit(obj.Re_s(obj.TV_range), obj.G(obj.TV_range),'b*x^m', 'StartPoint', [70, 1]);
       for i=1:obj.len
-        obj.exp(i).gen_powerfit; 
+        obj.exp(i).gen_powerfit;
       end
     end
   end

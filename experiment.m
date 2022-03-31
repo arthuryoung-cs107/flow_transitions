@@ -11,7 +11,9 @@ classdef experiment < handle
     MS_L = 8.0;
     def_pos;
 
-    TV_lowRes = 70;
+    % TV_lowRes = 70;
+    TV_lowRes = 50;
+    TV_lowalpha = 1.2;
 
     mu_f;
     rho_f;
@@ -28,6 +30,8 @@ classdef experiment < handle
 
     omega;
     Re_s;
+
+    Re_sc;
 
     TV_range;
 
@@ -81,14 +85,12 @@ classdef experiment < handle
     function Res_out = Re_s_alpha(obj)
       Res_out = obj.Re_s;
     end
-    function alpha_out = alpha_old(obj)
-      alpha_out = approx_deriv_2ndO_legrangian(log(obj.Re_s), log(obj.cf)) + 2;
-    end
-    function Res_out = Re_s_alpha_old(obj)
-      Res_out = obj.Re_s(3:(length(obj.Re_s)-2));
-    end
     function gen_powerfit(obj)
-      obj.TV_range = obj.Re_s > obj.TV_lowRes;
+      TV_ind = ((obj.Re_s>obj.TV_lowRes).*(obj.alpha>obj.TV_lowalpha))>0;
+      Re_s_TV = obj.Re_s(TV_ind);
+      obj.Re_sc = Re_s_TV(1);
+
+      obj.TV_range = obj.Re_s > obj.Re_sc;
       obj.powerfit = fit(obj.Re_s(obj.TV_range)', obj.G(obj.TV_range)','b*x^m', 'StartPoint', [70, 1]);
     end
     function inspect_torques(obj)

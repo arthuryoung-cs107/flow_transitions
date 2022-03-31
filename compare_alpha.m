@@ -166,17 +166,17 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
       box on;
       set(gca, 'XScale', 'log')
       hold(ax(i), 'on');
-      xlabel('$$Re_s$$', 'Interpreter', 'LaTeX','FontSize',12)
+      % xlabel('$$Re_s$$', 'Interpreter', 'LaTeX','FontSize',12)
       xlim([1e0, 2e4]);
 
       yyaxis(ax(i),'left')
       set(gca, 'YScale', 'log')
-      ylabel('$$G_{rat} = G/G_{cc}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+      % ylabel('$$G_{rat} = G/G_{cc}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
       ylim([1e0, 3e1]);
 
       yyaxis(ax(i),'right')
-      ylabel('$$\alpha$$', 'Interpreter', 'LaTeX','FontSize',12)
-      ylim([1, 3]);
+      % ylabel('$$\alpha$$', 'Interpreter', 'LaTeX','FontSize',12)
+      ylim([1, 2]);
 
     end
 

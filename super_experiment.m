@@ -41,9 +41,5 @@ classdef super_experiment < experiment
       obj.cf = cf_all(obj.ind_sort);
       obj.Re_s = Re_s_all(obj.ind_sort);
     end
-    function process_raws(obj, raws)
-      %% do nothing
-    end
-
   end
 end

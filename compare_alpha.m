@@ -7,7 +7,12 @@ run compare_alpha_FIGSPECS.m
 
 fig_num = 0;
 
-
+% output information
+write_figs = true;
+write_all_figs = true;
+figs_to_write = 0;
+save_dir = [getenv('HOME') '/Desktop/MATLAB_OUTPUT/'];
+save_type = 'pdf';
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% -----------------------------------------  1  ---------------------------------------------
 %%%%%%%% --------------------------------------------------------------------------------------------
@@ -139,7 +144,7 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
 
   axis([axe axf], [Re_s_range alpha_range])
   axis(axd, [omega_range alpha_range])
-    for i = 1:length(FB1.exp)
+    for i = 1:length(FB2.exp)
       plot(axa, FB2.exp(i).omega, FB2.exp(i).mu_torque, FB2.exp(i).specs,'Color', FB2.exp(i).color, 'LineWidth', FB2.LW, 'MarkerSize', FB2.MS, 'DisplayName', FB2.exp(i).label)
       plot(axb, FB2.exp(i).Re_s, FB2.exp(i).G, [FB2.exp(i).specs, '-'],'Color', FB2.exp(i).color, 'LineWidth', FB2.LW, 'MarkerSize', FB2.MS, 'DisplayName', FB2.exp(i).label)
       plot(axc, FB2.exp(i).Re_s, FB2.exp(i).cf, [FB2.exp(i).specs, '-'],'Color', FB2.exp(i).color, 'LineWidth', FB2.LW, 'MarkerSize', FB2.MS, 'DisplayName', FB2.exp(i).label)
@@ -180,6 +185,13 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
 
     end
 
+
+    xlabel(ax(6:9), '$$Re_s$$', 'Interpreter', 'LaTeX','FontSize',12)
+    yyaxis(ax(6),'left')
+    ylabel(ax(6), '$$G_{rat} = G/G_{cc}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+    yyaxis(ax(9),'right')
+    ylabel(ax(9), '$$\alpha$$', 'Interpreter', 'LaTeX','FontSize',12)
+
     yyaxis(ax(1),'left')
       plot(ax(1), PF1.Re_s, PF1.G_rat, PF1.specs,'Color', PF1.color, 'LineWidth', PF1.LW, 'MarkerSize', PF1.MS, 'DisplayName', PF1.label);
     yyaxis(ax(1),'right')
@@ -217,7 +229,68 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
     yyaxis(ax(9),'right')
       plot(ax(9), XB2.Re_s, XB2.alpha, XB2.specs,'Color', PFR.color, 'LineWidth', XB2.LW, 'MarkerSize', XB2.MS, 'DisplayName', XB2.label);
 
+%%%%%%%% --------------------------------------------------------------------------------------------
+%%%%%%%% -----------------------------------------  4  ---------------------------------------------
+%%%%%%%% --------------------------------------------------------------------------------------------
+
+fig_num = fig_num + 1;
+figs(fig_num) = AYfig.figure(fig_specs{fig_num});
+  tile_object = tiledlayout(2, 2);
+  tile_object.TileSpacing = 'compact';
+  tile_object.Padding = 'compact';
+
+  axa = nexttile;
+  box on;
+  set(gca, 'XScale', 'log')
+  set(gca, 'YScale', 'log')
+  hold(axa, 'on');
+  ylabel('$$T_{avg}$$ [N.m]', 'Interpreter', 'LaTeX','FontSize',12)
+  xlabel('$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
+
+  axb = nexttile;
+  box on;
+  set(gca, 'XScale', 'log')
+  set(gca, 'YScale', 'log')
+  hold(axb, 'on');
+  ylabel('$$T_{avg}$$ [N.m]', 'Interpreter', 'LaTeX','FontSize',12)
+  xlabel('$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
+
+  axc = nexttile;
+  box on;
+  set(gca, 'XScale', 'log')
+  hold(axc, 'on');
+  ylabel('$$\alpha_{T}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+  xlabel('$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
+
+  axd = nexttile;
+  box on;
+  set(gca, 'XScale', 'log')
+  hold(axd, 'on');
+  ylabel('$$\alpha_{T}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+  xlabel('$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
+
+  axis([axa axb], [omega_range torque_range])
+  axis([axc axd], [omega_range alpha_range])
+    for i = 1:length(FB1.exp)
+      plot(axa, FB1.exp(i).omega, FB1.exp(i).mu_torque, FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW, 'MarkerSize', FB1.MS, 'DisplayName', FB1.exp(i).label)
+      plot(axc, FB1.exp(i).omega, FB1.exp(i).alpha_T, [FB1.exp(i).specs, '-'],'Color', FB1.exp(i).color, 'LineWidth', FB1.LW, 'MarkerSize', FB1.MS, 'DisplayName', FB1.exp(i).label)
+    end
+
+    for i = 1:length(FB2.exp)
+      plot(axb, FB2.exp(i).omega, FB2.exp(i).mu_torque, FB2.exp(i).specs,'Color', FB2.exp(i).color, 'LineWidth', FB2.LW, 'MarkerSize', FB2.MS, 'DisplayName', FB2.exp(i).label)
+      plot(axd, FB2.exp(i).omega, FB2.exp(i).alpha_T, [FB2.exp(i).specs, '-'],'Color', FB2.exp(i).color, 'LineWidth', FB2.LW, 'MarkerSize', FB2.MS, 'DisplayName', FB2.exp(i).label)
+    end
+
+  legend(axa, 'Show', 'Location', 'SouthEast', 'Interpreter', 'LaTeX', 'NumColumns', 2)
+  legend(axb, 'Show', 'Location', 'SouthEast', 'Interpreter', 'LaTeX', 'NumColumns', 2)
 
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% -----------------------------------------  end plots  ---------------------------------------------
 %%%%%%%% --------------------------------------------------------------------------------------------
+
+if (write_figs)
+  if (write_all_figs)
+    figs_to_write = 1:length(figs);
+  end
+  AYfig.save_figs(figs, figs_to_write, save_type, save_dir);
+end

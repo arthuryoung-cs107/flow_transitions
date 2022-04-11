@@ -7,6 +7,7 @@ classdef AYfig < handle
 
     %% movie stuff
     movie_gen;
+    watch_tag='no_watch';
 
     %% tiled layout stuff
     tile;
@@ -23,14 +24,27 @@ classdef AYfig < handle
         obj.fig.set(props_in_{i, 1}, props_in_{i, 2});
       end
     end
-    function init_movie(obj, Frames_)
+    function init_movie(obj, Frames_, watch_tag)
       str(Frames_) = struct('cdata', [], 'colormap', []);
       obj.movie_gen = str;
       obj.ax.NextPlot = 'replaceChildren';
       axdims = get(obj.ax, 'Position');
       axdims(3:4) = min(axdims(3:4));
       set(obj.ax, 'Position', axdims);
-      % obj.fig.Visible = 'off';
+
+      if nargin==3
+          if strcmp(watch_tag,'watch')
+              obj.fig.Visible = 'on';
+              obj.watch_tag = 'watch';
+          else
+              obj.fig.Visible = 'off';
+              obj.watch_tag = 'no_watch';
+          end
+      else
+          obj.fig.Visible = 'off';
+          obj.watch_tag = 'no_watch';
+      end
+
     end
     function init_tiles(obj, tile_dims_)
       clf(obj.fig);
@@ -46,8 +60,17 @@ classdef AYfig < handle
       end
     end
     function play_movie(obj, nplay_, fps_)
-      obj.fig.Visible = 'on';
-      movie(obj.ax, obj.movie_gen, nplay_, fps_);
+        if (nargin==1)
+            nplay=5;
+            fps=90;
+        elseif (nargin==3)
+            nplay=nplay_;
+            fps=fps_;
+        end
+        if (strcmp(obj.watch_tag,'no_watch'))
+            obj.fig.Visible = 'on';
+        end
+        movie(obj.fig, obj.movie_gen, nplay, fps);
     end
     function dims_out = get_dims(obj)
       curunits = get(obj.ax, 'Units');

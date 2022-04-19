@@ -7,6 +7,12 @@ run main_FIGSPECS.m
 
 fig_num = 0;
 
+% output information
+write_figs = true;
+write_all_figs = true;
+figs_to_write = 0;
+save_dir = [getenv('HOME') '/Desktop/MATLAB_OUTPUT/'];
+save_type = 'pdf';
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% -----------------------------------------   1  ---------------------------------------------
 %%%%%%%% --------------------------------------------------------------------------------------------
@@ -564,9 +570,9 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
 %%%%%%%% -----------------------------------------  end plots  ---------------------------------------------
 %%%%%%%% --------------------------------------------------------------------------------------------
 
-save_dir = '~/Desktop/MATLAB_OUTPUT/';
-
-for i=1:length(figs)
-  fig_it = figs(i);
-  saveas(fig_it, [save_dir fig_it.Name], 'pdf');
+if (write_figs)
+  if (write_all_figs)
+    figs_to_write = 1:length(figs);
+  end
+  AYfig.save_figs(figs, figs_to_write, save_type, save_dir);
 end

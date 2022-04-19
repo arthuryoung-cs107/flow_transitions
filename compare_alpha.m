@@ -181,7 +181,7 @@ figs(fig_num) = AYfig.figure(fig_specs{fig_num});
 
       yyaxis(ax(i),'right')
       % ylabel('$$\alpha$$', 'Interpreter', 'LaTeX','FontSize',12)
-      ylim([1, 2]);
+      % ylim([1, 2]);
 
     end
 

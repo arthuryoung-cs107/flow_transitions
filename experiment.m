@@ -32,6 +32,8 @@ classdef experiment < handle
     Re_s;
 
     Re_sc;
+    Re_sc1;
+    Re_sc2;
 
     TV_range;
 
@@ -86,12 +88,18 @@ classdef experiment < handle
       Res_out = obj.Re_s;
     end
     function gen_powerfit(obj)
-      TV_ind = ((obj.Re_s>obj.TV_lowRes).*(obj.alpha>obj.TV_lowalpha))>0;
-      Re_s_TV = obj.Re_s(TV_ind);
-      obj.Re_sc = Re_s_TV(1);
+    r_i = 0.01208;
+    r_o = 0.025;
 
-      obj.TV_range = obj.Re_s > obj.Re_sc;
-      obj.powerfit = fit(obj.Re_s(obj.TV_range)', obj.G(obj.TV_range)','b*x^m', 'StartPoint', [70, 1]);
+      % obj.TV_range = obj.Re_s > obj.Re_sc;
+      obj.TV_range = logical((obj.Re_s>50) .* (obj.alpha>1.2));
+      Re_s_TV = obj.Re_s(obj.TV_range);
+      obj.Re_sc1 = Re_s_TV(1);
+      obj.powerfit = fit(Re_s_TV', obj.G(obj.TV_range)','b*x^m', 'StartPoint', [70, 1]);
+      alpha = obj.powerfit.m;
+      beta = obj.powerfit.b;
+      m = (2*pi*r_i*r_o)/((r_o-r_i)^2);
+      obj.Re_sc2 = exp((1/(alpha-1))*log(m/beta));
     end
     function inspect_torques(obj)
       fig_specs = AYfig.specs_gen(obj.label, obj.def_pos);

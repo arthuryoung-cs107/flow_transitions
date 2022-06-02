@@ -161,7 +161,7 @@ classdef AYfig < handle
             if (strcmp(save_type, 'pdf'))
                 exportgraphics(fig_in, [save_dir fig_in.Name '.pdf'], 'ContentType', 'vector')
             else
-                saveas(fig_it, [save_dir fig_it.Name], save_type);
+                saveas(fig_in, [save_dir fig_in.Name], save_type);
             end
         end
         function save_figs(figs, figs_to_write, save_type, save_dir_)

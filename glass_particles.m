@@ -24,7 +24,7 @@ classdef glass_particles < fluid
     alpha;
     Re_s_alpha;
 
-    dimless_ind; 
+    dimless_ind;
     Re_s_ns;
     cf_ns;
     G_ns;
@@ -36,6 +36,11 @@ classdef glass_particles < fluid
     TV_lowomega = 6;
     TV_lowalpha = 1.0;
     powerfit;
+
+    Re_sc1=0;
+    Re_sc2=0;
+    Re_s_TV=0;
+    G_TV=0;
   end
   methods
     function obj = glass_particles(name_, color_)
@@ -178,11 +183,25 @@ classdef glass_particles < fluid
       end
     end
     function gen_powerfit(obj)
-      % obj.TV_range = obj.Re_s > obj.TV_lowRes;
-      obj.TV_range = obj.omega > obj.TV_lowomega;
-      % obj.TV_range = (obj.omega>obj.TV_lowomega).*(obj.alpha_T>obj.TV_lowalpha);
+        r_i = 0.01208;
+        r_o = 0.025;
 
-      obj.powerfit = fit(obj.Re_s(obj.TV_range), obj.G(obj.TV_range),'b*x^m', 'StartPoint', [70, 1]);
+        omega_TV_range = logical((obj.omega>1) .* (obj.alpha_T>1.2));
+        obj.TV_range = omega_TV_range(obj.dimless_ind);
+        [Re_s_TV, I_TV] = sort(obj.Re_s_ns(omega_TV_range));
+        G_TV = obj.G_ns(omega_TV_range);
+        obj.Re_sc1 = min(Re_s_TV);
+        if (length(Re_s_TV)>=2)
+            obj.powerfit = fit(reshape(Re_s_TV, [], 1), reshape(G_TV, [], 1),'b*x^m', 'StartPoint', [70, 1]);
+            alpha = obj.powerfit.m;
+            beta = obj.powerfit.b;
+            m = (2*pi*r_i*r_o)/((r_o-r_i)^2);
+            obj.Re_sc2 = exp((1/(alpha-1))*log(m/beta));
+        else
+            obj.Re_sc2 = obj.Re_sc1;
+        end
+        obj.Re_s_TV = Re_s_TV;
+        obj.G_TV = G_TV; 
     end
   end
 end

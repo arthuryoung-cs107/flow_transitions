@@ -88,8 +88,8 @@ classdef experiment < handle
       Res_out = obj.Re_s;
     end
     function gen_powerfit(obj)
-    r_i = 0.01208;
-    r_o = 0.025;
+      r_i = 0.01208;
+      r_o = 0.025;
 
       % obj.TV_range = obj.Re_s > obj.Re_sc;
       obj.TV_range = logical((obj.Re_s>50) .* (obj.alpha>1.2));

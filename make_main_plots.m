@@ -89,9 +89,9 @@ figs(fig_num) = mp.FB_tauyrat_mup_vs_q(FB_tauyrat_mup_vs_q_AYfig, FB1, FB2, EC00
 %%%%%%%% -----------------------------------------  10  ---------------------------------------------
 %%%%%%%% --------------------------------------------------------------------------------------------
 
-fig_num = fig_num + 1;
-FB_alpha_vs_omega_q_AYfig = AYfig(fig_specs{fig_num}, false);
-figs(fig_num) = mp.FB_alpha_vs_omega_q(FB_alpha_vs_omega_q_AYfig, FB1, FB2, EC000, EC050, EC075, EC100);
+% fig_num = fig_num + 1;
+% FB_alpha_vs_omega_q_AYfig = AYfig(fig_specs{fig_num}, false);
+% figs(fig_num) = mp.FB_alpha_vs_omega_q(FB_alpha_vs_omega_q_AYfig, FB1, FB2, EC000, EC050, EC075, EC100);
 
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% -----------------------------------------  end plots  ---------------------------------------------

@@ -80,7 +80,8 @@ classdef main_plots
         dim1 = [580 325];
 
         % posdimfull = [1 1 1438 796];
-        posdimfull = [1 1 1728 1000];
+        % posdimfull = [1 1 1728 1000];
+        posdimfull = [0 0 1728 1000];
 
         ax21_short = [0.1 0.1 0.85 0.475; 0.1 0.675 0.4 0.3; 0.545 0.675 0.4 0.3];
         ax21_tall = [0.1 0.1 0.85 0.475; 0.1 0.675 0.4 0.3; 0.545 0.675 0.4 0.3];
@@ -416,6 +417,10 @@ classdef main_plots
             hold(axs, 'on');
             box(axs,'on');
 
+            % legend_set_a(1) = plot(axs(1), EC000.q, EC000.tau_y_rat, EC000.specs, 'Color', EC000.color, 'LineWidth', EC000.LW_L, 'MarkerSize', EC000.MS_L, 'DisplayName', EC000.label);
+            % legend_set_a(2) = plot(axs(1), EC050.q, EC050.tau_y_rat, EC050.specs, 'Color', EC050.color, 'LineWidth', EC050.LW_L, 'MarkerSize', EC050.MS_L, 'DisplayName', EC050.label);
+            % legend_set_a(3) = plot(axs(1), EC075.q, EC075.tau_y_rat, EC075.specs, 'Color', EC075.color, 'LineWidth', EC075.LW_L, 'MarkerSize', EC075.MS_L, 'DisplayName', EC075.label);
+            % legend_set_a(4) = plot(axs(1), EC100.q, EC100.tau_y_rat, EC100.specs, 'Color', EC100.color, 'LineWidth', EC100.LW_L, 'MarkerSize', EC100.MS_L, 'DisplayName', EC100.label);
             for i = 1:length(FB1.exp)
                 legend_set_a(i) = plot(axs(1), FB1.exp(i).q, (FB1.exp(i).tau_y)/(FB1.exp(i).tau_static), FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW_L, 'MarkerSize', FB1.MS_L, 'DisplayName', FB1.exp(i).label);
             end
@@ -437,7 +442,11 @@ classdef main_plots
             textbox_c = annotation('textbox', obj.textbox_pos22_c_NE, 'Interpreter', 'LaTeX', 'String', 'c)', 'LineStyle', 'none', 'FontSize', 16);
             textbox_d = annotation('textbox', obj.textbox_pos22_d_NE, 'Interpreter', 'LaTeX', 'String', 'd)', 'LineStyle', 'none', 'FontSize', 16);
 
-            % set(axs,'YScale', 'log', 'XScale', 'log');
+            % set(axs(1:2),'YScale', 'log');
+            set(axs,'YScale', 'log');
+            
+            set(axs(1:2), 'YTick', [1e-5,1e-4,1e-3,1e-2,1e-1,1])
+
 
             ylabel(axs(1), '$$\tau_y/\tau_{q = 0}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
             ylabel(axs(3), '$$\tilde{\mu}_{p}$$ [Pa.s]', 'Interpreter', 'LaTeX','FontSize',12)

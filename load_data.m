@@ -8,11 +8,13 @@ name_list_113micron = {'FB 113 microns, Q = 1.00 l/min'; 'FB 113 microns, Q = 1.
 
 phi_vec_113microns = [0.5541; 0.5541; 0.5541; 0.5541; 0.5524; 0.5503; 0.5482; 0.5460; 0.5439; 0.5418];
 
+turbo14 = turbo(14);
 glass113_all = glass113.empty(size(name_list_113micron, 1), 0);
 for i = 1:size(name_list_113micron, 1)
-  glass113_all(i) = glass113(name_list_113micron{i}, cool14(4+i, :), phi_vec_113microns(i));
+  % glass113_all(i) = glass113(name_list_113micron{i}, cool14(4+i, :), phi_vec_113microns(i));
+  glass113_all(i) = glass113(name_list_113micron{i}, turbo14(4+i, :), phi_vec_113microns(i));
 end
-FB1 = FB_experiment(glass113_all, 'FB1', cool14(1, :), '*', '113 micron glass beads');
+FB1 = FB_experiment(glass113_all, 'FB1', turbo14(1, :), '*', '113 micron glass beads');
 FB1.MS = 5;
 FB1.LW = 0.75;
 FB1.MS_L = 8;
@@ -24,11 +26,15 @@ FB1.process_raws(raw_FB1_structure)
 load ./raw_data_structures/FB2_rawdata.mat;
 name_list_49micron = {'FB 49 microns, Q = 0.00 l/min'; 'FB 49 microns, Q = 0.05 l/min'; 'FB 49 microns, Q = 0.10 l/min'; 'FB 49 microns, Q = 0.15 l/min' ; 'FB 49 microns, Q = 0.30 l/min' ; 'FB 49 microns, Q = 0.50 l/min' ; 'FB 49 microns, Q = 0.75 l/min' ; 'FB 49 microns, Q = 1.00 l/min' ; 'FB 49 microns, Q = 1.25 l/min' ; 'FB 49 microns, Q = 1.50 l/min' ; 'FB 49 microns, Q = 2.00 l/min' ; 'FB 49 microns, Q = 2.50 l/min' ; 'FB 49 microns, Q = 3.00 l/min'};
 
+
+
 glass49_all = glass49.empty(size(name_list_49micron, 1), 0);
 for i = 1:size(name_list_49micron, 1)
-  glass49_all(i) = glass49(name_list_49micron{i}, winter13(i, :));
+  % glass49_all(i) = glass49(name_list_49micron{i}, winter13(i, :));
+  glass49_all(i) = glass49(name_list_49micron{i}, turbo14(i, :));
 end
-FB2 = FB_experiment(glass49_all, 'FB2', winter13(1, :), '.', '49 micron glass beads');
+% FB2 = FB_experiment(glass49_all, 'FB2', winter13(1, :), '.', '49 micron glass beads');
+FB2 = FB_experiment(glass49_all, 'FB2', turbo14(1, :), '.', '49 micron glass beads');
 FB2.MS = 12.0;
 FB2.LW = 1.0;
 FB2.MS_L = 15.0;
@@ -179,10 +185,15 @@ RK.init_Racina();
 LSa.init_Lewis('a');
 LSb.init_Lewis('b');
 RV.init_Ravelet('alpha');
-EC000.init_Chuan('0.0', cool14(1,:));
-EC050.init_Chuan('0.5', cool14(2,:));
-EC075.init_Chuan('0.75', cool14(3,:));
-EC100.init_Chuan('1.0', cool14(4,:));
+% EC000.init_Chuan('0.0', cool14(1,:));
+% EC050.init_Chuan('0.5', cool14(2,:));
+% EC075.init_Chuan('0.75', cool14(3,:));
+% EC100.init_Chuan('1.0', cool14(4,:));
+EC000.init_Chuan('0.0', turbo14(1,:));
+EC050.init_Chuan('0.5', turbo14(2,:));
+EC075.init_Chuan('0.75', turbo14(3,:));
+EC100.init_Chuan('1.0', turbo14(4,:));
+
 
 EC000.MS = FB1.MS;
 EC050.MS = FB1.MS;

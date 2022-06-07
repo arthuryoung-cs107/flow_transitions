@@ -38,25 +38,36 @@ classdef FB_experiment < experiment
       hold off
     end
     function gen_powerfit(obj)
-      omega_all = obj.exp(1).omega;
-      G_all = obj.exp(1).G;
-      Re_s_all = obj.exp(1).Re_s;
-      for i=2:obj.len
-        omega_all = [omega_all; obj.exp(i).omega];
-        G_all = [G_all; obj.exp(i).G];
-        Re_s_all = [Re_s_all; obj.exp(i).Re_s];
-      end
-      [obj.omega, obj.ind_sort] = mink(omega_all, length(omega_all));
-      obj.G = G_all(obj.ind_sort);
-      obj.Re_s = Re_s_all(obj.ind_sort);
+        r_i = 0.01208;
+        r_o = 0.025;
 
-      % obj.TV_range = obj.Re_s > obj.TV_lowRes;
-      obj.TV_range = obj.omega > obj.TV_lowomega;
+        for i=1:obj.len
+          obj.exp(i).gen_powerfit;
+        end
 
-      obj.powerfit = fit(obj.Re_s(obj.TV_range), obj.G(obj.TV_range),'b*x^m', 'StartPoint', [70, 1]);
-      for i=1:obj.len
-        obj.exp(i).gen_powerfit;
-      end
+        G = obj.exp(1).G;
+        Re_s = obj.exp(1).Re_s;
+        G_TV = obj.exp(1).G_TV;
+        Re_s_TV = obj.exp(1).Re_s_TV;
+        for i=2:obj.len
+            G = [G; obj.exp(i).G];
+            Re_s = [Re_s; obj.exp(i).Re_s];
+            G_TV = [G_TV; obj.exp(i).G_TV];
+            Re_s_TV = [Re_s_TV; obj.exp(i).Re_s_TV];
+        end
+        [obj.Re_s I_R] = sort(Re_s);
+        obj.G = G(I_R);
+        [obj.Re_s_TV I_R_TV] = sort(Re_s_TV);
+        obj.G_TV = G_TV(I_R_TV);
+
+
+
+        obj.powerfit = fit(rmmissing(obj.Re_s_TV), rmmissing(obj.G_TV),'b*x^m', 'StartPoint', [70, 1]);
+        alpha = obj.powerfit.m;
+        beta = obj.powerfit.b;
+        m = (2*pi*r_i*r_o)/((r_o-r_i)^2);
+        obj.Re_sc2 = exp((1/(alpha-1))*log(m/beta));
+        obj.G_c2 = beta*(obj.Re_sc2)^alpha;
     end
   end
 end

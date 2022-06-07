@@ -30,17 +30,34 @@ classdef glass_particles < fluid
     G_ns;
     alpha_ns;
 
-    TV_range;
-    TV_lowRes = 50;
-    % TV_lowomega = 10;
-    TV_lowomega = 6;
-    TV_lowalpha = 1.0;
     powerfit;
 
-    Re_sc1=0;
-    Re_sc2=0;
-    Re_s_TV=0;
-    G_TV=0;
+    TV_range=1;
+    Re_s_TV=NaN;
+    G_TV=NaN;
+
+    Re_sc1=NaN;
+    Re_sc2=NaN;
+    Re_sc3=NaN;
+    G_c1=NaN;
+    G_c2=NaN;
+    G_c3=NaN;
+
+    omega_c3_Ta=NaN;
+    T_c3_Ta=NaN;
+
+    TV_range_Ta=1;
+    omega_TV_Ta=NaN;
+    Re_s_TV_Ta=NaN;
+    T_TV_Ta=NaN;
+    G_TV_Ta=NaN;
+
+    Re_sc1_Ta=NaN;
+    Re_sc2_Ta=NaN;
+    Re_sc3_Ta=NaN;
+    G_c1_Ta=NaN;
+    G_c2_Ta=NaN;
+    G_c3_Ta=NaN;
   end
   methods
     function obj = glass_particles(name_, color_)
@@ -185,32 +202,97 @@ classdef glass_particles < fluid
     function gen_powerfit(obj)
         r_i = 0.01208;
         r_o = 0.025;
+        alpha_tol = 1;
 
-        omega_TV_range = logical((obj.omega>1) .* (obj.alpha_T>1.2));
-        obj.TV_range = omega_TV_range(obj.dimless_ind);
-        [Re_s_TV, I_TV] = sort(obj.Re_s_ns(omega_TV_range));
-        G_TV = obj.G_ns(omega_TV_range);
-        obj.Re_sc1 = min(Re_s_TV);
-        if (length(Re_s_TV)>=2)
-            obj.powerfit = fit(reshape(Re_s_TV, [], 1), reshape(G_TV, [], 1),'b*x^m', 'StartPoint', [70, 1]);
+        obj.alpha_T_transitions(alpha_tol, r_i, r_o)
+
+        alpha_vec = obj.alpha_G;
+        full_indices = 1:length(obj.Re_s);
+        I_transitioned = logical((obj.Re_s>10).*(alpha_vec>alpha_tol));
+        I_transition = min(full_indices(I_transitioned));
+        TV_range = I_transition:length(obj.Re_s);
+        if (length(TV_range)>=2)
+            obj.TV_range = TV_range;
+            obj.Re_s_TV = obj.Re_s(TV_range);
+            obj.G_TV = obj.G(TV_range);
+            obj.Re_sc1 = obj.Re_s_TV(1);
+            obj.G_c1 = obj.G_TV(1);
+            [obj.Re_sc3,obj.G_c3] = interp_trans_Ga(alpha_tol,obj.Re_s, alpha_vec, obj.G, I_transition);
+
+            obj.powerfit = fit(reshape(obj.Re_s_TV, [], 1), reshape(obj.G_TV, [], 1),'b*x^m', 'StartPoint', [70, 1]);
             alpha = obj.powerfit.m;
             beta = obj.powerfit.b;
             m = (2*pi*r_i*r_o)/((r_o-r_i)^2);
             obj.Re_sc2 = exp((1/(alpha-1))*log(m/beta));
-        else
-            obj.Re_sc2 = obj.Re_sc1;
+            obj.G_c2 = beta*(obj.Re_sc2)^alpha;
         end
-        obj.Re_s_TV = Re_s_TV;
-        obj.G_TV = G_TV; 
+    end
+    function alpha_T_transitions(obj, alpha_tol_, r_i_, r_o_)
+        alpha_vec = obj.alpha_T;
+        full_indices = 1:length(obj.omega);
+        I_transitioned = logical((obj.omega>1) .* (alpha_vec>alpha_tol_));
+        I_transition = min(full_indices(I_transitioned));
+        TV_range = I_transition:length(obj.omega);
+        if (length(TV_range)>=2)
+            obj.TV_range_Ta =TV_range;
+            [Re_s_TV, I_TV] = sort(obj.Re_s_ns(obj.TV_range_Ta));
+            G_TV = obj.G_ns(obj.TV_range_Ta);
+            [obj.Re_sc1_Ta,ic1] = min(Re_s_TV);
+            obj.omega_TV_Ta = obj.omega(obj.TV_range_Ta);
+            obj.T_TV_Ta = obj.mu_torque(obj.TV_range_Ta);
+            obj.Re_s_TV_Ta = Re_s_TV;
+            obj.G_TV_Ta = G_TV;
+            obj.G_c1_Ta = G_TV(ic1);
+            [obj.Re_sc3_Ta, obj.G_c3_Ta, obj.omega_c3_Ta, obj.T_c3_Ta] = interp_trans_Ta(alpha_tol_, obj.omega, obj.Re_s_ns, alpha_vec, obj.G_ns, obj.mu_torque, I_transition);
+
+            powerfit = fit(reshape(Re_s_TV, [], 1), reshape(G_TV, [], 1),'b*x^m', 'StartPoint', [70, 1]);
+            alpha = powerfit.m;
+            beta = powerfit.b;
+            m = (2*pi*r_i_*r_o_)/((r_o_-r_i_)^2);
+            obj.Re_sc2_Ta = exp((1/(alpha-1))*log(m/beta));
+            obj.G_c2_Ta = beta*(obj.Re_sc2_Ta)^alpha;
+        end
     end
   end
 end
 
+function [Rc, Gc, omegac, Tc] = interp_trans_Ta(alpha_tol_,omega_,R_,alpha_,G_,T_,It_)
+    R2=R_(It_);
+    omega2=omega_(It_);
+    alpha2=alpha_(It_);
+    G2=G_(It_);
+    T2=T_(It_);
+
+    R1=R_(It_-1);
+    omega1=omega_(It_-1);
+    alpha1=alpha_(It_-1);
+    G1=G_(It_-1);
+    T1=T_(It_-1);
+
+    omegac=(alpha_tol_-alpha2)*((omega2-omega1)/(alpha2-alpha1)) + omega2;
+    Rc=(omegac-omega2)*((R2-R1)/(omega2-omega1)) + R2;
+    Gc=(omegac-omega2)*((G2-G1)/(omega2-omega1)) + G2;
+    Tc=(omegac-omega2)*((T2-T1)/(omega2-omega1)) + T2;
+end
+
+function [Rc, Gc] = interp_trans_Ga(alpha_tol_,R_,alpha_,G_,It_)
+    R2=R_(It_);
+    alpha2=alpha_(It_);
+    G2=G_(It_);
+
+    R1=R_(It_-1);
+    alpha1=alpha_(It_-1);
+    G1=G_(It_-1);
+
+    Rc=(alpha_tol_-alpha2)*((R2-R1)/(alpha2-alpha1)) + R2;
+    Gc=(Rc-R2)*((G2-G1)/(R2-R1)) + G2;
+end
 function prime_vec = approx_deriv_weighted_central(t_in, x_in)
   n = length(t_in);
   prime_vec = nan(size(x_in));
 
-  k = 5; %% number of points considered. Must be odd
+  % k = 5; %% number of points considered. Must be odd
+  k = 3; %% number of points considered. Must be odd
   l = (k-1)/2; %% number of points to left and right
   p = l+1; %% index of central point
 

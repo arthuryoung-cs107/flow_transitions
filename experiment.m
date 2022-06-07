@@ -34,10 +34,16 @@ classdef experiment < handle
     Re_sc;
     Re_sc1;
     Re_sc2;
+    Re_sc3;
 
     TV_range;
 
     powerfit;
+    Re_s_TV;
+    G_TV;
+    G_c1;
+    G_c2;
+    G_c3;
 
     exp;
     len; %% this is the number of data sets
@@ -90,16 +96,26 @@ classdef experiment < handle
     function gen_powerfit(obj)
       r_i = 0.01208;
       r_o = 0.025;
+      alpha_tol = 1.2;
 
-      % obj.TV_range = obj.Re_s > obj.Re_sc;
-      obj.TV_range = logical((obj.Re_s>50) .* (obj.alpha>1.2));
+      alpha_vec = obj.alpha;
+      full_indices = 1:length(obj.omega);
+      I_transitioned = logical((obj.Re_s>50) .* (alpha_vec>alpha_tol));
+      I_transition = min(full_indices(I_transitioned));
+      obj.TV_range = I_transition:length(obj.omega);
       Re_s_TV = obj.Re_s(obj.TV_range);
       obj.Re_sc1 = Re_s_TV(1);
-      obj.powerfit = fit(Re_s_TV', obj.G(obj.TV_range)','b*x^m', 'StartPoint', [70, 1]);
+      obj.Re_s_TV = Re_s_TV;
+      obj.G_TV = obj.G(obj.TV_range);
+      obj.G_c1 = obj.G_TV(1);
+      [obj.Re_sc3, obj.G_c3] = interp_trans(alpha_tol, obj.Re_s, alpha_vec, obj.G, I_transition);
+
+      obj.powerfit = fit(reshape(Re_s_TV, [], 1), reshape(obj.G_TV,[],1),'b*x^m', 'StartPoint', [70, 1]);
       alpha = obj.powerfit.m;
       beta = obj.powerfit.b;
       m = (2*pi*r_i*r_o)/((r_o-r_i)^2);
       obj.Re_sc2 = exp((1/(alpha-1))*log(m/beta));
+      obj.G_c2 = beta*(obj.Re_sc2)^alpha;
     end
     function inspect_torques(obj)
       fig_specs = AYfig.specs_gen(obj.label, obj.def_pos);
@@ -143,11 +159,24 @@ function prime_vec = approx_deriv_1stO_legrangian(t_in, x_in)
   prime_vec(n) = (h2)/(h1*(h1+h2))*x_in(n-2) - (h1+h2)/(h1*h2)*x_in(n-1) + (h1+2*h2)/(h2*(h1+h2))*x_in(n);
 end
 
+function [Rc, Gc] = interp_trans(alpha_tol_,R_,alpha_,G_,It_)
+    R2=R_(It_);
+    alpha2=alpha_(It_);
+    G2=G_(It_);
+    R1=R_(It_-1);
+    alpha1=alpha_(It_-1);
+    G1=G_(It_-1);
+
+    Rc=(alpha_tol_-alpha2)*((R2-R1)/(alpha2-alpha1)) + R2;
+    Gc=(Rc-R2)*((G2-G1)/(R2-R1)) + G2;
+end
+
 function prime_vec = approx_deriv_weighted_central(t_in, x_in)
   n = length(t_in);
   prime_vec = nan(size(x_in));
 
-  k = 5; %% number of points considered. Must be odd
+  % k = 5; %% number of points considered. Must be odd
+  k = 3; %% number of points considered. Must be odd
   l = (k-1)/2; %% number of points to left and right
   p = l+1; %% index of central point
 

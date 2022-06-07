@@ -16,6 +16,7 @@ classdef main_plots
         r_i = 0.01208;
         r_o = 0.025;
         L = 0.036;
+        tau2T = 2*pi*(0.01208)*(0.01208)*(0.036); 
 
         omega_tau_range = [1e-2 1e2 1e-9 1e-2];
         Res_G_range = [1e-2 1e4 1e0 1e8];
@@ -444,7 +445,7 @@ classdef main_plots
 
             % set(axs(1:2),'YScale', 'log');
             set(axs,'YScale', 'log');
-            
+
             set(axs(1:2), 'YTick', [1e-5,1e-4,1e-3,1e-2,1e-1,1])
 
 

@@ -8,7 +8,6 @@ classdef glass113 < glass_particles
       obj.phi = phi_;
       obj.q_inc = 1.4;
       obj.tau_static = 225.046219998818e+000;
-      obj.TV_lowRes = 50;
     end
     function process_raw(obj, raw)
       obj.rho_b = obj.rho_p * obj.phi + obj.rho_f*(1.0-obj.phi);

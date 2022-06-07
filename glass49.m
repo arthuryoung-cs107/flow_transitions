@@ -16,7 +16,6 @@ classdef glass49 < glass_particles
       obj.phi = 0.50;
       obj.q_inc = 0.2;
       obj.tau_static = 159.582557507215e+000;
-      obj.TV_lowRes = 50;
     end
     function process_raw(obj, raw_)
       obj.rho_b = obj.rho_p * obj.phi + obj.rho_f*(1.0-obj.phi);

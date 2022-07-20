@@ -151,13 +151,13 @@ PFR.gen_powerfit();
 NB1.gen_powerfit();
 NB2.gen_powerfit();
 NB3.gen_powerfit();
-NBall.gen_powerfit();
+NBall.gen_powerfit([NB1.Re_s_TV(:);NB2.Re_s_TV(:);NB3.Re_s_TV(:)], [NB1.G_TV(:);NB2.G_TV(:);NB3.G_TV(:)], [NB1.alpha_TV(:);NB2.alpha_TV(:);NB3.alpha_TV(:)]);
 UB1.gen_powerfit();
 UB2.gen_powerfit();
-UBall.gen_powerfit();
+UBall.gen_powerfit([UB1.Re_s_TV(:);UB2.Re_s_TV(:)], [UB1.G_TV(:);UB2.G_TV(:)], [UB1.alpha_TV(:);UB2.alpha_TV(:)]);
 XB1.gen_powerfit();
 XB2.gen_powerfit();
-XBall.gen_powerfit();
+XBall.gen_powerfit([XB1.Re_s_TV(:);XB2.Re_s_TV(:)], [XB1.G_TV(:);XB2.G_TV(:)], [XB1.alpha_TV(:);XB2.alpha_TV(:)]);
 FB1.gen_powerfit();
 FB2.gen_powerfit();
 

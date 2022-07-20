@@ -22,7 +22,6 @@ classdef glass_particles < fluid
     sim_appmu;
 
     alpha;
-    Re_s_alpha;
 
     dimless_ind;
     Re_s_ns;
@@ -30,11 +29,13 @@ classdef glass_particles < fluid
     G_ns;
     alpha_ns;
 
-    powerfit;
-
+    alpha_tol=1.0;
     TV_range=1;
+    powerfit=struct('b',NaN,'m',NaN);
+
     Re_s_TV=NaN;
     G_TV=NaN;
+    alpha_TV=NaN;
 
     Re_sc1=NaN;
     Re_sc2=NaN;
@@ -65,6 +66,16 @@ classdef glass_particles < fluid
       obj.phi_m = 0.5869;
       obj.rho_p = 2500;
       obj.rho_f = 1.225;
+    end
+    function [gamma_out, tau_out] = gamma_tau_analytical(obj,omega_)
+        if (length(omega_(:))==2)
+            omega=logspace(omega_(1),omega_(2),100);
+        else
+            omega=omega_;
+        end
+
+        
+
     end
     function fig_out = plot_torques(obj, position)
       run figure_properties.m
@@ -189,9 +200,6 @@ classdef glass_particles < fluid
     function alpha_out = alpha_T(obj)
       alpha_out = approx_deriv_weighted_central(log(obj.omega), log(obj.mu_torque));
     end
-    function Res_out = Re_s_alpha_comp(obj)
-      Res_out = obj.Re_s;
-    end
     function string_out = label(obj)
       if round( obj.q, 1) >= 10.0
         string_out = [obj.tag, ' q=', num2str(round(obj.q, 1),2)];
@@ -202,7 +210,7 @@ classdef glass_particles < fluid
     function gen_powerfit(obj)
         r_i = 0.01208;
         r_o = 0.025;
-        alpha_tol = 1;
+        alpha_tol = obj.alpha_tol;
 
         obj.alpha_T_transitions(alpha_tol, r_i, r_o)
 
@@ -215,9 +223,11 @@ classdef glass_particles < fluid
             obj.TV_range = TV_range;
             obj.Re_s_TV = obj.Re_s(TV_range);
             obj.G_TV = obj.G(TV_range);
+            obj.alpha_TV=alpha_vec(TV_range);
+
             obj.Re_sc1 = obj.Re_s_TV(1);
             obj.G_c1 = obj.G_TV(1);
-            [obj.Re_sc3,obj.G_c3] = interp_trans_Ga(alpha_tol,obj.Re_s, alpha_vec, obj.G, I_transition);
+            [obj.Re_sc3,obj.G_c3] = fluid.interp_trans(alpha_tol,obj.Re_s, alpha_vec, obj.G, I_transition);
 
             obj.powerfit = fit(reshape(obj.Re_s_TV, [], 1), reshape(obj.G_TV, [], 1),'b*x^m', 'StartPoint', [70, 1]);
             alpha = obj.powerfit.m;
@@ -275,18 +285,6 @@ function [Rc, Gc, omegac, Tc] = interp_trans_Ta(alpha_tol_,omega_,R_,alpha_,G_,T
     Tc=(omegac-omega2)*((T2-T1)/(omega2-omega1)) + T2;
 end
 
-function [Rc, Gc] = interp_trans_Ga(alpha_tol_,R_,alpha_,G_,It_)
-    R2=R_(It_);
-    alpha2=alpha_(It_);
-    G2=G_(It_);
-
-    R1=R_(It_-1);
-    alpha1=alpha_(It_-1);
-    G1=G_(It_-1);
-
-    Rc=(alpha_tol_-alpha2)*((R2-R1)/(alpha2-alpha1)) + R2;
-    Gc=(Rc-R2)*((G2-G1)/(R2-R1)) + G2;
-end
 function prime_vec = approx_deriv_weighted_central(t_in, x_in)
   n = length(t_in);
   prime_vec = nan(size(x_in));

@@ -11,7 +11,6 @@ classdef XB_all < super_experiment
       obj.XB1_in = XB1_in_;
       obj.XB2_in = XB2_in_;
 
-      obj.TV_lowRes = 200.0;
       obj.color = orange2;
       obj.specs = ' ^';
       obj.label = 'XB';

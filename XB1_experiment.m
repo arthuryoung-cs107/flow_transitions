@@ -10,8 +10,6 @@ classdef XB1_experiment < experiment
       obj.specs = specs_;
       fig_pos = fig_pos_gen(2, 6);
       obj.def_pos = fig_pos(11, :);
-      obj.TV_range = 33:45;
-      obj.TV_lowRes = 200;
 
       mu_f = 0.0036981;
       rho_f = 1075.0;

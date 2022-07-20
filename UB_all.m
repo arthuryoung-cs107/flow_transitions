@@ -11,7 +11,6 @@ classdef UB_all < super_experiment
       obj.UB1_in = UB1_in_;
       obj.UB2_in = UB2_in_;
 
-      obj.TV_lowRes = 400.0;
       obj.color = blue1;
       obj.specs = ' v';
       obj.label = 'UB';

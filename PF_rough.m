@@ -6,6 +6,8 @@ classdef PF_rough < super_experiment
   methods
     function obj = PF_rough(PF2_in_, PF3_in_)
       obj@super_experiment({PF2_in_; PF3_in_});
+      obj.alpha_tol = 1.4;
+
       % bad data point
       obj.mu_torque(15) = NaN;
       obj.sigma_torque(15) = NaN;

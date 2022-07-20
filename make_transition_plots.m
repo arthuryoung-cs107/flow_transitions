@@ -10,6 +10,7 @@ fig_specs{5} = {'Name', 'FB1_FB2_G_vs_Res_trans'; 'Renderer', 'painters'; 'Posit
 fig_specs{6} = {'Name', 'FB1_FB2_T_vs_omega_trans'; 'Renderer', 'painters'; 'Position', tp.posdimfull;};
 fig_specs{7} = {'Name', 'FB1_FB2_alphaT_vs_omega'; 'Renderer', 'painters'; 'Position', tp.posdimfull;};
 fig_specs{8} = {'Name', 'FB1_FB2_alpha_comp_vs_shear'; 'Renderer', 'painters'; 'Position', tp.posdimfull;};
+fig_specs{9} = {'Name', 'PF_NUXB_alpha_vs_Res_trans'; 'Renderer', 'painters'; 'Position', tp.posdimfull;};
 
 fig_num = 0;
 
@@ -76,6 +77,14 @@ figs(fig_num) = tp.FB1_FB2_alphaT_vs_omega(FB1_FB2_alphaT_vs_omega_AYfig, FB1, F
 fig_num = fig_num + 1;
 FB1_FB2_alpha_comp_vs_shear_AYfig = AYfig(fig_specs{fig_num}, false);
 figs(fig_num) = tp.FB1_FB2_alpha_comp_vs_shear(FB1_FB2_alpha_comp_vs_shear_AYfig, FB1, FB2);
+
+%%%%%%%% --------------------------------------------------------------------------------------------
+%%%%%%%% -----------------------------------------  9  ---------------------------------------------
+%%%%%%%% --------------------------------------------------------------------------------------------
+
+fig_num = fig_num + 1;
+PF_NUXB_alpha_vs_Res_trans_AYfig = AYfig(fig_specs{fig_num}, false);
+figs(fig_num) = tp.PF_NUXB_alpha_vs_Res_trans(PF_NUXB_alpha_vs_Res_trans_AYfig, PF1, PFR, NB1, NB2, NB3, UB1, UB2, XB1, XB2, NBall, UBall, XBall);
 
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% -----------------------------------------  end plots  ---------------------------------------------

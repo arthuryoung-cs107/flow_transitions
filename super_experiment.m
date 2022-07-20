@@ -41,5 +41,48 @@ classdef super_experiment < experiment
       obj.cf = cf_all(obj.ind_sort);
       obj.Re_s = Re_s_all(obj.ind_sort);
     end
+    function gen_powerfit(obj,Re_s_TV_, G_TV_, alpha_TV_)
+        r_i = 0.01208;
+        r_o = 0.025;
+
+        if (nargin>1) % use FB_experiment fitting algorithm
+            Re_s_TV = rmmissing(Re_s_TV_);
+            G_TV = rmmissing(G_TV_);
+            alpha_TV = rmmissing(alpha_TV_);
+            [obj.Re_s_TV I_R_TV] = sort(Re_s_TV);
+            obj.G_TV = G_TV(I_R_TV);
+            obj.alpha_TV = alpha_TV(I_R_TV);
+
+            obj.powerfit = fit(obj.Re_s_TV, obj.G_TV,'b*x^m', 'StartPoint', [70, 1]);
+            alpha = obj.powerfit.m;
+            beta = obj.powerfit.b;
+            m = (2*pi*r_i*r_o)/((r_o-r_i)^2);
+            obj.Re_sc2 = exp((1/(alpha-1))*log(m/beta));
+            obj.G_c2 = beta*(obj.Re_sc2)^alpha;
+        else % use experminet fitting algorithm
+            alpha_tol = obj.alpha_tol;
+
+            alpha_vec = obj.alpha;
+            full_indices = 1:length(obj.omega);
+            I_transitioned = logical((obj.Re_s>50) .* (alpha_vec>alpha_tol));
+            I_transition = min(full_indices(I_transitioned));
+            obj.TV_range = I_transition:length(obj.omega);
+            Re_s_TV = obj.Re_s(obj.TV_range);
+            obj.Re_sc1 = Re_s_TV(1);
+            obj.Re_s_TV = Re_s_TV;
+            obj.G_TV = obj.G(obj.TV_range);
+            obj.alpha_TV = alpha_vec(obj.TV_range);
+
+            obj.G_c1 = obj.G_TV(1);
+            [obj.Re_sc3, obj.G_c3] = fluid.interp_trans(alpha_tol, obj.Re_s, alpha_vec, obj.G, I_transition);
+
+            obj.powerfit = fit(reshape(Re_s_TV, [], 1), reshape(obj.G_TV,[],1),'b*x^m', 'StartPoint', [70, 1]);
+            alpha = obj.powerfit.m;
+            beta = obj.powerfit.b;
+            m = (2*pi*r_i*r_o)/((r_o-r_i)^2);
+            obj.Re_sc2 = exp((1/(alpha-1))*log(m/beta));
+            obj.G_c2 = beta*(obj.Re_sc2)^alpha;
+        end
+    end
   end
 end

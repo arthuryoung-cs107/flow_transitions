@@ -20,8 +20,6 @@ classdef NB1_experiment < experiment
       obj.specs = specs_;
       fig_pos = fig_pos_gen(2, 6);
       obj.def_pos = fig_pos(6, :);
-      obj.TV_range = 22:45;
-      obj.TV_lowRes = 219;
 
       mu_f = 0.0020580;
       rho_f = 1042.657;

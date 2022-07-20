@@ -3,17 +3,12 @@ classdef experiment < handle
     label;
     color;
     specs;
-    % LW = 1.0;
-    % MS = 5.0;
     LW = 0.7;
     MS = 3.5;
     LW_L = 1.0;
     MS_L = 8.0;
     def_pos;
 
-    % TV_lowRes = 70;
-    TV_lowRes = 50;
-    TV_lowalpha = 1.2;
 
     mu_f;
     rho_f;
@@ -31,19 +26,22 @@ classdef experiment < handle
     omega;
     Re_s;
 
-    Re_sc;
-    Re_sc1;
-    Re_sc2;
-    Re_sc3;
+    alpha_tol=1.3;
+    TV_range=1;
+    powerfit=struct('b',NaN,'m',NaN);
 
-    TV_range;
+    Re_s_TV=NaN;
+    G_TV=NaN;
+    alpha_TV=NaN;
 
-    powerfit;
-    Re_s_TV;
-    G_TV;
-    G_c1;
-    G_c2;
-    G_c3;
+    % Re_sc=NaN;
+    Re_sc1=NaN;
+    Re_sc2=NaN;
+    Re_sc3=NaN;
+
+    G_c1=NaN;
+    G_c2=NaN;
+    G_c3=NaN;
 
     exp;
     len; %% this is the number of data sets
@@ -96,7 +94,7 @@ classdef experiment < handle
     function gen_powerfit(obj)
       r_i = 0.01208;
       r_o = 0.025;
-      alpha_tol = 1.2;
+      alpha_tol = obj.alpha_tol;
 
       alpha_vec = obj.alpha;
       full_indices = 1:length(obj.omega);
@@ -107,8 +105,10 @@ classdef experiment < handle
       obj.Re_sc1 = Re_s_TV(1);
       obj.Re_s_TV = Re_s_TV;
       obj.G_TV = obj.G(obj.TV_range);
+      obj.alpha_TV = alpha_vec(obj.TV_range);
+
       obj.G_c1 = obj.G_TV(1);
-      [obj.Re_sc3, obj.G_c3] = interp_trans(alpha_tol, obj.Re_s, alpha_vec, obj.G, I_transition);
+      [obj.Re_sc3, obj.G_c3] = fluid.interp_trans(alpha_tol, obj.Re_s, alpha_vec, obj.G, I_transition);
 
       obj.powerfit = fit(reshape(Re_s_TV, [], 1), reshape(obj.G_TV,[],1),'b*x^m', 'StartPoint', [70, 1]);
       alpha = obj.powerfit.m;
@@ -157,18 +157,6 @@ function prime_vec = approx_deriv_1stO_legrangian(t_in, x_in)
   h1 = t_in(n-1)-t_in(n-2);
   h2 = t_in(n)-t_in(n-1);
   prime_vec(n) = (h2)/(h1*(h1+h2))*x_in(n-2) - (h1+h2)/(h1*h2)*x_in(n-1) + (h1+2*h2)/(h2*(h1+h2))*x_in(n);
-end
-
-function [Rc, Gc] = interp_trans(alpha_tol_,R_,alpha_,G_,It_)
-    R2=R_(It_);
-    alpha2=alpha_(It_);
-    G2=G_(It_);
-    R1=R_(It_-1);
-    alpha1=alpha_(It_-1);
-    G1=G_(It_-1);
-
-    Rc=(alpha_tol_-alpha2)*((R2-R1)/(alpha2-alpha1)) + R2;
-    Gc=(Rc-R2)*((G2-G1)/(R2-R1)) + G2;
 end
 
 function prime_vec = approx_deriv_weighted_central(t_in, x_in)

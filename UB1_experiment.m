@@ -10,8 +10,6 @@ classdef UB1_experiment < experiment
       obj.specs = specs_;
       fig_pos = fig_pos_gen(2, 6);
       obj.def_pos = fig_pos(9, :);
-      obj.TV_range = 37:45;
-      obj.TV_lowRes = 360; 
 
       mu_f = 0.00098069;
       rho_f = 994.0;

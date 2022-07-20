@@ -21,8 +21,6 @@ classdef NB3_experiment < experiment
       obj.specs = specs_;
       fig_pos = fig_pos_gen(2, 6);
       obj.def_pos = fig_pos(8, :);
-      obj.TV_range = 17:37;
-
 
       mu_f = 0.0020580;
       rho_f = 1042.657;

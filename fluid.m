@@ -276,6 +276,20 @@ classdef fluid < handle
       legend('Show', 'Location', 'SouthEast')
     end
   end
+  methods (Static)
+      function [Rc, Gc] = interp_trans(alpha_tol_,R_,alpha_,G_,It_)
+          R2=R_(It_);
+          alpha2=alpha_(It_);
+          G2=G_(It_);
+
+          R1=R_(It_-1);
+          alpha1=alpha_(It_-1);
+          G1=G_(It_-1);
+
+          Rc=(alpha_tol_-alpha2)*((R2-R1)/(alpha2-alpha1)) + R2;
+          Gc=(Rc-R2)*((G2-G1)/(R2-R1)) + G2;
+      end
+  end
 end
 
 function length = interval_length_finder(raw_array,i)

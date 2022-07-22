@@ -74,8 +74,6 @@ classdef glass_particles < fluid
             omega=omega_;
         end
 
-        
-
     end
     function fig_out = plot_torques(obj, position)
       run figure_properties.m
@@ -262,6 +260,13 @@ classdef glass_particles < fluid
             obj.Re_sc2_Ta = exp((1/(alpha-1))*log(m/beta));
             obj.G_c2_Ta = beta*(obj.Re_sc2_Ta)^alpha;
         end
+    end
+    function gammai_out = comp_gammai_ro(obj,omegai_)
+        mu_p = obj.mu_p;
+        tau_y = obj.tau_y;
+        r_o = obj.r_o;
+        r_i = obj.r_i;
+        gammai_out = (1/mu_p)*(tau_y-2/(1-1/(r_o*r_o))*(omegai_*mu_p+tau_y*log(r_o/r_i)));
     end
   end
 end

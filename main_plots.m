@@ -26,8 +26,10 @@ classdef main_plots
         omega_appmu_range = [1e-2 2e2 6e-2 1e7];
 
         omega_range = [1e-2, 2e2];
-        torque_range = [1e-7, 1e-2];
         Re_s_range = [1e-4, 2e4];
+
+        torque_range = [1e-7, 1e-2];
+        tau_range = [1e-2 1e3];
         G_range = [1e-1, 1e5];
         Grat_range = [5e-1, 3e1];
         cf_range = [1e1, 1e10];

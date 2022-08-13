@@ -9,7 +9,7 @@ classdef glass113 < glass_particles
       obj.q_inc = 1.4;
       obj.tau_static = 225.046219998818e+000;
     end
-    function process_raw(obj, raw)
+    function process_raw(obj, raw,i_)
       obj.rho_b = obj.rho_p * obj.phi + obj.rho_f*(1.0-obj.phi);
 
       obj.range_array_full = obj.range_finder(raw);

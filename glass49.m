@@ -8,6 +8,9 @@ classdef glass49 < glass_particles
     RD_rpm;
     RU_rpm;
     omega_min = 1e-2;
+
+    fix_tauy_flag=true;
+    % fix_tauy_flag=false;
   end
   methods
     function obj = glass49(name_, color_)
@@ -17,7 +20,7 @@ classdef glass49 < glass_particles
       obj.q_inc = 0.2;
       obj.tau_static = 159.582557507215e+000;
     end
-    function process_raw(obj, raw_)
+    function process_raw(obj, raw_,i_)
       obj.rho_b = obj.rho_p * obj.phi + obj.rho_f*(1.0-obj.phi);
 
       obj.RD_flow_lmin = raw_(:, 2);
@@ -48,7 +51,20 @@ classdef glass49 < glass_particles
       obj.omega = obj.omega(ind_use);
       obj.tau = obj.tau(ind_use);
 
-      obj.compute_tau_y;
+      %% temporary hack
+      if ((i_==11 || i_==12) && obj.fix_tauy_flag)
+          % obj.compute_tau_y;
+          obj.tau_min=min(obj.tau);
+          if (i_==11)
+              obj.tau_y=21e-3;
+          elseif (i_==12)
+              obj.tau_y=19e-3;
+          end
+          obj.tau_c= (obj.r_o*obj.r_o)*obj.tau_y/(obj.r_i*obj.r_i);
+      else
+          obj.compute_tau_y;
+      end
+
       obj.compute_appmu;
       obj.compute_mu_plastic;
 

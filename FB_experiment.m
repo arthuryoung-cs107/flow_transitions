@@ -15,7 +15,7 @@ classdef FB_experiment < experiment
     function process_raws(obj, raws)
       for i=1:obj.len
         obj.exp(i).specs = obj.specs;
-        obj.exp(i).process_raw(raws{i});
+        obj.exp(i).process_raw(raws{i},i);
         obj.exp(i).sort_dimensionless;
         obj.exp(i).alpha = obj.exp(i).alpha_comp();
       end

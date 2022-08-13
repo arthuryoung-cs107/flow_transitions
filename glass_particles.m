@@ -59,6 +59,13 @@ classdef glass_particles < fluid
     G_c1_Ta=NaN;
     G_c2_Ta=NaN;
     G_c3_Ta=NaN;
+
+    tau_y_fit;
+    tau_y_fit_range=1:10;
+    % tau_y_fit_range=1:3;
+
+    power_fit_params;
+    Carreau_fit_params;
   end
   methods
     function obj = glass_particles(name_, color_)
@@ -73,7 +80,6 @@ classdef glass_particles < fluid
         else
             omega=omega_;
         end
-
     end
     function fig_out = plot_torques(obj, position)
       run figure_properties.m
@@ -103,8 +109,9 @@ classdef glass_particles < fluid
 
       obj.tau_min = min(obj.tau);
 
-      fit_range = 1:10;
+      fit_range=obj.tau_y_fit_range;
       linfit = fit(obj.omega(fit_range), obj.tau(fit_range), 'poly1');
+      obj.tau_y_fit=linfit;
 
       if ((obj.tau_min > linfit.p2) && (linfit.p2 > 0))
         obj.tau_y = linfit.p2;
@@ -266,9 +273,279 @@ classdef glass_particles < fluid
         tau_y = obj.tau_y;
         r_o = obj.r_o;
         r_i = obj.r_i;
-        gammai_out = (1/mu_p)*(tau_y-2/(1-1/(r_o*r_o))*(omegai_*mu_p+tau_y*log(r_o/r_i)));
+        gammai_out = (1/mu_p)*(tau_y+2*(omegai_*mu_p+tau_y*log(r_o/r_i))/((r_i*r_i)/(r_o*r_o)-1));
+    end
+    function taui_out = comp_taui_ro(obj,gammai_)
+        taui_out=obj.mu_p*abs(gammai_)+obj.tau_y;
+    end
+    function [gammai_out,taui_out] = comp_gammai_taui_ro(obj,omegai_)
+        gammai_out=obj.comp_gammai_ro(omegai_);
+        taui_out=obj.comp_taui_ro(gammai_out);
+    end
+    function [gammai_out,taui_out] = comp_gammai_taui_rc(obj,omegai_)
+        tau_y=obj.tau_y;
+        mu_p=obj.mu_p;
+
+        gammai_solve = @(t,o) (tau_y + 2*(o*mu_p + 0.5*tau_y*log(t/tau_y))./((tau_y./t)-1))/mu_p;
+        bingham_solve = @(t,o) (mu_p * abs(gammai_solve(t,o))) + tau_y - t;
+        % bingham_solve = @(t,o) (mu_p * gammai_solve(t,o)) + tau_y - t;
+
+        % bounds = [tau_y,max(obj.tau)];
+        bounds = [tau_y,1e3];
+
+        gammai_out = nan(size(omegai_));
+        taui_out = nan(size(omegai_));
+
+        for i = 1:length(omegai_)
+            solve_i = @(t) abs(bingham_solve(t,omegai_(i)));
+            taui_out(i) = fminbnd(solve_i,bounds(1),bounds(2));
+            gammai_out(i) = gammai_solve(taui_out(i),omegai_(i));
+        end
+    end
+    function [rc_out,gammai_out,taui_out,ogt_plug_out] = comp_bingham_shear_rc(obj,omegai_)
+        [gammai_out taui_out] = obj.comp_gammai_taui_rc(omegai_);
+        rc_out=obj.r_i*sqrt(taui_out/obj.tau_y);
+
+        if (nargout==4)
+            full_indices=1:length(omegai_);
+            shear_indices=full_indices(rc_out>obj.r_o); %% shear region
+            if (isempty(shear_indices)) %% if we never reach shear flow
+                index_shear=length(omegai_);
+            else
+                index_shear=shear_indices(1);
+            end
+            ogt_plug_out = [omegai_(index_shear) gammai_out(index_shear) taui_out(index_shear)];
+        end
+    end
+    function [gammai_out,taui_out,o_g_t_plug_out] = comp_gammai_taui(obj,omegai_)
+        [gammai_ro taui_ro] = obj.comp_gammai_taui_ro(omegai_);
+        [rc_vec gammai_out taui_out o_g_t_plug_out] = obj.comp_bingham_shear_rc(omegai_);
+        shear_inds=rc_vec>obj.r_o;
+        gammai_out(shear_inds)=gammai_ro(shear_inds);
+        taui_out(shear_inds)=taui_ro(shear_inds);
+    end
+    function [r_mat,omega_mat,gamma_mat,tau_mat] = comp_radial_shear(obj,omegai_,point_count_)
+        if (nargin==2)
+            point_count=30;
+        else
+            point_count=point_count_;
+        end
+
+        [rc_vec, g_vec, t_vec] = obj.comp_bingham_shear_rc(omegai_);
+
+        tau_y=obj.tau_y;
+        mu_p=obj.mu_p;
+        r_i=obj.r_i;
+
+        gamma_r = @(o,r,r_c) (1/mu_p)*(tau_y + (2./(r.*r))*((o*mu_p + tau_y*log(r_c/r_i))/(1/(r_c*r_c)-1/(r_i*r_i))));
+
+        r_mat=nan(point_count,length(omegai_));
+        omega_mat=nan(point_count,length(omegai_));
+        gamma_mat=nan(point_count,length(omegai_));
+        tau_mat=nan(point_count,length(omegai_));
+
+        for i = 1:length(omegai_)
+            rc_it = rc_vec(i);
+            r_vec = linspace(r_i,rc_it,point_count);
+            omega_it = omegai_(i)*ones(size(r_vec));
+            gamma_it = gamma_r(omegai_(i),r_vec,rc_it);
+            tau_it = mu_p*abs(gamma_it)+tau_y;
+
+            r_mat(:,i)=reshape(r_vec,[],1);
+            omega_mat(:,i)=reshape(omega_it,[],1);
+            gamma_mat(:,i)=reshape(gamma_it,[],1);
+            tau_mat(:,i)=reshape(tau_it,[],1);
+        end
+    end
+    function [K_fitted,n_fitted] = fit_power_fluid(obj, ind_in)
+        if (nargin==2)
+            ind_=ind_in;
+        else
+            ind_=obj.omega<20;
+        end
+
+        omega_fit=obj.omega(ind_);
+        tau_fit=obj.tau(ind_);
+
+        eta = obj.r_i/obj.r_o;
+
+        [K_bounds n_bounds] = determine_power_fluid_bounds(obj.omega,obj.tau,eta);
+        [K_min K_0 K_max] = deal(K_bounds(1), K_bounds(2), K_bounds(3));
+        [n_min n_0 n_max] = deal(n_bounds(1), n_bounds(2), n_bounds(3));
+
+        penalty_func = @(K,n,o,t) t-K*(2*o/(n.*(1-(eta*eta).^(1.0./n)))).^(n);
+        % fit_func = @(x) (penalty_func(x(1),x(2),omega_fit,tau_fit))./abs(tau_fit);
+        fit_func = @(x) (penalty_func(x(1),x(2),omega_fit,tau_fit));
+
+        x_out = lsqnonlin(fit_func,[K_0 n_0],[K_min n_min],[K_max n_max]);
+        [K_fitted n_fitted] = deal(x_out(1),x_out(2));
+    end
+    function [taui_out gammai_out] = comp_power_fluid(obj,omegai_,K_, n_)
+        if (nargin < 4)
+            [K n] = obj.fit_power_fluid;
+        else
+            K = K_;
+            n = n_;
+        end
+        eta = obj.r_i/obj.r_o;
+        gammai_out = -1.0*((2*omegai_./(n*(1.0-(eta*eta).^(1.0./n)))).^n);
+        taui_out = K*abs(gammai_out);
+    end
+    function [mu0_out, lambda_out, n_out, k_out, muinf_out] = fit_Carreau_fluid(obj, ind_, full_flag_)
+        if (nargin==1)
+            ind=obj.omega<15;
+            full_flag=true;
+        elseif (nargin==2)
+            ind=ind_;
+            full_flag=true;
+        elseif (nargin==3)
+            ind=ind_;
+            full_flag=full_flag_;
+        end
+
+        omega_fit=obj.omega(ind);
+        tau_fit=obj.tau(ind);
+        w_fit = compute_distance_weighting(omega_fit);
+
+        trust_region_reflect = 'trust-region-reflective';
+        Lev_Marq = 'levenberg-marquardt';
+        functol_try=1e-12;
+        steptol_try=1e-12;
+        optimtol_try=1e-12;
+
+        % alg_use=trust_region_reflect;
+        alg_use=Lev_Marq;
+        optimtol_use=optimtol_try;
+        functol_use=functol_try;
+        steptol_use=steptol_try;
+
+        penalty_func = @(m0,l,n,k,minf,o,t,w) w.*(t-((minf+(m0-minf)*((1+(l*k*o).*(l*k*o)).^(0.5*(n-1)))).*(k*o)));
+        [mu0_b lam_b n_b k_b muinf_b] = obj.determine_Carreau_fluid_bounds(omega_fit,tau_fit);
+        [m0_min m0_0 m0_max] = deal(mu0_b(1), mu0_b(2), mu0_b(3));
+        [l_min l_0 l_max] = deal(lam_b(1), lam_b(2), lam_b(3));
+        [n_min n_0 n_max] = deal(n_b(1), n_b(2), n_b(3));
+
+        [k_out muinf_out] = deal(2*(obj.r_o*obj.r_o)/(obj.r_o*obj.r_o-obj.r_i*obj.r_i),0);
+        if (full_flag)
+            [k_min k_0 k_max] = deal(k_b(1), k_b(2), k_b(3));
+            [minf_min minf_0 minf_max] = deal(muinf_b(1), muinf_b(2), muinf_b(3));
+
+            fit_func = @(x) (penalty_func(x(1),x(2),x(3),x(4),x(5),omega_fit,tau_fit,w_fit));
+
+            upper_bound=[m0_max l_max n_max k_max minf_max];
+            lower_bound=[m0_min l_min n_min k_min minf_min];
+            init_guess=[m0_0 l_0 n_0 k_0 minf_0];
+        else
+            fit_func = @(x) (penalty_func(x(1),x(2),x(3),k_out,muinf_out,omega_fit,tau_fit,w_fit));
+
+            upper_bound=[m0_max l_max n_max];
+            lower_bound=[m0_min l_min n_min];
+            init_guess=[m0_0 l_0 n_0];
+        end
+
+        % solve_opts=optimoptions(@lsqnonlin,'Display','final', ...
+        solve_opts=optimoptions(@lsqnonlin,'Display','off', ...
+                                'Algorithm',alg_use, ...
+                                'MaxIterations', 1e5, ...
+                                'MaxFunctionEvaluations', 1e5, ...
+                                'FiniteDifferenceType', 'central', ...
+                                'OptimalityTolerance',optimtol_use, ...
+                                'FunctionTolerance',functol_use, ...
+                                'StepTolerance', steptol_use);
+
+        x_out = lsqnonlin(fit_func, init_guess, ...
+                                    lower_bound, ...
+                                    upper_bound, ...
+                                    solve_opts);
+        [mu0_out lambda_out n_out] = deal(x_out(1),x_out(2),x_out(3));
+        if (full_flag)
+            [k_out,muinf_out] = deal(x_out(4),x_out(5));
+        end
+    end
+    function [taui_out gammai_out mueffi_out] = comp_Carreau_fluid(obj,omegai_,mu0_,l_,n_,k_,muinf_)
+        if (nargin == 2)
+            [mu0,l,n,k,muinf] = obj.fit_Carreau_fluid;
+        else
+            [mu0,l,n,k,muinf] = deal(mu0_,l_,n_,k_,muinf_);
+        end
+        gammai_out = -1.0*(k*omegai_);
+        mueffi_out = muinf+((mu0-muinf)*((1+((l*gammai_out).*(l*gammai_out))).^(0.5*(n-1))));
+        taui_out = mueffi_out.*abs(gammai_out);
+    end
+    function [G_out Re_s_out] = comp_G_Res_Carreau_fluid(obj,Carreau_par_)
+        if (nargin == 2)
+            [mu0,l,n,k,muinf] = obj.fit_Carreau_fluid;
+        else
+            [mu0,l,n,k,muinf] = deal(Carreau_par_(1),Carreau_par_(2),Carreau_par_(3),Carreau_par_(4),Carreau_par_(5));
+        end
+        taui = obj.comp_Carreau_fluid(obj.omega,mu0,l,n,k,muinf);
+        [r_i r_o rho_b h]=deal(obj.r_i,obj.r_o,obj.rho_b,obj.h);
+        tau_typ = (r_i/r_o)*taui;
+
+        Carreau_solve = @(t,s) ((muinf+(mu0-muinf)*((1+(l*s).*(l*s)).^(0.5*(n-1)))).*(s)) - t;
+
+        S=nan(size(taui));
+        for i = 1:length(taui)
+            solve_i = @(s) abs(Carreau_solve(tau_typ(i),s));
+            S(i)=fminbnd(solve_i,0,1e3);
+        end
+
+        Re_s_out = (rho_b*(r_o-r_i)*(r_o-r_i)/mu0)*(S);
+        G_out = (rho_b/(h*mu0*mu0))*obj.mu_torque;
+    end
+    function [mu0_bout lambda_bout n_bout k_bout muinf_bout] = determine_Carreau_fluid_bounds(obj,o_,t_)
+        k_Newt = 2*(obj.r_o*obj.r_o)/(obj.r_o*obj.r_o-obj.r_i*obj.r_i);
+        [t_max i_tmax] = max(t_);
+        t_min=min(t_);
+        o_min=min(o_);
+        o_max=max(o_);
+
+        mu0_min = 0;
+        lambda_min=0;
+        n_min=0;
+        k_min=k_Newt;
+        muinf_min=0;
+
+        mu0_max = 500*t_max/(k_Newt*o_min);
+        lambda_max=1e5;
+        n_max=1;
+        k_max=k_Newt;
+        muinf_max=0;
+
+        mu0_0=t_(1)/(k_Newt*o_(1));;
+        lambda_0=1.0/(k_Newt*o_min);
+        n_0=0.5;
+        k_0=k_Newt;
+        muinf_0=0;
+
+        mu0_bout = [mu0_min mu0_0 mu0_max];
+        lambda_bout = [lambda_min lambda_0 lambda_max];
+        n_bout = [n_min n_0 n_max];
+        k_bout = [k_min k_0 k_max];
+        muinf_bout = [muinf_min muinf_0 muinf_max];
     end
   end
+end
+
+function w_out = compute_distance_weighting(o_)
+    len_o=length(o_);
+    w_first=o_(2)-o_(1);
+    w_last=o_(len_o)-o_(len_o-1);
+    w_out = [w_first; 0.5*(o_(3:end)-o_(1:(len_o-2))); w_last];
+    w_out = w_out/norm(w_out);
+
+    % w_out = ones(size(o_));
+    % w_out = w_out/norm(w_out);
+end
+
+function [K_bounds_out, n_bounds_out] = determine_power_fluid_bounds(o_,t_,eta_)
+    K_min = 0.0;
+    n_max = 1.0;
+    K_max = 10*max(t_);
+    n_min = 1e-10;
+
+    K_bounds_out = [K_min 0.5*(K_min+K_max) K_max];
+    n_bounds_out = [n_min 0.5*(n_min+n_max) n_max];
 end
 
 function [Rc, Gc, omegac, Tc] = interp_trans_Ta(alpha_tol_,omega_,R_,alpha_,G_,T_,It_)

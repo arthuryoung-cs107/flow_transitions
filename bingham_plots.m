@@ -9,14 +9,14 @@ classdef bingham_plots < main_plots
         function fig_out = FB_tau_vs_omega_linscale(obj,AYfig_,FB,tile_dims_)
             axs=prep_tiles(AYfig_,tile_dims_);
             for i=1:length(FB.exp)
-                plot(axs(i), FB.exp(i).omega, FB.exp(i).tau, FB.specs, 'Color', FB.exp(i).color, 'LineWidth', 3*FB.LW, 'MarkerSize', 2*FB.MS, 'DisplayName', FB.exp(i).label);
+                % plot(axs(i), FB.exp(i).omega, FB.exp(i).tau, FB.specs, 'Color', FB.exp(i).color, 'LineWidth', 3*FB.LW, 'MarkerSize', 2*FB.MS, 'DisplayName', FB.exp(i).label);
 
-                % inds = FB.exp(i).omega<20;
-                % plot(axs(i), FB.exp(i).omega(inds), FB.exp(i).tau(inds), FB.specs, 'Color', FB.exp(i).color, 'LineWidth', 3*FB.LW, 'MarkerSize', 2*FB.MS, 'DisplayName', FB.exp(i).label);
+                inds = FB.exp(i).omega<40;
+                plot(axs(i), FB.exp(i).omega(inds), FB.exp(i).tau(inds), FB.specs, 'Color', FB.exp(i).color, 'LineWidth', 3*FB.LW, 'MarkerSize', 2*FB.MS, 'DisplayName', FB.exp(i).label);
 
                 title(axs(i), FB.exp(i).label, 'Interpreter', 'Latex', 'Fontsize', 14)
             end
-            set(axs,'YScale', 'log', 'XScale', 'log');
+            % set(axs,'YScale', 'log', 'XScale', 'log');
             ylabel(axs, '$$\tau_w$$ [Pa]', 'Interpreter', 'LaTeX','FontSize',12)
             xlabel(axs, '$$\omega_i$$ [rad.s]', 'Interpreter', 'LaTeX','FontSize',12)
             fig_out = AYfig_;

@@ -65,7 +65,18 @@ classdef glass_particles < fluid
     % tau_y_fit_range=1:3;
 
     power_fit_params;
-    Carreau_fit_params;
+    Carreau_fit_params=0;
+
+    Re_s_Carreau=0;
+    G_Carreau=0;
+
+    S_Carreau_typ;
+    mu_Carreau_typ;
+    mu_effi_Carreau;
+    gammai_Carreau;
+
+    Re_b_Carreau;
+    G_b_Carreau;
   end
   methods
     function obj = glass_particles(name_, color_)
@@ -391,22 +402,26 @@ classdef glass_particles < fluid
         gammai_out = -1.0*((2*omegai_./(n*(1.0-(eta*eta).^(1.0./n)))).^n);
         taui_out = K*abs(gammai_out);
     end
-    function [mu0_out, lambda_out, n_out, k_out, muinf_out] = fit_Carreau_fluid(obj, ind_, full_flag_)
+    function [mu0_out, lambda_out, n_out, k_out, muinf_out] = fit_Carreau_fluid(obj, omega_cap_, full_flag_)
         if (nargin==1)
-            ind=obj.omega<15;
+            omega_cap=15;
             full_flag=true;
         elseif (nargin==2)
+            omega_cap=omega_cap_;
             ind=ind_;
             full_flag=true;
         elseif (nargin==3)
-            ind=ind_;
+            omega_cap=omega_cap_;
             full_flag=full_flag_;
         end
-
+        ind=obj.omega<omega_cap;
         omega_fit=obj.omega(ind);
         tau_fit=obj.tau(ind);
-        w_fit = compute_distance_weighting(omega_fit);
+        w_fit = glass_particles.compute_distance_weighting(omega_fit);
 
+        [mu0_out, lambda_out, n_out, k_out, muinf_out] = obj.fit_internal_Carreau_fluid(omega_fit,tau_fit,w_fit,full_flag);
+    end
+    function [mu0_out, lambda_out, n_out, k_out, muinf_out] = fit_internal_Carreau_fluid(obj, omega_fit, tau_fit, w_fit, full_flag)
         trust_region_reflect = 'trust-region-reflective';
         Lev_Marq = 'levenberg-marquardt';
         functol_try=1e-12;
@@ -464,7 +479,12 @@ classdef glass_particles < fluid
     end
     function [taui_out gammai_out mueffi_out] = comp_Carreau_fluid(obj,omegai_,mu0_,l_,n_,k_,muinf_)
         if (nargin == 2)
-            [mu0,l,n,k,muinf] = obj.fit_Carreau_fluid;
+            if (length(obj.Carreau_fit_params)==1)
+                [mu0,l,n,k,muinf] = obj.fit_Carreau_fluid;
+            else
+                par=obj.Carreau_fit_params;
+                [mu0,l,n,k,muinf] = deal(par(1),par(2),par(3),par(4),par(5));
+            end
         else
             [mu0,l,n,k,muinf] = deal(mu0_,l_,n_,k_,muinf_);
         end
@@ -478,38 +498,56 @@ classdef glass_particles < fluid
         else
             [mu0,l,n,k,muinf] = deal(Carreau_par_(1),Carreau_par_(2),Carreau_par_(3),Carreau_par_(4),Carreau_par_(5));
         end
-        taui = obj.comp_Carreau_fluid(obj.omega,mu0,l,n,k,muinf);
+        [taui gi mueffi] = obj.comp_Carreau_fluid(obj.omega,mu0,l,n,k,muinf);
         [r_i r_o rho_b h]=deal(obj.r_i,obj.r_o,obj.rho_b,obj.h);
         tau_typ = (r_i/r_o)*taui;
 
-        Carreau_solve = @(t,s) ((muinf+(mu0-muinf)*((1+(l*s).*(l*s)).^(0.5*(n-1)))).*(s)) - t;
+        %% solving for the local shear rate at the specified shear stress. k does not come into play
+        mu_solve = @(s) muinf+(mu0-muinf)*((1+(l*s).*(l*s)).^(0.5*(n-1)));
+        Carreau_solve = @(t,s) (mu_solve(s).*(s)) - t;
 
-        S=nan(size(taui));
-        for i = 1:length(taui)
+        solve_opts=optimset('Display', 'off', 'MaxFunEvals', 1000, 'MaxIter', 1000, 'TolX', 1e-14);
+
+        S=nan(size(tau_typ));
+        for i = 1:length(tau_typ)
             solve_i = @(s) abs(Carreau_solve(tau_typ(i),s));
-            S(i)=fminbnd(solve_i,0,1e3);
+            S(i)=fminbnd(solve_i,0,abs(gi(i)),solve_opts);
         end
+        mu_use = mu_solve(S);
+        obj.S_Carreau_typ = S;
+        obj.mu_Carreau_typ = mu_use;
+        obj.mu_effi_Carreau = mueffi;
+        obj.gammai_Carreau = gi;
 
-        Re_s_out = (rho_b*(r_o-r_i)*(r_o-r_i)/mu0)*(S);
-        G_out = (rho_b/(h*mu0*mu0))*obj.mu_torque;
+        Re_s_out = ((rho_b*(r_o-r_i)*(r_o-r_i))./mu_use).*(S);
+        G_out = (rho_b./(h.*mu_use.*mu_use)).*obj.mu_torque;
+
+        obj.Re_b_Carreau = (rho_b*r_i*(r_o-r_i))./mueffi.*(obj.omega);
+        obj.G_b_Carreau = (rho_b./(h.*mueffi.*mueffi)).*obj.mu_torque;
+
     end
     function [mu0_bout lambda_bout n_bout k_bout muinf_bout] = determine_Carreau_fluid_bounds(obj,o_,t_)
         k_Newt = 2*(obj.r_o*obj.r_o)/(obj.r_o*obj.r_o-obj.r_i*obj.r_i);
         [t_max i_tmax] = max(t_);
+        tau_full_max = max(obj.tau);
+        o_full_max = max(obj.omega);
         t_min=min(t_);
         o_min=min(o_);
         o_max=max(o_);
 
-        mu0_min = 0;
-        lambda_min=0;
+        mu0_min = t_min/(k_Newt*o_full_max);
+        lambda_min=1/(k_Newt*o_max);
         n_min=0;
         k_min=k_Newt;
+        % k_min=floor(k_Newt);
         muinf_min=0;
 
-        mu0_max = 500*t_max/(k_Newt*o_min);
+        mu0_max = (tau_full_max)/(k_Newt*o_min);
         lambda_max=1e5;
         n_max=1;
         k_max=k_Newt;
+        % k_max=ceil(k_Newt);
+        % muinf_max=mu0_min;
         muinf_max=0;
 
         mu0_0=t_(1)/(k_Newt*o_(1));;
@@ -525,17 +563,21 @@ classdef glass_particles < fluid
         muinf_bout = [muinf_min muinf_0 muinf_max];
     end
   end
-end
+  methods (Static)
+    function w_out = compute_distance_weighting(o_)
+        % len_o=length(o_);
+        % w_first=o_(2)-o_(1);
+        % w_last=o_(len_o)-o_(len_o-1);
+        % w_out = [w_first; 0.5*(o_(3:end)-o_(1:(len_o-2))); w_last];
+        % w_out = w_out/norm(w_out);
 
-function w_out = compute_distance_weighting(o_)
-    len_o=length(o_);
-    w_first=o_(2)-o_(1);
-    w_last=o_(len_o)-o_(len_o-1);
-    w_out = [w_first; 0.5*(o_(3:end)-o_(1:(len_o-2))); w_last];
-    w_out = w_out/norm(w_out);
+        % w_out = ones(size(o_))/norm(ones(size(o_)));
 
-    % w_out = ones(size(o_));
-    % w_out = w_out/norm(w_out);
+        del=1/(length(o_)-1)*log(o_(end)/o_(1));
+        w_out=del.^(0:(length(o_)-1));
+        w_out=w_out/norm(w_out);
+    end
+  end
 end
 
 function [K_bounds_out, n_bounds_out] = determine_power_fluid_bounds(o_,t_,eta_)

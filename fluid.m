@@ -41,6 +41,8 @@ classdef fluid < handle
     Re_s;
 
     rho_b;
+
+    true_raw;
   end
   methods
     function obj = fluid(name_, color_)
@@ -48,6 +50,7 @@ classdef fluid < handle
       obj.color = color_;
     end
     function process_raw(obj, raw)
+      obj.true_raw = raw; 
       obj.rho_b = obj.rho_p * obj.phi + obj.rho_f*(1.0-obj.phi);
 
       h = obj.h;

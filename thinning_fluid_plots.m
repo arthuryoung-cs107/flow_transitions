@@ -248,12 +248,20 @@ classdef thinning_fluid_plots < bingham_plots
             fplot(axs(4), @(Re) (XBall.powerfit.b).*(Re).^(XBall.powerfit.m), [71 10000],'-', 'Color', XBall.color,'Linewidth', 2, 'DisplayName', 'XB $$\beta Re_s^{\alpha}$$')
 
             for i=1:length(FB1.exp)
-              legend_set_e(i) = plot(axs(5), g2s*FB1.exp(i).Re_b_Carreau, FB1.exp(i).G_b_Carreau, FB1.specs, 'Color', FB1.exp(i).color, 'LineWidth', FB1.LW, 'MarkerSize', FB1.MS, 'DisplayName', FB1.exp(i).label);
+                if (FB1.exp(i).q <1)
+                    legend_set_e(i) = plot(axs(5), FB1.exp(i).Re_s, FB1.exp(i).G, FB1.specs, 'Color', FB1.exp(i).color, 'LineWidth', FB1.LW, 'MarkerSize', FB1.MS, 'DisplayName', FB1.exp(i).label);
+                else
+                    legend_set_e(i) = plot(axs(5), g2s*FB1.exp(i).Re_b_Carreau, FB1.exp(i).G_b_Carreau, FB1.specs, 'Color', FB1.exp(i).color, 'LineWidth', FB1.LW, 'MarkerSize', FB1.MS, 'DisplayName', FB1.exp(i).label);
+                end
             end
             % fplot(axs(5), @(Re) (FB1.powerfit.b).*(Re).^(FB1.powerfit.m), [71 10000],'-', 'Color', FB1.color,'Linewidth', 2,'DisplayName', 'FB1 $$\beta Re_s^{\alpha}$$');
 
             for i=1:length(FB2.exp)
-              legend_set_f(i) = plot(axs(6), g2s*FB2.exp(i).Re_b_Carreau, FB2.exp(i).G_b_Carreau, FB2.specs, 'Color', FB2.exp(i).color,'LineWidth', FB2.LW, 'MarkerSize', FB2.MS, 'DisplayName', FB2.exp(i).label);
+                if (FB2.exp(i).q < 1)
+                    legend_set_f(i) = plot(axs(6), FB2.exp(i).Re_s, FB2.exp(i).G, FB2.specs, 'Color',     FB2.exp(i).color,'LineWidth', FB2.LW, 'MarkerSize', FB2.MS, 'DisplayName', FB2.exp(i).label);
+                else
+                    legend_set_f(i) = plot(axs(6), g2s*FB2.exp(i).Re_b_Carreau, FB2.exp(i).G_b_Carreau, FB2.specs, 'Color', FB2.exp(i).color,'LineWidth', FB2.LW, 'MarkerSize', FB2.MS, 'DisplayName', FB2.exp(i).label);
+                end
             end
             % fplot(axs(6), @(Re) (FB2.powerfit.b).*(Re).^(FB2.powerfit.m), [71 10000],'-', 'Color', FB2.color,'Linewidth', 2, 'DisplayName', 'FB2 $$\beta Re_s^{\alpha}$$');
 

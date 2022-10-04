@@ -107,7 +107,7 @@ figs(fig_num) = tfp.ALL_G_vs_Res_CarreauFB(ALL_G_vs_Res_CarreauFB_AYfig, PF1, PF
 %%%%%%%% -----------------------------------------  13  ---------------------------------------------
 %%%%%%%% --------------------------------------------------------------------------------------------
 
-fig_num = fig_num + 1;
-fig_specs{fig_num} = {'Name', 'FB1_FB2_Carreau_tau_vs_gamma'; 'Renderer', 'painters'; 'Position', tfp.posdimfull;};
-FB1_FB2_Carreau_tau_vs_gamma_AYfig = AYfig(fig_specs{fig_num}, true);
-figs(fig_num) = tfp.FB1_FB2_Carreau_tau_vs_gamma(FB1_FB2_Carreau_tau_vs_gamma_AYfig, FB1,FB2);
+% fig_num = fig_num + 1;
+% fig_specs{fig_num} = {'Name', 'FB1_FB2_Carreau_tau_vs_gamma'; 'Renderer', 'painters'; 'Position', tfp.posdimfull;};
+% FB1_FB2_Carreau_tau_vs_gamma_AYfig = AYfig(fig_specs{fig_num}, true);
+% figs(fig_num) = tfp.FB1_FB2_Carreau_tau_vs_gamma(FB1_FB2_Carreau_tau_vs_gamma_AYfig, FB1,FB2);

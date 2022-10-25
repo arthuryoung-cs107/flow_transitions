@@ -66,14 +66,24 @@ classdef glass_particles < fluid
 
     power_fit_params;
     Carreau_fit_params=0;
+    mu0_Carreau;
+    lambda_Carreau;
+    n_Carreau;
+    k_Carreau;
+    muinf_Carreau;
 
     Re_s_Carreau=0;
     G_Carreau=0;
+    Re_s_Carreau_proper=0;
+    G_Carreau_proper=0;
+
+    G_rat_Carreau;
 
     S_Carreau_typ;
     mu_Carreau_typ;
     mu_effi_Carreau;
     gammai_Carreau;
+    tau_Carreau;
 
     Re_b_Carreau;
     G_b_Carreau;
@@ -84,6 +94,44 @@ classdef glass_particles < fluid
       obj.phi_m = 0.5869;
       obj.rho_p = 2500;
       obj.rho_f = 1.225;
+    end
+    function Re_s_out = get_Re_s(obj)
+        if (obj.q<1)
+            Re_s_out = obj.Re_s;
+        else
+            Re_s_out = obj.Re_s_Carreau;
+        end
+    end
+    function G_out = get_G(obj)
+        if (obj.q<1)
+            G_out = obj.G;
+        else
+            G_out = obj.G_b_Carreau;  
+        end
+    end
+
+    function fit_Carreau_model(obj)
+        s2g=0.5*(obj.r_o+obj.r_i)/obj.r_o;
+        g2s=1/s2g;
+
+        [mu0 lam n k muinf] = obj.fit_Carreau_fluid;
+
+        obj.mu0_Carreau = mu0;
+        obj.lambda_Carreau = lam ;
+        obj.n_Carreau = n ;
+        obj.k_Carreau = k ;
+        obj.muinf_Carreau = muinf;
+
+        obj.Carreau_fit_params = [mu0 lam n k muinf];
+
+        [obj.G_Carreau_proper obj.Re_s_Carreau_proper] = obj.comp_G_Res_Carreau_fluid(obj.Carreau_fit_params);
+        obj.G_Carreau = obj.G_b_Carreau;
+        obj.Re_s_Carreau = g2s*obj.Re_b_Carreau;
+
+        [tau, gamma, mueff] = obj.comp_Carreau_fluid(obj.omega);
+        obj.tau_Carreau = tau;
+        obj.G_rat_Carreau = obj.tau./tau;
+
     end
     function [gamma_out, tau_out] = gamma_tau_analytical(obj,omega_)
         if (length(omega_(:))==2)

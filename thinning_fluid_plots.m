@@ -103,6 +103,39 @@ classdef thinning_fluid_plots < bingham_plots
             ylim(axs_full, [1e-2 1e4]);
             fig_out=AYfig_;
         end
+        function fig_out = FB1_FB2_Carreau_fluid_fits_full(obj,AYfig_,FB1,FB2)
+            axs_full=prep_tiles(AYfig_,[4 6]);
+
+            axs=axs_full;
+            for FB = [FB1 FB2]
+                explen = length(FB.exp);
+                for i=1:explen
+                    omega_low = min(FB.exp(i).omega);
+                    omega_cap = max(FB.exp(i).omega);
+                    omega_linspace=linspace(omega_low,omega_cap,100);
+
+                    indi=FB.exp(i).omega<omega_cap;
+                    pari = FB.exp(i).Carreau_fit_params;
+                    [mu0i, lambdai, ni, ki, muinfi] = deal(pari(1),pari(2),pari(3),pari(4),pari(5));
+                    [ti,gi,mui] = FB.exp(i).comp_Carreau_fluid(omega_linspace, mu0i, lambdai, ni, ki, muinfi);
+
+                    % plot(axs(i), FB.exp(i).omega(indi), FB.exp(i).tau(indi), FB.specs, 'Color', FB.exp(i).color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', FB.exp(i).label);
+                    % plot(axs(i), omega_linspace, ti, '-', 'Color', FB.exp(i).color, 'LineWidth', 2, 'DisplayName', FB.exp(i).label);
+                    plot(axs(i), FB.exp(i).omega, FB.exp(i).tau, FB.specs, 'Color', FB.exp(i).color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', FB.exp(i).label);
+                    plot(axs(i), omega_linspace, ti, '-', 'Color', FB.exp(i).color, 'LineWidth', 2, 'DisplayName', FB.exp(i).label);
+                    plot(axs(i), 1/(lambdai*ki), FB.exp(i).comp_Carreau_fluid(1/(lambdai*ki), mu0i, lambdai, ni, ki, muinfi), 'p', 'Color', [0 0 0], 'LineWidth', 2);
+
+                    title(axs(i), FB.exp(i).label, 'Interpreter', 'Latex', 'Fontsize', 14)
+                end
+                axs=axs_full(explen+2:end);
+            end
+            ylabel(axs_full, '$$\tau_w$$ [Pa]', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs_full, '$$\omega_i$$ [rad.s]', 'Interpreter', 'LaTeX','FontSize',12)
+
+            set(axs_full, 'YScale', 'log', 'XScale', 'log');
+
+            fig_out = AYfig_;
+        end
         function fig_out = FB1_FB2_Carreau_fluid_fits(obj,AYfig_,FB1,FB2)
             axs_full=prep_tiles(AYfig_,[4 6]);
 

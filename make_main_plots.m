@@ -97,4 +97,8 @@ figs(fig_num) = mp.FB_tauyrat_mup_vs_q(FB_tauyrat_mup_vs_q_AYfig, FB1, FB2, EC00
 %%%%%%%% -----------------------------------------  end plots  ---------------------------------------------
 %%%%%%%% --------------------------------------------------------------------------------------------
 
+
+ftt = flow_transitions_tables();
+ftt.write_FB_fit_results(FB1,FB2,'FB_Bingham_Carreau_results')
+
 mp.write_figures(figs, save_dir, save_type);

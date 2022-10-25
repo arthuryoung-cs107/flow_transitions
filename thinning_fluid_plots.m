@@ -28,6 +28,50 @@ classdef thinning_fluid_plots < bingham_plots
             xlabel(axs, '$$\omega_i$$ [rad.s]', 'Interpreter', 'LaTeX','FontSize',12)
             fig_out = AYfig_;
         end
+        function fig_out = FB1_FB2_Carreau_fluid_params(obj,AYfig_,FB1,FB2)
+            [tdim1,tdim2] = deal(2,3);
+            axs=prep_tiles(AYfig_,[tdim1 tdim2]);
+            axi=0;
+
+            for FB = [FB1 FB2]
+                explen=length(FB.exp);
+                [mu0_vec lambda_vec n_vec q_vec] = deal(nan(explen,1));
+                color_mat=nan(explen,3);
+
+                for i=1:(explen)
+                    % [mu0_b lambda_b n_b k_b muinf_b] = FB.exp(i).determine_Carreau_fluid_bounds(FB.exp(i).omega(indi), FB.exp(i).tau(indi));
+                    expi=FB.exp(i);
+
+                    [mu0_vec(i) lambda_vec(i) n_vec(i)] = deal(expi.mu0_Carreau, expi.lambda_Carreau, expi.n_Carreau);
+                    [color_mat(i,:) q_vec(i)] = deal(FB.exp(i).color, FB.exp(i).q);
+
+                    % fprintf('(%s) i:%d, mu0: %e (%.1f%%), l: %e (%.1f%%), n: %e (%.1f%%), k: %e (%.1f%%), muinf: %e (%.1f%%)\n', ...
+                    % FB.exp(i).label,i, ...
+                    % mu0i, 100*(mu0i-mu0_b(1))/(mu0_b(3)-mu0_b(1)), ...
+                    % lambdai, 100*(lambdai-lambda_b(1))/(lambda_b(3)-lambda_b(1)), ...
+                    % ni, 100*(ni-n_b(1))/(n_b(3)-n_b(1)), ...
+                    % ki, 100*(ki-k_b(1))/(k_b(3)-k_b(1)), ...
+                    % muinfi, 100*(muinfi-muinf_b(1))/(muinf_b(3)-muinf_b(1)) );
+                end
+                scatter(axs(1+axi), q_vec, mu0_vec, FB.specs,'CData',color_mat,'LineWidth',2*FB.LW_L,'SizeData',5*FB.MS_L*FB.MS_L);
+                scatter(axs(2+axi), q_vec, lambda_vec, FB.specs,'CData',color_mat,'LineWidth',2*FB.LW_L,'SizeData',5*FB.MS_L*FB.MS_L);
+                scatter(axs(3+axi), q_vec, n_vec, FB.specs,'CData',color_mat,'LineWidth',2*FB.LW_L,'SizeData',5*FB.MS_L*FB.MS_L);
+                % scatter(axs(4+axi), q_vec, k_vec, FB.specs,'CData',color_mat,'LineWidth',2*FB.LW_L,'SizeData',5*FB.MS_L*FB.MS_L);
+                % scatter(axs(5+axi), q_vec, muinf_vec, FB.specs,'CData',color_mat,'LineWidth',2*FB.LW_L,'SizeData',5*FB.MS_L*FB.MS_L);
+                axi=axi+tdim2;
+            end
+            ylabel([axs(1) axs(1+tdim2)], '$$\mu_0$$', 'Interpreter', 'LaTeX','FontSize',14)
+            ylabel([axs(2) axs(2+tdim2)], '$$\lambda$$', 'Interpreter', 'LaTeX','FontSize',14)
+            ylabel([axs(3) axs(3+tdim2)], '$$n$$', 'Interpreter', 'LaTeX','FontSize',14)
+            % ylabel([axs(4) axs(9)], '$$k$$', 'Interpreter', 'LaTeX','FontSize',14)
+            % ylabel([axs(5) axs(10)], '$$\mu_{\infty}$$', 'Interpreter', 'LaTeX','FontSize',14)
+
+            xlabel(axs, '$$q= Q/Q_{inc}$$', 'Interpreter', 'LaTeX','FontSize',14)
+            set(axs,'YScale','log')
+            set([axs(3) axs(3+tdim2)],'YScale','linear')
+
+            fig_out=AYfig_;
+        end
         function fig_out = FB1_FB2_Carreau_fit_results(obj,AYfig_,FB1,FB2)
             axs=prep_tiles(AYfig_,[2 5]);
 

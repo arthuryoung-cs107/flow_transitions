@@ -98,6 +98,7 @@ classdef glass113 < glass_particles
       obj.G = obj.mu_torque/((obj.h)*(obj.mu_p*obj.mu_p)/(obj.rho_b));
 
       obj.fit_Carreau_model;
+      obj.fit_Bingham_model;
     end
     function steady_array = steady_state(obj, range_array, raw)
       steady_array = range_array;

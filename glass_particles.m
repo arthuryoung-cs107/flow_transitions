@@ -87,6 +87,9 @@ classdef glass_particles < fluid
 
     Re_b_Carreau;
     G_b_Carreau;
+
+    tau_y_Bingham;
+    mu_p_Bingham; 
   end
   methods
     function obj = glass_particles(name_, color_)
@@ -106,10 +109,13 @@ classdef glass_particles < fluid
         if (obj.q<1)
             G_out = obj.G;
         else
-            G_out = obj.G_b_Carreau;  
+            G_out = obj.G_b_Carreau;
         end
     end
-
+    function fit_Bingham_model(obj)
+        obj.tau_y_Bingham=obj.tau_y;
+        obj.mu_p_Bingham=obj.mu_p;
+    end
     function fit_Carreau_model(obj)
         s2g=0.5*(obj.r_o+obj.r_i)/obj.r_o;
         g2s=1/s2g;

@@ -89,7 +89,7 @@ classdef glass_particles < fluid
     G_b_Carreau;
 
     tau_y_Bingham;
-    mu_p_Bingham; 
+    mu_p_Bingham;
   end
   methods
     function obj = glass_particles(name_, color_)
@@ -113,8 +113,16 @@ classdef glass_particles < fluid
         end
     end
     function fit_Bingham_model(obj)
-        obj.tau_y_Bingham=obj.tau_y;
-        obj.mu_p_Bingham=obj.mu_p;
+        % obj.tau_y_Bingham=obj.tau_y;
+        % obj.mu_p_Bingham=obj.mu_p;
+
+        omega_cap = 15;
+        ind = obj.omega<omega_cap;
+        omega_fit = obj.omega(ind);
+        tau_fit = obj.tau(ind);
+        w_fit = glass_particles.compute_distance_weighting(omega_fit);
+
+
     end
     function fit_Carreau_model(obj)
         s2g=0.5*(obj.r_o+obj.r_i)/obj.r_o;
@@ -579,6 +587,22 @@ classdef glass_particles < fluid
         obj.Re_b_Carreau = (rho_b*r_i*(r_o-r_i))./mueffi.*(obj.omega);
         obj.G_b_Carreau = (rho_b./(h.*mueffi.*mueffi)).*obj.mu_torque;
 
+    end
+    function [mp_bout ty_bout] = determine_Bingham_fluid_bounds(obj,o_,t_)
+        o_min=min(o_);
+        t_max=max(t_);
+        t_min=min(t_);
+
+        ty_min = 1e-10;
+        ty_max = 0.999999*t_min;
+        ty_0 = obj.tau_y;
+
+        mp_min = 1e-10;
+        mp_max = 0.5*(ty_max*log(t_max/ty_min))/o_min;
+        mp_0 = obj.mu_p;
+
+        mp_bout = [mp_min mp_0 mp_max];
+        ty_bout = [ty_min ty_0 ty_max];
     end
     function [mu0_bout lambda_bout n_bout k_bout muinf_bout] = determine_Carreau_fluid_bounds(obj,o_,t_)
         k_Newt = 2*(obj.r_o*obj.r_o)/(obj.r_o*obj.r_o-obj.r_i*obj.r_i);

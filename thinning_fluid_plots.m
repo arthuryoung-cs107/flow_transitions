@@ -156,27 +156,29 @@ classdef thinning_fluid_plots < bingham_plots
                 for i=1:explen
                     omega_low = min(FB.exp(i).omega);
                     omega_cap = max(FB.exp(i).omega);
-                    omega_linspace=linspace(omega_low,omega_cap,100);
+                    omega_linspace=linspace(omega_low,omega_cap,500);
 
                     indi=FB.exp(i).omega<omega_cap;
                     pari = FB.exp(i).Carreau_fit_params;
                     [mu0i, lambdai, ni, ki, muinfi] = deal(pari(1),pari(2),pari(3),pari(4),pari(5));
                     [ti,gi,mui] = FB.exp(i).comp_Carreau_fluid(omega_linspace, mu0i, lambdai, ni, ki, muinfi);
 
-                    % plot(axs(i), FB.exp(i).omega(indi), FB.exp(i).tau(indi), FB.specs, 'Color', FB.exp(i).color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', FB.exp(i).label);
+                    plot(axs(i), omega_linspace, mui, '-', 'Color', FB.exp(i).color, 'LineWidth', 2, 'DisplayName', FB.exp(i).label);
+
+                    plot(axs(i), omega_linspace, FB.exp(i).mu_p_Bingham*ones(size(omega_linspace)), ':', 'Color', FB.exp(i).color, 'LineWidth', 2, 'DisplayName', FB.exp(i).label);
+                    % plot(axs(i), FB.exp(i).omega, FB.exp(i).tau, FB.specs, 'Color', FB.exp(i).color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', FB.exp(i).label);
                     % plot(axs(i), omega_linspace, ti, '-', 'Color', FB.exp(i).color, 'LineWidth', 2, 'DisplayName', FB.exp(i).label);
-                    plot(axs(i), FB.exp(i).omega, FB.exp(i).tau, FB.specs, 'Color', FB.exp(i).color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', FB.exp(i).label);
-                    plot(axs(i), omega_linspace, ti, '-', 'Color', FB.exp(i).color, 'LineWidth', 2, 'DisplayName', FB.exp(i).label);
-                    plot(axs(i), 1/(lambdai*ki), FB.exp(i).comp_Carreau_fluid(1/(lambdai*ki), mu0i, lambdai, ni, ki, muinfi), 'p', 'Color', [0 0 0], 'LineWidth', 2);
+                    % plot(axs(i), 1/(lambdai*ki), FB.exp(i).comp_Carreau_fluid(1/(lambdai*ki), mu0i, lambdai, ni, ki, muinfi), 'p', 'Color', [0 0 0], 'LineWidth', 2);
 
                     title(axs(i), FB.exp(i).label, 'Interpreter', 'Latex', 'Fontsize', 14)
                 end
                 axs=axs_full(explen+2:end);
             end
-            ylabel(axs_full, '$$\tau_w$$ [Pa]', 'Interpreter', 'LaTeX','FontSize',12)
+            % ylabel(axs_full, '$$\tau_w$$ [Pa]', 'Interpreter', 'LaTeX','FontSize',12)
+            ylabel(axs_full, '$$\mu$$ [Pa.s]', 'Interpreter', 'LaTeX','FontSize',12)
             xlabel(axs_full, '$$\omega_i$$ [rad.s]', 'Interpreter', 'LaTeX','FontSize',12)
 
-            set(axs_full, 'YScale', 'log', 'XScale', 'log');
+            % set(axs_full, 'YScale', 'log', 'XScale', 'log');
 
             fig_out = AYfig_;
         end

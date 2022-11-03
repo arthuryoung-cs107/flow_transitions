@@ -511,6 +511,53 @@ classdef main_plots
 
             fig_out = AYfig_;
         end
+        function fig_out = FB1_FB2_Bingham_and_Carreau_fluid_params(obj,AYfig_,FB1,FB2)
+            [tdim1,tdim2] = deal(2,2);
+            axs=set_FB_Bingham_Carreau_axes(AYfig_);
+            ax_B=0;
+            ax_C=4;
+
+            for FB = [FB1 FB2]
+                explen=length(FB.exp);
+                [tauy_vec mup_vec q_vec] = deal(nan(explen,1));
+                [mu0_vec lambda_vec n_vec] = deal(nan(explen,1));
+                color_mat=nan(explen,3);
+                for i=1:(explen)
+                    expi=FB.exp(i);
+
+                    [tauy_vec(i) mup_vec(i)] = deal(expi.tau_y_Bingham/expi.tau_static, expi.mu_p_Bingham);
+                    [mu0_vec(i) lambda_vec(i) n_vec(i)] = deal(expi.mu0_Carreau, expi.lambda_Carreau, expi.n_Carreau);
+
+                    [color_mat(i,:) q_vec(i)] = deal(FB.exp(i).color, FB.exp(i).q);
+                end
+                scatter(axs(1+ax_B), q_vec, tauy_vec, FB.specs,'CData',color_mat,'LineWidth',2*FB.LW_L,'SizeData',1*FB.MS_L*FB.MS_L);
+                scatter(axs(2+ax_B), q_vec, mup_vec, FB.specs,'CData',color_mat,'LineWidth',2*FB.LW_L,'SizeData',1*FB.MS_L*FB.MS_L);
+                scatter(axs(1+ax_C), q_vec, mu0_vec, FB.specs,'CData',color_mat,'LineWidth',2*FB.LW_L,'SizeData',1*FB.MS_L*FB.MS_L);
+                scatter(axs(2+ax_C), q_vec, lambda_vec, FB.specs,'CData',color_mat,'LineWidth',2*FB.LW_L,'SizeData',1*FB.MS_L*FB.MS_L);
+                scatter(axs(3+ax_C), q_vec, n_vec, FB.specs,'CData',color_mat,'LineWidth',2*FB.LW_L,'SizeData',1*FB.MS_L*FB.MS_L);
+
+                ylabel(axs(1+ax_B),'$$\tau_y/\tau_{q=0}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',14)
+                ylabel(axs(2+ax_B),'$$\tilde{\mu}_p$$ [Pa.s]', 'Interpreter', 'LaTeX','FontSize',14)
+                ylabel(axs(1+ax_C), '$$\mu_0$$ [Pa.s]', 'Interpreter', 'LaTeX','FontSize',14)
+                ylabel(axs(2+ax_C), '$$\lambda$$ [s]', 'Interpreter', 'LaTeX','FontSize',14)
+                ylabel(axs(3+ax_C), '$$n$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',14)
+
+                ax_B=ax_B+2;
+                ax_C=ax_C+3;
+            end
+            set(axs,'YScale','log');
+            xlabel(axs, '$$q= Q/Q_{inc}$$', 'Interpreter', 'LaTeX','FontSize',14)
+
+            ylim([axs(1) axs(3)], [1e-4 1]); %% set yield stress ratio range
+
+            ylim([axs(2) axs(4)], [5e-2 1]); %% set plastic viscosity range
+
+            set([axs(7) axs(10)],'YScale','linear');
+            ylim([axs(7) axs(10)], [0 0.6]); %% set thinning index range
+
+
+            fig_out=AYfig_;
+        end
         function write_figures(obj, figs_, save_dir_, save_type_)
             if (obj.write_figs)
                 if (obj.write_all_figs)
@@ -526,6 +573,22 @@ classdef main_plots
             end
         end
     end
+end
+function ax_out = set_FB_Bingham_Carreau_axes(AYfig_)
+    ax_out = gobjects(10, 1);
+    figure(AYfig_.fig.Number);
+    ax_out(1) = subplot(4,2,1);
+    ax_out(2) = subplot(4,2,2);
+    ax_out(3) = subplot(4,2,3);
+    ax_out(4) = subplot(4,2,4);
+    ax_out(5) = subplot(4,3,7);
+    ax_out(6) = subplot(4,3,8);
+    ax_out(7) = subplot(4,3,9);
+    ax_out(8) = subplot(4,3,10);
+    ax_out(9) = subplot(4,3,11);
+    ax_out(10) = subplot(4,3,12);
+    hold(ax_out, 'on');
+    box(ax_out, 'on');
 end
 
 function ax_out = set_alpha_cf_vs_Res_axes(AYfig_, ax21_)

@@ -39,3 +39,12 @@ fig_num = fig_num + 1;
 fig_specs{fig_num} = {'Name', 'FB1_FB2_Bingham_fluid_params'; 'Renderer', 'painters'; 'Position', tfp.pos_bottom_row;};
 FB1_FB2_Bingham_fluid_params_AYfig = AYfig(fig_specs{fig_num}, true);
 figs(fig_num) = tfp.FB1_FB2_Bingham_fluid_params(FB1_FB2_Bingham_fluid_params_AYfig, FB1,FB2);
+
+%%%%%%%% --------------------------------------------------------------------------------------------
+%%%%%%%% -----------------------------------------  5  ---------------------------------------------
+%%%%%%%% --------------------------------------------------------------------------------------------
+
+fig_num = fig_num + 1;
+fig_specs{fig_num} = {'Name', 'FB1_FB2_Bingham_and_Carreau_fluid_params'; 'Renderer', 'painters'; 'Position', [tfp.pos_spread(6, :), tfp.dim222];};
+FB1_FB2_Bingham_and_Carreau_fluid_params_AYfig = AYfig(fig_specs{fig_num}, true);
+figs(fig_num) = tfp.FB1_FB2_Bingham_and_Carreau_fluid_params(FB1_FB2_Bingham_and_Carreau_fluid_params_AYfig, FB1,FB2);

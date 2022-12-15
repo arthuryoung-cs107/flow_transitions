@@ -11,7 +11,7 @@ fig_num = 0;
 fig_num = fig_num + 1;
 fig_specs{fig_num} = {'Name', 'FB1_FB2_Carreau_fluid_fits'; 'Renderer', 'painters'; 'Position', tfp.posdimfull;};
 FB1_FB2_Carreau_fluid_fits_AYfig = AYfig(fig_specs{fig_num}, true);
-figs(fig_num) = tfp.FB1_FB2_Carreau_fluid_fits_full(FB1_FB2_Carreau_fluid_fits_AYfig, FB1,FB2);
+figs(fig_num) = tfp.FB1_FB2_Carreau_fluid_fits_full(FB1_FB2_Carreau_fluid_fits_AYfig, FB1,FB2,false);
 
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% -----------------------------------------  2  ---------------------------------------------
@@ -20,7 +20,7 @@ figs(fig_num) = tfp.FB1_FB2_Carreau_fluid_fits_full(FB1_FB2_Carreau_fluid_fits_A
 fig_num = fig_num + 1;
 fig_specs{fig_num} = {'Name', 'FB1_FB2_Bingham_fluid_fits'; 'Renderer', 'painters'; 'Position', tfp.posdimfull;};
 FB1_FB2_Bingham_fluid_fits_AYfig = AYfig(fig_specs{fig_num}, true);
-figs(fig_num) = tfp.FB1_FB2_Bingham_fluid_fits_full(FB1_FB2_Bingham_fluid_fits_AYfig, FB1,FB2);
+figs(fig_num) = tfp.FB1_FB2_Bingham_fluid_fits_full(FB1_FB2_Bingham_fluid_fits_AYfig, FB1,FB2,false);
 
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% -----------------------------------------  3  ---------------------------------------------
@@ -48,3 +48,15 @@ fig_num = fig_num + 1;
 fig_specs{fig_num} = {'Name', 'FB1_FB2_Bingham_and_Carreau_fluid_params'; 'Renderer', 'painters'; 'Position', [tfp.pos_spread(6, :), tfp.dim222];};
 FB1_FB2_Bingham_and_Carreau_fluid_params_AYfig = AYfig(fig_specs{fig_num}, true);
 figs(fig_num) = tfp.FB1_FB2_Bingham_and_Carreau_fluid_params(FB1_FB2_Bingham_and_Carreau_fluid_params_AYfig, FB1,FB2);
+
+%%%%%%%% --------------------------------------------------------------------------------------------
+%%%%%%%% -----------------------------------------  6  ---------------------------------------------
+%%%%%%%% --------------------------------------------------------------------------------------------
+
+fig_num = fig_num + 1;
+fig_specs{fig_num} = {'Name', 'FB1_FB2_Bingham_fluid_full_fits'; 'Renderer', 'painters'; 'Position', tfp.posdimfull;};
+FB1_FB2_Bingham_fluid_fits_full_AYfig = AYfig(fig_specs{fig_num}, true);
+figs(fig_num) = tfp.FB1_FB2_Bingham_fluid_fits_full(FB1_FB2_Bingham_fluid_fits_full_AYfig, FB1,FB2,true);
+
+FB1.fitted_Bingham_pars
+FB2.fitted_Bingham_pars

@@ -39,55 +39,20 @@ classdef glass113 < glass_particles
         omega_full = 2*pi/60*obj.nf_clean;
         tau_full = obj.Tf_clean/(2*pi*(obj.r_i^2)*obj.h);
 
-        omega_cap = 15;
+        % omega_cap = 15;
+        % omega_cap = 10;
+        omega_cap = 1e3;
         ind = omega_full<omega_cap;
         omega_fit=omega_full(ind);
         tau_fit=tau_full(ind);
         % w_fit = glass_particles.compute_distance_weighting(omega_fit);
-        w_fit = ones(size(omega_fit))/norm(ones(size(omega_fit)));
+        % w_fit = ones(size(omega_fit))/norm(ones(size(omega_fit)));
+        w_fit = glass_particles.compute_equidistant_weighting(omega_fit);
+        % w_fit = 1./(abs(tau_fit));
+        % w_fit = 1./(abs(omega_fit));
+        % w_fit = 1./(abs(tau_fit)).*glass_particles.compute_distance_weighting(omega_fit);
 
-        %% fitting routine
-
-        trust_region_reflect = 'trust-region-reflective';
-        Lev_Marq = 'levenberg-marquardt';
-        functol_try=1e-12;
-        steptol_try=1e-12;
-        optimtol_try=1e-12;
-
-        alg_use=Lev_Marq;
-        optimtol_use=optimtol_try;
-        functol_use=functol_try;
-        steptol_use=steptol_try;
-
-        rc_func = @()
-
-        penalty_func = @(mp,ty,o,t,w) w.*(t-((minf+(m0-minf)*((1+(l*k*o).*(l*k*o)).^(0.5*(n-1)))).*(k*o)));
-
-
-        [mp_b ty_b] = obj.determine_Bingham_fluid_bounds(omega_fit,tau_fit);
-        [mp_min mp_0 mp_max] = deal(mp_b(1), mp_b(2), mp_b(3));
-        [ty_min ty_0 ty_max] = deal(ty_b(1), ty_b(2), ty_b(3));
-
-        fit_func = @(x) (penalty_func(x(1),x(2),omega_fit,tau_fit,w_fit));
-
-        upper_bound=[mp_max ty_max];
-        lower_bound=[mp_min ty_min];
-        init_guess=[mp_0 ty_0];
-
-        solve_opts=optimoptions(@lsqnonlin,'Display','off', ...
-                                'Algorithm',alg_use, ...
-                                'MaxIterations', 1e5, ...
-                                'MaxFunctionEvaluations', 1e5, ...
-                                'FiniteDifferenceType', 'central', ...
-                                'OptimalityTolerance',optimtol_use, ...
-                                'FunctionTolerance',functol_use, ...
-                                'StepTolerance', steptol_use);
-
-        x_out = lsqnonlin(fit_func, init_guess, ...
-                                    lower_bound, ...
-                                    upper_bound, ...
-                                    solve_opts);
-        [obj.mu_p_Bingham obj.tau_y_Bingham] = deal(x_out(1),x_out(2));
+        [obj.mu_p_Bingham obj.tau_y_Bingham] = obj.fit_internal_Bingham_fluid(omega_fit, tau_fit, w_fit);
     end
     function [mu0_out, lambda_out, n_out, k_out, muinf_out] = fit_Carreau_fluid(obj, omega_cap_, full_flag_)
         omega_full = 2*pi/60*obj.nf_clean;
@@ -155,7 +120,9 @@ classdef glass113 < glass_particles
       obj.G = obj.mu_torque/((obj.h)*(obj.mu_p*obj.mu_p)/(obj.rho_b));
 
       obj.fit_Carreau_model;
-      obj.fit_Bingham_model;
+      % obj.fit_Bingham_model;
+      obj.mu_p_Bingham = glass_particles.FB1_fitted_Bingham_pars(i_,1);
+      obj.tau_y_Bingham = glass_particles.FB1_fitted_Bingham_pars(i_,2);
     end
     function steady_array = steady_state(obj, range_array, raw)
       steady_array = range_array;

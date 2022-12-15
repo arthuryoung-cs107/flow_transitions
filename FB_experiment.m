@@ -12,6 +12,12 @@ classdef FB_experiment < experiment
 
       obj.statement = statement_;
     end
+    function par_out = fitted_Bingham_pars(obj)
+        par_out = nan(obj.len, 2);
+        for i = 1:obj.len
+            par_out(i,:) = [obj.exp(i).mu_p_Bingham obj.exp(i).tau_y_Bingham];
+        end
+    end
     function process_raws(obj, raws)
       for i=1:obj.len
         obj.exp(i).specs = obj.specs;

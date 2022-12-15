@@ -10,7 +10,7 @@ fig_specs{6} = {'Name', 'PF_NB_UB_XB_FB_G_vs_Res'; 'Renderer', 'painters'; 'Posi
 fig_specs{7} = {'Name', 'FB_T_vs_omega'; 'Renderer', 'painters'; 'Position', [mp.pos_spread(7, :), mp.dim2];};
 fig_specs{8} = {'Name', 'FB_muapp_vs_omega'; 'Renderer', 'painters'; 'Position', [mp.pos_spread(8, :), mp.dim2];};
 fig_specs{9} = {'Name', 'FB_mup_tauy_vs_q_22'; 'Renderer', 'painters'; 'Position', [mp.pos_spread(9, :), mp.dim22];};
-fig_specs{10} = {'Name', 'FB_alpha_vs_omega'; 'Renderer', 'painters'; 'Position', [mp.pos_spread(10, :), mp.dim22];};
+fig_specs{10} = {'Name', 'FB_Carreau_par_vs_q'; 'Renderer', 'painters'; 'Position', [mp.pos_spread(10, :), mp.dim32];};
 
 fig_num = 0;
 
@@ -89,9 +89,9 @@ figs(fig_num) = mp.FB_tauyrat_mup_vs_q(FB_tauyrat_mup_vs_q_AYfig, FB1, FB2, EC00
 %%%%%%%% -----------------------------------------  10  ---------------------------------------------
 %%%%%%%% --------------------------------------------------------------------------------------------
 
-% fig_num = fig_num + 1;
-% FB_alpha_vs_omega_q_AYfig = AYfig(fig_specs{fig_num}, false);
-% figs(fig_num) = mp.FB_alpha_vs_omega_q(FB_alpha_vs_omega_q_AYfig, FB1, FB2, EC000, EC050, EC075, EC100);
+fig_num = fig_num + 1;
+FB_Carreau_par_vs_q_AYfig = AYfig(fig_specs{fig_num}, false);
+figs(fig_num) = mp.FB_Carreau_par_vs_q(FB_Carreau_par_vs_q_AYfig, FB1, FB2);
 
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% -----------------------------------------  end plots  ---------------------------------------------

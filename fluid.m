@@ -1,12 +1,18 @@
 classdef fluid < handle
+  properties (Constant)
+      r_i_def = 0.01208;
+      r_o_def = 0.025;
+      h_def = 0.036;
+  end
   properties
     range_finder_flag = 1;
     steady_state_flag = 1;
     spike_filter_flag = 0;
     noKD_flag = 0;
-    r_i = 0.01208;
-    r_o = 0.025;
-    h = 0.036;
+    r_i=fluid.r_i_def;
+    r_o=fluid.r_o_def;
+    h=fluid.h_def;
+
 
     phi;
     phi_m;
@@ -50,7 +56,7 @@ classdef fluid < handle
       obj.color = color_;
     end
     function process_raw(obj, raw)
-      obj.true_raw = raw; 
+      obj.true_raw = raw;
       obj.rho_b = obj.rho_p * obj.phi + obj.rho_f*(1.0-obj.phi);
 
       h = obj.h;

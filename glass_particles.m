@@ -1,4 +1,30 @@
 classdef glass_particles < fluid
+  properties (Constant)
+    FB1_fitted_Bingham_pars = [ 537.690929408553e-003, 9.18691677210794e+000; ...
+                                444.726575871366e-003, 7.10246482140808e+000;
+                                392.078088934654e-003, 6.24139017094094e+000;
+                                352.490555859975e-003, 3.11168295852187e+000;
+                                340.372328339211e-003, 1.89112420279007e+000;
+                                401.355725892093e-003, 858.817832122024e-003;
+                                492.954363299252e-003, 315.984629212069e-003;
+                                553.044580931443e-003, 96.8608548721506e-003;
+                                564.944555262480e-003, 45.7751894871735e-003;
+                                562.441435131049e-003, 21.5413693251745e-003];
+                                
+    FB2_fitted_Bingham_pars = [ 24.4378908920722e-003, 157.460841381830e+000;
+                                36.3373036436781e-003, 121.830616449455e+000;
+                                82.8273969819299e-003, 80.6692143181455e+000;
+                                153.742258779745e-003, 56.2426005271026e+000;
+                                426.745578712666e-003, 5.64194088750916e+000;
+                                235.427386908162e-003, 3.41854966772968e+000;
+                                132.107955094165e-003, 819.109167607307e-003;
+                                208.288799251176e-003, 186.405714361666e-003;
+                                237.726031676352e-003, 57.0251145138637e-003;
+                                242.294553322549e-003, 25.9194618693695e-003;
+                                237.752742208553e-003, 21.2100000000000e-003;
+                                238.307278609320e-003, 17.1000000000000e-003;
+                                238.096100419629e-003, 15.5734412527183e-003];
+  end
   properties
     tag = 'FB';
     Q;
@@ -116,13 +142,20 @@ classdef glass_particles < fluid
         % obj.tau_y_Bingham=obj.tau_y;
         % obj.mu_p_Bingham=obj.mu_p;
 
-        omega_cap = 15;
+        % omega_cap = 15;
+        % omega_cap = 10;
+        omega_cap = 1e3;
         ind = obj.omega<omega_cap;
         omega_fit = obj.omega(ind);
         tau_fit = obj.tau(ind);
-        w_fit = glass_particles.compute_distance_weighting(omega_fit);
+        % w_fit = glass_particles.compute_distance_weighting(omega_fit);
+        % w_fit = ones(size(omega_fit))/norm(ones(size(omega_fit)));
+        w_fit = glass_particles.compute_equidistant_weighting(omega_fit);
+        % w_fit = 1./(abs(tau_fit));
+        % w_fit = 1./(abs(omega_fit));
+        % w_fit = 1./(abs(tau_fit)).*glass_particles.compute_distance_weighting(omega_fit);
 
-
+        [obj.mu_p_Bingham obj.tau_y_Bingham] = obj.fit_internal_Bingham_fluid(omega_fit, tau_fit, w_fit);
     end
     function fit_Carreau_model(obj)
         s2g=0.5*(obj.r_o+obj.r_i)/obj.r_o;
@@ -146,6 +179,96 @@ classdef glass_particles < fluid
         obj.tau_Carreau = tau;
         obj.G_rat_Carreau = obj.tau./tau;
 
+    end
+    function t_out =  tau_wall_pred(obj, omega_, mp_, ty_)
+        if (nargin==2)
+            [mp,ty] = deal(obj.mu_p,obj.tau_y);
+        elseif (nargin==3)
+            [mp,ty] = deal(mp(1),mp(2));
+        else
+            [mp,ty] = deal(mp(1),mp(2));
+        end
+
+        r_o = obj.r_o;
+        r_i = obj.r_i;
+        ie2 = (r_o/r_i)*(r_o/r_i);
+        ir_i2 = 1.0/(r_i*r_i);
+        cr = 2.0*ir_i2;
+        rp = ie2*ones(size(omega_));
+
+        sm = @(t1,t2) double(t1>t2).*exp(-1.0./((t1-t2).*(t1-t2)));
+        rc_f = @(tw,ty) max((r_i*sqrt(tw/ty)).*sm(ty*rp,tw) + r_o*sm(tw,ty*rp), r_i);
+
+        % tw_pred = @(o,t,rc) cr*(ir_i2 - rc.^(-2)).*(mp*o - ty*log(r_i./rc));
+        tw_pred = @(o,t,rc) ty - cr*(ir_i2 - rc.^(-2)).*(mp*o - ty*log(rc/r_i));
+
+
+    end
+    function [mu_p_out tau_y_out] = fit_internal_Bingham_fluid(obj, omega_fit, tau_fit, w_fit, full_flag)
+        trust_region_reflect = 'trust-region-reflective';
+        Lev_Marq = 'levenberg-marquardt';
+        % functol_try=1e-16;
+        % steptol_try=1e-16;
+        % optimtol_try=1e-16;
+        % max_it_try=1e5;
+        % max_eval_try=1e5;
+
+        functol_try=1e-8;
+        steptol_try=1e-8;
+        optimtol_try=1e-8;
+        max_it_try=1000;
+        max_eval_try=1000;
+
+        alg_use=Lev_Marq;
+        optimtol_use=optimtol_try;
+        functol_use=functol_try;
+        steptol_use=steptol_try;
+
+        r_o = obj.r_o;
+        r_i = obj.r_i;
+        ie2 = (r_o/r_i)*(r_o/r_i);
+        ir_i2 = 1.0/(r_i*r_i);
+        cr = 2.0*ir_i2;
+        rp = ie2*ones(size(tau_fit));
+
+        sm = @(t1,t2) double(t1>t2).*exp(-1.0./((t1-t2).*(t1-t2)));
+        rc_f = @(tw,ty) max((r_i*sqrt(tw/ty)).*sm(ty*rp,tw) + r_o*sm(tw,ty*rp), r_i);
+
+        % tw_pred = @(mp,ty,o,t,rc) ty - cr*(ir_i2 - rc.^(-2)).*(mp*o - ty*log(rc/r_i));
+        % penalty_func = @(mp,ty,o,t,w) w.*(t-tw_pred(mp,ty,o,rc_f(t,ty)));
+
+        % tw_pred = @(mp,ty,o,t) 2*mp*o + ty*(1 + log(t/ty));
+        % penalty_func = @(mp,ty,o,t,w) w.*(t-tw_pred(mp,ty,o,t));
+
+        % penalty_func = @(mp,ty,o,t,w) w.*(o-glass_particles.omegai_pred_Bingham(mp,ty,t));
+        penalty_func = @(mp,ty,o,t,w) w.*(t-glass_particles.taui_pred_Bingham(mp,ty,o,t));
+
+        [mp_b ty_b] = obj.determine_Bingham_fluid_bounds(omega_fit,tau_fit);
+        [mp_min mp_0 mp_max] = deal(mp_b(1), mp_b(2), mp_b(3));
+        [ty_min ty_0 ty_max] = deal(ty_b(1), ty_b(2), ty_b(3));
+
+        upper_bound=[mp_max ty_max];
+        lower_bound=[mp_min ty_min];
+        init_guess=[mp_0 ty_0];
+
+        fit_func = @(x) (penalty_func(x(1),x(2),omega_fit,tau_fit,w_fit));
+
+        % solve_opts=optimoptions(@lsqnonlin,'Display','off', ...
+        % solve_opts=optimoptions(@lsqnonlin,'Display','final-detailed', ...
+        solve_opts=optimoptions(@lsqnonlin,'Display','iter', ...
+                                'Algorithm',alg_use, ...
+                                'MaxIterations', max_it_try, ...
+                                'MaxFunctionEvaluations', max_eval_try, ...
+                                'FiniteDifferenceType', 'central', ...
+                                'OptimalityTolerance',optimtol_use, ...
+                                'FunctionTolerance',functol_use, ...
+                                'StepTolerance', steptol_use);
+
+        x_out = lsqnonlin(fit_func, init_guess, ...
+                                    lower_bound, ...
+                                    upper_bound, ...
+                                    solve_opts);
+        [mu_p_out tau_y_out] = deal(x_out(1),x_out(2));
     end
     function [gamma_out, tau_out] = gamma_tau_analytical(obj,omega_)
         if (length(omega_(:))==2)
@@ -341,23 +464,39 @@ classdef glass_particles < fluid
             obj.G_c2_Ta = beta*(obj.Re_sc2_Ta)^alpha;
         end
     end
-    function gammai_out = comp_gammai_ro(obj,omegai_)
-        mu_p = obj.mu_p;
-        tau_y = obj.tau_y;
+    function gammai_out = comp_gammai_ro(obj,omegai_,par_)
+        if (nargin==2)
+            [mu_p tau_y] = deal(obj.mu_p, obj.tau_y);
+        else
+            [mu_p tau_y] = deal(par_(1), par_(2));
+        end
         r_o = obj.r_o;
         r_i = obj.r_i;
         gammai_out = (1/mu_p)*(tau_y+2*(omegai_*mu_p+tau_y*log(r_o/r_i))/((r_i*r_i)/(r_o*r_o)-1));
     end
-    function taui_out = comp_taui_ro(obj,gammai_)
-        taui_out=obj.mu_p*abs(gammai_)+obj.tau_y;
+    function taui_out = comp_taui_ro(obj,gammai_,par_)
+        if (nargin==2)
+            [mu_p tau_y] = deal(obj.mu_p, obj.tau_y);
+        else
+            [mu_p tau_y] = deal(par_(1), par_(2));
+        end
+        taui_out=mu_p*abs(gammai_)+tau_y;
     end
-    function [gammai_out,taui_out] = comp_gammai_taui_ro(obj,omegai_)
-        gammai_out=obj.comp_gammai_ro(omegai_);
-        taui_out=obj.comp_taui_ro(gammai_out);
+    function [gammai_out,taui_out] = comp_gammai_taui_ro(obj,omegai_,par_)
+        if (nargin==2)
+            par = [obj.mu_p, obj.tau_y];
+        else
+            par = par_;
+        end
+        gammai_out=obj.comp_gammai_ro(omegai_,par);
+        taui_out=obj.comp_taui_ro(gammai_out,par);
     end
-    function [gammai_out,taui_out] = comp_gammai_taui_rc(obj,omegai_)
-        tau_y=obj.tau_y;
-        mu_p=obj.mu_p;
+    function [gammai_out,taui_out] = comp_gammai_taui_rc(obj,omegai_, par_)
+        if (nargin==2)
+            [mu_p tau_y] = deal(obj.mu_p, obj.tau_y);
+        else
+            [mu_p tau_y] = deal(par_(1), par_(2));
+        end
 
         gammai_solve = @(t,o) (tau_y + 2*(o*mu_p + 0.5*tau_y*log(t/tau_y))./((tau_y./t)-1))/mu_p;
         bingham_solve = @(t,o) (mu_p * abs(gammai_solve(t,o))) + tau_y - t;
@@ -375,8 +514,14 @@ classdef glass_particles < fluid
             gammai_out(i) = gammai_solve(taui_out(i),omegai_(i));
         end
     end
-    function [rc_out,gammai_out,taui_out,ogt_plug_out] = comp_bingham_shear_rc(obj,omegai_)
-        [gammai_out taui_out] = obj.comp_gammai_taui_rc(omegai_);
+    function [rc_out,gammai_out,taui_out,ogt_plug_out] = comp_bingham_shear_rc(obj,omegai_,par_)
+        if (nargin==2)
+            par = [obj.mu_p, obj.tau_y];
+        else
+            par = par_;
+        end
+
+        [gammai_out taui_out] = obj.comp_gammai_taui_rc(omegai_,par);
         rc_out=obj.r_i*sqrt(taui_out/obj.tau_y);
 
         if (nargout==4)
@@ -390,9 +535,14 @@ classdef glass_particles < fluid
             ogt_plug_out = [omegai_(index_shear) gammai_out(index_shear) taui_out(index_shear)];
         end
     end
-    function [gammai_out,taui_out,o_g_t_plug_out] = comp_gammai_taui(obj,omegai_)
-        [gammai_ro taui_ro] = obj.comp_gammai_taui_ro(omegai_);
-        [rc_vec gammai_out taui_out o_g_t_plug_out] = obj.comp_bingham_shear_rc(omegai_);
+    function [gammai_out,taui_out,o_g_t_plug_out] = comp_gammai_taui(obj,omegai_,par_)
+        if (nargin==2)
+            par = [obj.mu_p, obj.tau_y];
+        else
+            par = par_;
+        end
+        [gammai_ro taui_ro] = obj.comp_gammai_taui_ro(omegai_,par);
+        [rc_vec gammai_out taui_out o_g_t_plug_out] = obj.comp_bingham_shear_rc(omegai_,par);
         shear_inds=rc_vec>obj.r_o;
         gammai_out(shear_inds)=gammai_ro(shear_inds);
         taui_out(shear_inds)=taui_ro(shear_inds);
@@ -590,16 +740,40 @@ classdef glass_particles < fluid
     end
     function [mp_bout ty_bout] = determine_Bingham_fluid_bounds(obj,o_,t_)
         o_min=min(o_);
-        t_max=max(t_);
-        t_min=min(t_);
+        t_max=max(obj.tau);
+        t_min=min(obj.tau);
 
-        ty_min = 1e-10;
-        ty_max = 0.999999*t_min;
+        % ty_min = 1e-10;
+        % ty_min = obj.tau_y*0.50;
+        % ty_min = obj.tau_y*0.75;
+        ty_min = obj.tau_y*0.9;
+        % ty_min = obj.tau_y*0.95;
+        % ty_max = 0.999999*t_min;
+        ty_max = obj.tau_y*1.01;
+        % ty_max = t_max;
+        % ty_0 = obj.tau_y;
+        % ty_0 = 0.5*(ty_min + ty_max);
         ty_0 = obj.tau_y;
+        % if (obj.tau_y > ty_max)
+        %     ty_0 = 0.99*ty_max;
+        % else
+        %     ty_0 = obj.tau_y;
+        % end
 
         mp_min = 1e-10;
-        mp_max = 0.5*(ty_max*log(t_max/ty_min))/o_min;
-        mp_0 = obj.mu_p;
+        % mp_min = obj.mu_p/10000;
+        % mp_min =t_min/10;
+        % mp_max = 0.5*(ty_max*log(t_max/ty_min))/o_min;
+        % mp_max = 10;
+        % mp_max = 2;
+        % mp_max = 0.2;
+        mp_max = obj.mu_p*2;
+        % mp_max = obj.mu_p*1.01;
+        % mp_max = obj.mu_p;
+        % mp_0 = obj.mu_p;
+        mp_0 = 1.01*mp_min;
+        % mp_0 = obj.mu_p*10;
+        % mp_0 = 0.5*(mp_min + mp_max);
 
         mp_bout = [mp_min mp_0 mp_max];
         ty_bout = [ty_min ty_0 ty_max];
@@ -642,6 +816,64 @@ classdef glass_particles < fluid
     end
   end
   methods (Static)
+    function w_out = compute_equidistant_weighting(o_)
+        w_out = nan(size(o_));
+        for i = 1:length(o_)
+            diff = o_-o_(i);
+            % w_out(i) = sqrt(sum(diff.*diff));
+            % w_out(i) = sqrt(sum(diff.*diff))/abs(o_(i));
+            % w_out(i) = sum(abs(diff));
+            % w_out(i) = sum(abs(diff))/abs(o_(i));
+            w_out(i) = 1;
+            % w_out(i) = 1/abs(o_(i));
+        end
+        w_out = w_out/norm(w_out);
+    end
+    function o_out = omegai_pred_Bingham(mp_,ty_,t_)
+        o_out = zeros(size(t_));
+        eta = fluid.r_i_def/fluid.r_o_def;
+        tplug = ty_/(eta*eta);
+        i_full = reshape(1:length(t_),size(t_));
+        i_noflow = t_<ty_;
+        i_plug = logical(double(~i_noflow).*double(t_<tplug));
+        i_shear = logical(double(~i_noflow) + double(~i_plug));
+
+        tplug = t_(i_plug);
+        tshear = t_(i_shear);
+
+        o_out(i_plug) = 0.5*(ty_/mp_)*(log(ty_./tplug) + (tplug/ty_) - 1);
+        o_out(i_shear) = (1/mp_)*(ty_*log(eta) + 0.5*t_*(1-(eta*eta)));
+    end
+    function t_out = taui_pred_Bingham(mp_,ty_,o_,t0_)
+        if (nargin==3)
+            t0vec = ones(size(o_));
+        else
+            t0vec = t0_;
+        end
+        eta = glass_particles.r_i_def/glass_particles.r_o_def;
+        imp_ = 1/mp_;
+        ocrit = 0.5*ty_*imp_*(log(eta*eta) + ((1/(eta*eta)) - 1));
+        t_out = nan(size(o_));
+        i_full = reshape(1:length(o_), size(o_));
+        i_plug = o_<ocrit;
+        i_shear = ~i_plug;
+
+        % omegai_shear_func = @(t_) imp_*(ty_*log(eta) + 0.5*t_*(1 - (eta*eta)));
+        % omegai_plug_func = @(t_) 0.5*ty_*imp_*(log(ty_/t_) + ((t_/ty_)-1));
+
+        gi_shear = imp_*(ty_+2*(o_(i_shear)*mp_+ty_*log(1/eta))/(eta*eta-1));
+        t_out(i_shear)=mp_*abs(gi_shear)+ty_;
+
+        gammai_solve = @(t,o) (ty_ + 2*(o*mp_ + 0.5*ty_*log(t/ty_))./((ty_./t)-1))/mp_;
+        bingham_solve = @(t,o) (mp_ * abs(gammai_solve(t,o))) + ty_ - t;
+
+        bounds = [ty_,1e3];
+        % for i = reshape(i_full(i_plug),1,[])
+        parfor i = reshape(i_full(i_plug),1,[])
+            solve_i = @(t) abs(bingham_solve(t,o_(i)));
+            t_out(i) = fminbnd(solve_i,bounds(1),bounds(2));
+        end
+    end
     function w_out = compute_distance_weighting(o_)
         % len_o=length(o_);
         % w_first=o_(2)-o_(1);

@@ -72,7 +72,9 @@ classdef glass49 < glass_particles
       obj.G = obj.mu_torque/((obj.h)*(obj.mu_p*obj.mu_p)/(obj.rho_b));
 
       obj.fit_Carreau_model;
-      obj.fit_Bingham_model;
+      % obj.fit_Bingham_model;
+      obj.mu_p_Bingham = glass_particles.FB2_fitted_Bingham_pars(i_,1);
+      obj.tau_y_Bingham = glass_particles.FB2_fitted_Bingham_pars(i_,2);
     end
   end
 end

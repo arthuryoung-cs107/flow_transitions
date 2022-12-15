@@ -14,15 +14,19 @@ classdef bingham_plots < main_plots
             for FB = [FB1 FB2]
                 explen=length(FB.exp);
                 [tauy_vec mup_vec q_vec] = deal(nan(explen,1));
+                [tauy_vec_old mup_vec_old] = deal(nan(explen,1));
                 color_mat=nan(explen,3);
                 for i=1:(explen)
                     expi=FB.exp(i);
 
                     [tauy_vec(i) mup_vec(i)] = deal(expi.tau_y_Bingham, expi.mu_p_Bingham);
+                    [tauy_vec_old(i) mup_vec_old(i)] = deal(expi.tau_y, expi.mu_p);
                     [color_mat(i,:) q_vec(i)] = deal(FB.exp(i).color, FB.exp(i).q);
                 end
-                scatter(axs(1+axi), q_vec, tauy_vec, FB.specs,'CData',color_mat,'LineWidth',2*FB.LW_L,'SizeData',5*FB.MS_L*FB.MS_L);
-                scatter(axs(2+axi), q_vec, mup_vec, FB.specs,'CData',color_mat,'LineWidth',2*FB.LW_L,'SizeData',5*FB.MS_L*FB.MS_L);
+                scatter(axs(1+axi), q_vec, tauy_vec, FB.specs,'CData',color_mat,'LineWidth',FB.LW_L,'SizeData',3*FB.MS_L*FB.MS_L);
+                scatter(axs(2+axi), q_vec, mup_vec, FB.specs,'CData',color_mat,'LineWidth',FB.LW_L,'SizeData',3*FB.MS_L*FB.MS_L);
+                scatter(axs(1+axi), q_vec, tauy_vec_old, 'p','CData',[0 0 0],'LineWidth',2*FB.LW_L,'SizeData',15);
+                scatter(axs(2+axi), q_vec, mup_vec_old, 'p','CData',[0 0 0],'LineWidth',2*FB.LW_L,'SizeData',15);
                 axi=axi+tdim2;
             end
             ylabel([axs(1) axs(1+tdim2)], '$$\tau_y$$', 'Interpreter', 'LaTeX','FontSize',14)
@@ -351,21 +355,49 @@ classdef bingham_plots < main_plots
 
             fig_out = AYfig_;
         end
-        function fig_out = FB1_FB2_Bingham_fluid_fits_full(obj,AYfig_,FB1,FB2)
+        function fig_out = FB1_FB2_Bingham_fluid_fits_full(obj,AYfig_,FB1,FB2,full_flag_)
+            if (nargin==4)
+                full_flag=true;
+            else
+                full_flag=full_flag_;
+            end
+
+            if (full_flag)
+                omega_linspace=logspace(-2, 2,100);
+                % omega_linspace=linspace(0, 15,100);
+                xscale_set = 'log';
+                yscale_set = 'log';
+                % xscale_set = 'linear';
+                % yscale_set = 'linear';
+            else
+                % omega_linspace=linspace(0, 15,100);
+                omega_linspace=logspace(-2, 2,100);
+                % omega_linspace=2*logspace(-3, 1,100);
+                % xscale_set = 'linear';
+                yscale_set = 'linear';
+                xscale_set = 'log';
+                % yscale_set = 'log';
+            end
+
             axs_full=prep_tiles(AYfig_,[4 6]);
 
             axs=axs_full;
             for FB = [FB1 FB2]
                 explen = length(FB.exp);
                 for i=1:explen
-                    omega_low = min(FB.exp(i).omega);
-                    omega_cap = max(FB.exp(i).omega);
-                    omega_linspace=linspace(omega_low,omega_cap,100);
+                    par = [FB.exp(i).mu_p_Bingham FB.exp(i).tau_y_Bingham];
+                    [gi,ti] = FB.exp(i).comp_gammai_taui(omega_linspace,par);
 
-                    [gi,ti] = FB.exp(i).comp_gammai_taui(omega_linspace);
+                    par_old = [FB.exp(i).mu_p FB.exp(i).tau_y];
+                    [gi_old,ti_old] = FB.exp(i).comp_gammai_taui(omega_linspace,par_old);
 
-                    plot(axs(i), FB.exp(i).omega, FB.exp(i).tau, FB.specs, 'Color', FB.exp(i).color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', FB.exp(i).label);
+                    inds_plot = FB.exp(i).omega <= max(omega_linspace);
+                    omega_plot = FB.exp(i).omega(inds_plot);
+                    tau_plot = FB.exp(i).tau(inds_plot);
+
+                    plot(axs(i), omega_plot, tau_plot, FB.specs, 'Color', FB.exp(i).color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', FB.exp(i).label);
                     plot(axs(i), omega_linspace, ti, '-', 'Color', FB.exp(i).color, 'LineWidth', 2, 'DisplayName', FB.exp(i).label);
+                    plot(axs(i), omega_linspace, ti_old, ':', 'Color', FB.exp(i).color, 'LineWidth', 2, 'DisplayName', FB.exp(i).label);
 
                     title(axs(i), FB.exp(i).label, 'Interpreter', 'Latex', 'Fontsize', 14)
                 end
@@ -374,11 +406,57 @@ classdef bingham_plots < main_plots
             ylabel(axs_full, '$$\tau_w$$ [Pa]', 'Interpreter', 'LaTeX','FontSize',12)
             xlabel(axs_full, '$$\omega_i$$ [rad.s]', 'Interpreter', 'LaTeX','FontSize',12)
 
-            set(axs_full, 'YScale', 'log', 'XScale', 'log');
+            set(axs_full, 'YScale', yscale_set, 'XScale', xscale_set);
 
             fig_out = AYfig_;
         end
+        function fig_out = FB1_FB2_Bingham_fluid_omega_fits(obj,AYfig_,FB1,FB2,full_flag_)
+            if (nargin==4)
+                full_flag=true;
+            else
+                full_flag=full_flag_;
+            end
 
+            if (full_flag)
+                omega_max = 100;
+                xscale_set = 'log';
+                yscale_set = 'log';
+            else
+                omega_max = 15;
+                xscale_set = 'linear';
+                yscale_set = 'linear';
+            end
+
+            axs_full=prep_tiles(AYfig_,[4 6]);
+
+            axs=axs_full;
+            for FB = [FB1 FB2]
+                explen = length(FB.exp);
+                for i=1:explen
+                    par = [FB.exp(i).mu_p_Bingham FB.exp(i).tau_y_Bingham];
+
+                    inds_plot = FB.exp(i).omega <= omega_max;
+                    omega_plot = FB.exp(i).omega(inds_plot);
+                    tau_plot = FB.exp(i).tau(inds_plot);
+
+                    ti = linspace(min(tau_plot), max(tau_plot), 100);
+                    oi = glass_particles.omegai_pred_Bingham(par(1),par(2),ti);
+
+                    plot(axs(i), tau_plot, omega_plot, FB.specs, 'Color', FB.exp(i).color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', FB.exp(i).label);
+                    plot(axs(i), ti, oi, '-', 'Color', FB.exp(i).color, 'LineWidth', 2, 'DisplayName', FB.exp(i).label);
+                    % plot(axs(i), omega_linspace, ti_old, ':', 'Color', FB.exp(i).color, 'LineWidth', 2, 'DisplayName', FB.exp(i).label);
+
+                    title(axs(i), FB.exp(i).label, 'Interpreter', 'Latex', 'Fontsize', 14)
+                end
+                axs=axs_full(explen+2:end);
+            end
+            xlabel(axs_full, '$$\tau_w$$ [Pa]', 'Interpreter', 'LaTeX','FontSize',12)
+            ylabel(axs_full, '$$\omega_i$$ [rad.s]', 'Interpreter', 'LaTeX','FontSize',12)
+
+            set(axs_full, 'YScale', yscale_set, 'XScale', xscale_set);
+
+            fig_out = AYfig_;
+        end
     end
 end
 

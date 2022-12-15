@@ -12,6 +12,7 @@ classdef main_plots
         dim222;
         dim22;
         ax21;
+        dim32 = [580 450];
 
         r_i = 0.01208;
         r_o = 0.025;
@@ -429,19 +430,19 @@ classdef main_plots
             % legend_set_a(3) = plot(axs(1), EC075.q, EC075.tau_y_rat, EC075.specs, 'Color', EC075.color, 'LineWidth', EC075.LW_L, 'MarkerSize', EC075.MS_L, 'DisplayName', EC075.label);
             % legend_set_a(4) = plot(axs(1), EC100.q, EC100.tau_y_rat, EC100.specs, 'Color', EC100.color, 'LineWidth', EC100.LW_L, 'MarkerSize', EC100.MS_L, 'DisplayName', EC100.label);
             for i = 1:length(FB1.exp)
-                legend_set_a(i) = plot(axs(1), FB1.exp(i).q, (FB1.exp(i).tau_y)/(FB1.exp(i).tau_static), FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW_L, 'MarkerSize', FB1.MS_L, 'DisplayName', FB1.exp(i).label);
+                legend_set_a(i) = plot(axs(1), FB1.exp(i).q, (FB1.exp(i).tau_y_Bingham)/(FB1.exp(i).tau_static), FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW_L, 'MarkerSize', FB1.MS_L, 'DisplayName', FB1.exp(i).label);
             end
 
             for i = 1:length(FB2.exp)
-                legend_set_b(i) = plot(axs(2), FB2.exp(i).q, (FB2.exp(i).tau_y)/(FB2.exp(i).tau_static), FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW_L, 'MarkerSize', FB2.MS_L, 'DisplayName', FB2.exp(i).label);
+                legend_set_b(i) = plot(axs(2), FB2.exp(i).q, (FB2.exp(i).tau_y_Bingham)/(FB2.exp(i).tau_static), FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW_L, 'MarkerSize', FB2.MS_L, 'DisplayName', FB2.exp(i).label);
             end
 
             for i = 1:length(FB1.exp)
-                legend_set_c(i) = plot(axs(3), FB1.exp(i).q, FB1.exp(i).mu_p, FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW_L, 'MarkerSize', FB1.MS_L, 'DisplayName', FB1.exp(i).label);
+                legend_set_c(i) = plot(axs(3), FB1.exp(i).q, FB1.exp(i).mu_p_Bingham, FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW_L, 'MarkerSize', FB1.MS_L, 'DisplayName', FB1.exp(i).label);
             end
 
             for i = 1:length(FB2.exp)
-                legend_set_d(i) = plot(axs(4), FB2.exp(i).q, FB2.exp(i).mu_p, FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW_L, 'MarkerSize', FB2.MS_L, 'DisplayName', FB2.exp(i).label);
+                legend_set_d(i) = plot(axs(4), FB2.exp(i).q, FB2.exp(i).mu_p_Bingham, FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW_L, 'MarkerSize', FB2.MS_L, 'DisplayName', FB2.exp(i).label);
             end
 
             textbox_a = annotation('textbox', obj.textbox_pos22_a_NE, 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none', 'FontSize', 16);
@@ -464,9 +465,69 @@ classdef main_plots
 
             axis(axs(1),[0 2 1e-5 1.0])
             axis(axs(2),[0 16 1e-5 1.0])
-            axis(axs(3),[0 2 5e-2 1.2])
-            axis(axs(4),[0 16 5e-2 1.2])
+            axis(axs(3),[0 2 1e-1 1.2])
+            axis(axs(4),[0 16 1e-2 1.2])
 
+            fig_out = AYfig_;
+        end
+        function fig_out = FB_Carreau_par_vs_q(obj, AYfig_, FB1, FB2)
+            AYfig_.init_tiles([3,2]);
+            axs = AYfig_.ax_tile;
+            hold(axs, 'on');
+            box(axs,'on');
+
+            for i = 1:length(FB1.exp)
+                legend_set_a(i) = plot(axs(1), FB1.exp(i).q, FB1.exp(i).mu0_Carreau, FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW_L, 'MarkerSize', FB1.MS_L, 'DisplayName', FB1.exp(i).label);
+            end
+
+            for i = 1:length(FB2.exp)
+                legend_set_b(i) = plot(axs(2), FB2.exp(i).q, FB2.exp(i).mu0_Carreau, FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW_L, 'MarkerSize', FB2.MS_L, 'DisplayName', FB2.exp(i).label);
+            end
+
+            for i = 1:length(FB1.exp)
+                legend_set_c(i) = plot(axs(3), FB1.exp(i).q, FB1.exp(i).lambda_Carreau, FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW_L, 'MarkerSize', FB1.MS_L, 'DisplayName', FB1.exp(i).label);
+            end
+
+            for i = 1:length(FB2.exp)
+                legend_set_d(i) = plot(axs(4), FB2.exp(i).q, FB2.exp(i).lambda_Carreau, FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW_L, 'MarkerSize', FB2.MS_L, 'DisplayName', FB2.exp(i).label);
+            end
+
+            for i = 1:length(FB1.exp)
+                legend_set_c(i) = plot(axs(5), FB1.exp(i).q, FB1.exp(i).n_Carreau, FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW_L, 'MarkerSize', FB1.MS_L, 'DisplayName', FB1.exp(i).label);
+            end
+
+            for i = 1:length(FB2.exp)
+                legend_set_d(i) = plot(axs(6), FB2.exp(i).q, FB2.exp(i).n_Carreau, FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW_L, 'MarkerSize', FB2.MS_L, 'DisplayName', FB2.exp(i).label);
+            end
+
+            textbox_a = annotation('textbox', [0.1, 0.675, 0.1, 0.1], 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_b = annotation('textbox', [0.575, 0.675, 0.1, 0.1], 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_c = annotation('textbox', [0.1, 0.35, 0.1, 0.1], 'Interpreter', 'LaTeX', 'String', 'c)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_d = annotation('textbox', [0.575, 0.35, 0.1, 0.1], 'Interpreter', 'LaTeX', 'String', 'd)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_e = annotation('textbox', [0.1, 0.2, 0.1, 0.1], 'Interpreter', 'LaTeX', 'String', 'e)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_f = annotation('textbox', [0.575, 0.2, 0.1, 0.1], 'Interpreter', 'LaTeX', 'String', 'f)', 'LineStyle', 'none', 'FontSize', 16);
+
+            set(axs,'YScale', 'log');
+
+            % set(axs(1:2), 'YTick', [1e-5,1e-4,1e-3,1e-2,1e-1,1])
+
+            ylabel(axs(1), '$$\mu_0$$ [Pa.s]', 'Interpreter', 'LaTeX','FontSize',12)
+            ylabel(axs(3), '$$\lambda$$ [s]', 'Interpreter', 'LaTeX','FontSize',12)
+            ylabel(axs(5), '$$n$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs(5:6), '$$q = Q/Q_{inc}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+
+            % legend(axs(1), legend_set_a,'Location', 'NorthEast', 'Interpreter', 'Latex', 'NumColumns', 2);
+            % legend(axs(2), legend_set_b,'Location', 'NorthEast', 'Interpreter', 'Latex', 'NumColumns', 2);
+
+            qrange_FB1 = [0 2];
+            qrange_FB2 = [0 16];
+
+            axis(axs(1),[qrange_FB1 4e-1 1e4])
+            axis(axs(2),[qrange_FB2 4e-1 1e4])
+            axis(axs(3),[qrange_FB1 1e-1 1e3])
+            axis(axs(4),[qrange_FB2 1e-1 1e3])
+            axis(axs(5),[qrange_FB1 1e-3 1e0])
+            axis(axs(6),[qrange_FB2 1e-3 1e0])
             fig_out = AYfig_;
         end
         function fig_out = FB_alpha_vs_omega_q(obj, AYfig_, FB1, FB2, EC000, EC050, EC075, EC100)

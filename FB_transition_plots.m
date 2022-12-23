@@ -6,6 +6,64 @@ classdef FB_transition_plots < main_plots
         function obj = FB_transition_plots(write_figs_, write_all_figs_, figs_to_write_)
             obj@main_plots(write_figs_, write_all_figs_, figs_to_write_);
         end
+        function fig_out = FB1_FB2_Bingham_G_vs_Res(obj, AYfig_, FB1, FB2)
+            AYfig_.init_tiles([1,2]);
+            axs = AYfig_.ax_tile;
+            hold(axs, 'on');
+            box(axs,'on');
+
+            fplot(axs(1), @(Re) obj.G_obs_Res_slope*(Re), [1e-2 70],'--', 'Color', [0 0 0],'Linewidth', 2, 'DisplayName', '$$ \frac{2 \pi r_i r_o}{(r_o-r_i)^2} Re_s $$')
+            for i = 1:length(FB1.exp)
+                plot(axs(1), FB1.exp(i).Re_s_Bingham, FB1.exp(i).G_b_Bingham, FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW, 'MarkerSize', FB1.MS, 'DisplayName', FB1.exp(i).label);
+            end
+
+            fplot(axs(2), @(Re) obj.G_obs_Res_slope*(Re), [1e-2 70],'--', 'Color', [0 0 0],'Linewidth', 2, 'DisplayName', '$$ \frac{2 \pi r_i r_o}{(r_o-r_i)^2} Re_s $$')
+            for i = 1:length(FB2.exp)
+                plot(axs(2), FB2.exp(i).Re_s_Bingham, FB2.exp(i).G_b_Bingham, FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW, 'MarkerSize', FB2.MS, 'DisplayName', FB2.exp(i).label);
+            end
+
+            set(axs,'YScale', 'log', 'XScale', 'log');
+
+            ylabel(axs(1), '$$G$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs, '$$Re_s$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+
+            axis(axs,[1e-5 1e5 1e-2 1e6])
+
+            fig_out = AYfig_;
+        end
+        function fig_out = FB_G_vs_Res_spread(obj, AYfig_, FB1, FB2)
+            AYfig_.init_tiles([4,6]);
+            axs = AYfig_.ax_tile;
+            hold(axs, 'on');
+            box(axs,'on');
+            len1 = length(FB1.exp)+1;
+
+            i_G_vs_Res = (1:length(axs)) ~= len1;
+
+            pLW = 2*FB1.LW;
+            pMS = 2*FB1.MS;
+
+            for i=1:length(FB1.exp)
+                % plot(axs(i), FB1.exp(i).Re_s, FB1.exp(i).G, FB1.specs, 'Color', FB1.exp(i).color, 'LineWidth', FB1.LW, 'MarkerSize', FB1.MS, 'DisplayName', FB1.exp(i).label);
+                % plot(axs(i), FB1.exp(i).Re_s_Carreau, FB1.exp(i).G_b_Carreau, 's', 'Color', FB1.exp(i).color, 'LineWidth', 1, 'MarkerSize', 5, 'DisplayName', FB1.exp(i).label);
+                fplot(axs(i), @(Re) obj.G_obs_Res_slope*(Re), [1e-2 70],'--', 'Color', [0 0 0],'Linewidth', 2, 'DisplayName', '$$ \frac{2 \pi r_i r_o}{(r_o-r_i)^2} Re_s $$')
+                plot(axs(i), FB1.exp(i).Re_s_Bingham, FB1.exp(i).G_b_Bingham, FB1.specs, 'Color', FB1.exp(i).color, 'LineWidth', FB1.LW, 'MarkerSize', FB1.MS, 'DisplayName', FB1.exp(i).label);
+            end
+            for i=1:length(FB2.exp)
+                % plot(axs(i+len1), FB2.exp(i).Re_s, FB2.exp(i).G, FB2.specs, 'Color', FB2.exp(i).color,'LineWidth', FB2.LW, 'MarkerSize', FB2.MS, 'DisplayName', FB2.exp(i).label);
+                % plot(axs(i+len1), FB2.exp(i).Re_s_Carreau, FB2.exp(i).G_b_Carreau, 's', 'Color', FB2.exp(i).color,'LineWidth', 1, 'MarkerSize', 5, 'DisplayName', FB2.exp(i).label);
+                fplot(axs(i+len1), @(Re) obj.G_obs_Res_slope*(Re), [1e-2 70],'--', 'Color', [0 0 0],'Linewidth', 2, 'DisplayName', '$$ \frac{2 \pi r_i r_o}{(r_o-r_i)^2} Re_s $$')
+                plot(axs(i+len1), FB2.exp(i).Re_s_Bingham, FB2.exp(i).G_b_Bingham, FB2.specs, 'Color', FB2.exp(i).color,'LineWidth', FB2.LW, 'MarkerSize', FB2.MS, 'DisplayName', FB2.exp(i).label);
+            end
+            set(axs(i_G_vs_Res), 'XScale', 'log','YScale', 'log');
+            ylabel(axs(1:6:19), '$$G_b$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs(19:24), '$$Re_s$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+            % axis(axs(i_G_vs_Res), [obj.omega_range -0.5 obj.alpha_range(2)])
+
+            axis(axs,[1e-5 3e2 1e-4 1e6])
+
+            fig_out = AYfig_;
+        end
         function fig_out = FB1_FB2_tau_vs_gamma(obj, AYfig_, FB1, FB2)
             AYfig_.init_tiles([4,6]);
             axs = AYfig_.ax_tile;
@@ -76,10 +134,15 @@ classdef FB_transition_plots < main_plots
             axs = AYfig_.ax_tile;
             hold(axs, 'on');
             box(axs,'on');
-            len1 = length(FB1.exp);
+            len1 = length(FB1.exp)+1;
+
+            i_alpha_vs_omega = (1:length(axs)) ~= len1;
 
             pLW = 2*FB1.LW;
             pMS = 2*FB1.MS;
+
+            q_ocrit_FB1 = nan(length(FB1.exp),2);
+            q_ocrit_FB2 = nan(length(FB2.exp),2);
 
             for i=1:length(FB1.exp)
                 alpha = FB1.exp(i).alpha_T;
@@ -87,6 +150,7 @@ classdef FB_transition_plots < main_plots
                 plot(axs(i), FB1.exp(i).omega_TV_Ta, alpha(FB1.exp(i).TV_range_Ta), FB1.specs, 'Color', [0 0 0], 'LineWidth', FB1.LW, 'MarkerSize', FB1.MS, 'DisplayName', [FB1.exp(i).label ', transitioned']);
                 plot(axs(i), FB1.exp(i).omega_c3_Ta, FB1.exp(i).alpha_tol, '|', 'Color', [0 0 0], 'LineWidth', pLW, 'MarkerSize', 2*pMS, 'DisplayName', [FB1.exp(i).label '$$, \omega_{i,c,3}$$']);
                 legend(axs(i), 'Show', 'Location', 'NorthWest', 'Interpreter', 'Latex', 'NumColumns',1);
+                q_ocrit_FB1(i,:) = [FB1.exp(i).q FB1.exp(i).omega_c3_Ta];
             end
             for i=1:length(FB2.exp)
                 alpha = FB2.exp(i).alpha_T;
@@ -94,14 +158,15 @@ classdef FB_transition_plots < main_plots
                 plot(axs(i+len1), FB2.exp(i).omega_TV_Ta, alpha(FB2.exp(i).TV_range_Ta), FB2.specs, 'Color', [0 0 0], 'LineWidth', FB2.LW, 'MarkerSize', FB2.MS, 'DisplayName', [FB2.exp(i).label ', transitioned']);
                 plot(axs(i+len1), FB2.exp(i).omega_c3_Ta, FB2.exp(i).alpha_tol, '|', 'Color', [0 0 0], 'LineWidth', pLW, 'MarkerSize', 2*pMS, 'DisplayName', [FB2.exp(i).label '$$, \omega_{i,c,3}$$']);
                 legend(axs(i+len1), 'Show', 'Location', 'NorthWest', 'Interpreter', 'Latex', 'NumColumns',1);
+                q_ocrit_FB2(i,:) = [FB2.exp(i).q FB2.exp(i).omega_c3_Ta];
             end
-
-            set(axs, 'XScale', 'log');
-
+            set(axs(i_alpha_vs_omega), 'XScale', 'log');
             ylabel(axs(1:6:19), '$$\alpha_{T}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
             xlabel(axs(19:24), '$$\omega_i$$ [rad.s]', 'Interpreter', 'LaTeX','FontSize',12)
+            axis(axs(i_alpha_vs_omega), [obj.omega_range -0.5 obj.alpha_range(2)])
 
-            axis(axs, [obj.omega_range -0.5 obj.alpha_range(2)])
+            plot(axs(len1), q_ocrit_FB1(:,1), q_ocrit_FB1(:,2), '*', 'Color', [0 0 0], 'LineWidth', 1, 'MarkerSize', 8);
+            % plot(axs(len1), q_ocrit_FB2(:,1), q_ocrit_FB2(:,2), '.', 'Color', [0 0 0], 'LineWidth', pLW, 'MarkerSize', 2*pMS);
 
             fig_out = AYfig_;
         end

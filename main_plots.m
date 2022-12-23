@@ -90,6 +90,8 @@ classdef main_plots
         pos_top_row = [1 551 1728 460];
         pos_bottom_row = [0 1 1728 460];
 
+        posdim_SW = [0 1 864 460];
+
         ax21_short = [0.1 0.1 0.85 0.475; 0.1 0.675 0.4 0.3; 0.545 0.675 0.4 0.3];
         ax21_tall = [0.1 0.1 0.85 0.475; 0.1 0.675 0.4 0.3; 0.545 0.675 0.4 0.3];
     end
@@ -455,7 +457,6 @@ classdef main_plots
 
             set(axs(1:2), 'YTick', [1e-5,1e-4,1e-3,1e-2,1e-1,1])
 
-
             ylabel(axs(1), '$$\tau_y/\tau_{q = 0}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
             ylabel(axs(3), '$$\tilde{\mu}_{p}$$ [Pa.s]', 'Interpreter', 'LaTeX','FontSize',12)
             xlabel(axs(3:4), '$$q = Q/Q_{inc}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
@@ -507,7 +508,7 @@ classdef main_plots
             textbox_e = annotation('textbox', [0.1, 0.2, 0.1, 0.1], 'Interpreter', 'LaTeX', 'String', 'e)', 'LineStyle', 'none', 'FontSize', 16);
             textbox_f = annotation('textbox', [0.575, 0.2, 0.1, 0.1], 'Interpreter', 'LaTeX', 'String', 'f)', 'LineStyle', 'none', 'FontSize', 16);
 
-            set(axs,'YScale', 'log');
+            set(axs(1:4),'YScale', 'log');
 
             % set(axs(1:2), 'YTick', [1e-5,1e-4,1e-3,1e-2,1e-1,1])
 
@@ -526,8 +527,8 @@ classdef main_plots
             axis(axs(2),[qrange_FB2 4e-1 1e4])
             axis(axs(3),[qrange_FB1 1e-1 1e3])
             axis(axs(4),[qrange_FB2 1e-1 1e3])
-            axis(axs(5),[qrange_FB1 1e-3 1e0])
-            axis(axs(6),[qrange_FB2 1e-3 1e0])
+            axis(axs(5),[qrange_FB1 0 1e0])
+            axis(axs(6),[qrange_FB2 0 1e0])
             fig_out = AYfig_;
         end
         function fig_out = FB_alpha_vs_omega_q(obj, AYfig_, FB1, FB2, EC000, EC050, EC075, EC100)
@@ -578,6 +579,11 @@ classdef main_plots
             ax_B=0;
             ax_C=4;
 
+            inds_full = 1:length(axs);
+            FB1_inds = [1 3 5 6 7];
+            FB2_inds = [2 4 8 9 10];
+
+            axit=0;
             for FB = [FB1 FB2]
                 explen=length(FB.exp);
                 [tauy_vec mup_vec q_vec] = deal(nan(explen,1));
@@ -591,33 +597,247 @@ classdef main_plots
 
                     [color_mat(i,:) q_vec(i)] = deal(FB.exp(i).color, FB.exp(i).q);
                 end
-                scatter(axs(1+ax_B), q_vec, tauy_vec, FB.specs,'CData',color_mat,'LineWidth',2*FB.LW_L,'SizeData',1*FB.MS_L*FB.MS_L);
-                scatter(axs(2+ax_B), q_vec, mup_vec, FB.specs,'CData',color_mat,'LineWidth',2*FB.LW_L,'SizeData',1*FB.MS_L*FB.MS_L);
+                scatter(axs(1+axit), q_vec, tauy_vec, FB.specs,'CData',color_mat,'LineWidth',2*FB.LW_L,'SizeData',1*FB.MS_L*FB.MS_L);
+                scatter(axs(3+axit), q_vec, mup_vec, FB.specs,'CData',color_mat,'LineWidth',2*FB.LW_L,'SizeData',1*FB.MS_L*FB.MS_L);
                 scatter(axs(1+ax_C), q_vec, mu0_vec, FB.specs,'CData',color_mat,'LineWidth',2*FB.LW_L,'SizeData',1*FB.MS_L*FB.MS_L);
                 scatter(axs(2+ax_C), q_vec, lambda_vec, FB.specs,'CData',color_mat,'LineWidth',2*FB.LW_L,'SizeData',1*FB.MS_L*FB.MS_L);
                 scatter(axs(3+ax_C), q_vec, n_vec, FB.specs,'CData',color_mat,'LineWidth',2*FB.LW_L,'SizeData',1*FB.MS_L*FB.MS_L);
 
-                ylabel(axs(1+ax_B),'$$\tau_y/\tau_{q=0}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',14)
-                ylabel(axs(2+ax_B),'$$\tilde{\mu}_p$$ [Pa.s]', 'Interpreter', 'LaTeX','FontSize',14)
                 ylabel(axs(1+ax_C), '$$\mu_0$$ [Pa.s]', 'Interpreter', 'LaTeX','FontSize',14)
                 ylabel(axs(2+ax_C), '$$\lambda$$ [s]', 'Interpreter', 'LaTeX','FontSize',14)
                 ylabel(axs(3+ax_C), '$$n$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',14)
 
                 ax_B=ax_B+2;
                 ax_C=ax_C+3;
+                axit = axit + 1;
             end
             set(axs,'YScale','log');
             xlabel(axs, '$$q= Q/Q_{inc}$$', 'Interpreter', 'LaTeX','FontSize',14)
+            ylabel(axs(1),'$$\tau_y/\tau_{q=0}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',14)
+            ylabel(axs(3),'$$\tilde{\mu}_p$$ [Pa.s]', 'Interpreter', 'LaTeX','FontSize',14)
 
-            ylim([axs(1) axs(3)], [1e-4 1]); %% set yield stress ratio range
-
-            ylim([axs(2) axs(4)], [5e-2 1]); %% set plastic viscosity range
-
+            ylim([axs(1) axs(2)], [1e-4 1]); %% set yield stress ratio range
+            ylim([axs(3) axs(4)], [1e-2 3e-1]); %% set plastic viscosity range
             set([axs(7) axs(10)],'YScale','linear');
             ylim([axs(7) axs(10)], [0 0.6]); %% set thinning index range
 
+            xlim(axs(FB1_inds), [0 2.1]);
+            xlim(axs(FB2_inds), [0 15.2]);
 
             fig_out=AYfig_;
+        end
+        function fig_out = FB_dimensional_regime_plot(obj,AYfig_,FB1, FB2)
+            run figure_properties.m
+
+            color_ttv = [255 220 0]/255;
+            color_fgm = [0 190 0]/255;
+            color_sgf = [60 255 255]/255;
+            color_dgf = [0 160 255]/255;
+            color_frs = [0 228 116]/255;
+            ncolor = 30;
+
+            cgrad_FGM_2_TTV = make_color_gradient(color_fgm,color_ttv,ncolor);
+            cgrad_FRS_2_TTV = make_color_gradient(color_frs,color_ttv,ncolor);
+            cgrad_DGF_2_FRS = make_color_gradient(color_dgf,color_frs,ncolor);
+            cgrad_DGF_2_SGF = make_color_gradient(color_dgf,color_sgf,ncolor);
+            cgrad_SGF_2_FGM = make_color_gradient(color_sgf,color_fgm,ncolor);
+
+            AYfig_.init_tiles([1,2]);
+            axs = AYfig_.ax_tile;
+            hold(axs, 'on');
+            box(axs,'on');
+            % olims = [1e-2 1.5e2];
+            olims = [1e-2 1e3];
+            % qlims_mat = [0 2.0; 0 15.0];
+            % qlims_mat = [0 2.0; 0 5.0];
+            % qlims_mat = [0 15.0; 0 15.0];
+            qlims_mat = [0 3.0; 0 3.0];
+            qlims_mat_plot = [0 3.0; 0 3.0];
+
+            iFB=1;
+            for FB = [FB1 FB2]
+                qlims = qlims_mat(iFB,:);
+                qcrit_sgf = FB.exp(iFB).qcrit_sgf;
+                qcrit_ttv = FB.exp(iFB).qcrit_ttv;
+                qcrit_fgm = FB.exp(iFB).qcrit_fgm;
+
+                ocrit_dgf_ql = FB.exp(iFB).ocrit_dgf_ql;
+                ocrit_dgf_qh = FB.exp(iFB).ocrit_dgf_qh;
+                ocrit_fgm_ql = FB.exp(iFB).ocrit_fgm_ql;
+                ocrit_fgm_qh = FB.exp(iFB).ocrit_fgm_qh;
+
+                ocrit_3 = ((ocrit_fgm_ql - ocrit_dgf_qh)/(qcrit_fgm-qcrit_sgf))*(qcrit_ttv-qcrit_sgf) + ocrit_dgf_qh;
+
+                dgf = [ olims(1) qlims(1); ...
+                        olims(1) qcrit_sgf; ...
+                        ocrit_dgf_qh qcrit_sgf; ...
+                        ocrit_dgf_ql, qlims(1)];
+                sgf = [ dgf(2,:); ...
+                        olims(1) qcrit_fgm; ...
+                        ocrit_fgm_ql qcrit_fgm; ...
+                        ocrit_3 qcrit_ttv; ...
+                        dgf(3,:)];
+                fgm = [ sgf(2,:); ...
+                        olims(1) qlims(2); ...
+                        ocrit_fgm_qh qlims(2); ...
+                        sgf(3,:)];
+
+                frs = [ olims(2) qcrit_ttv; ...
+                        olims(2) qlims(1); ...
+                        ocrit_dgf_ql qlims(1); ...
+                        ocrit_dgf_qh qcrit_sgf; ...
+                        ocrit_3 qcrit_ttv];
+                ttv = [ olims(2) qlims(2); ...
+                        olims(2) qcrit_ttv; ...
+                        ocrit_3 qcrit_ttv; ...
+                        ocrit_fgm_ql qcrit_fgm; ...
+                        ocrit_fgm_qh qlims(2)];
+
+                ofac = 2;
+
+                fgm_2_ttv = [ocrit_fgm_qh/ofac qlims(2); ...
+                             ocrit_fgm_ql/ofac qcrit_fgm; ...
+                             ocrit_fgm_ql qcrit_fgm; ...
+                             ocrit_fgm_qh qlims(2)];
+
+                sgf_2_fgm = [olims(1) qcrit_fgm; ...
+                             ocrit_fgm_ql/ofac qcrit_fgm; ...
+                             ocrit_fgm_ql qcrit_fgm; ...
+                             ocrit_3 qcrit_ttv; ...
+                             ocrit_fgm_ql qcrit_ttv; ...
+                             ocrit_fgm_ql/ofac qcrit_ttv; ...
+                             olims(1) qcrit_ttv];
+                frs_2_ttv = [ocrit_3 qcrit_ttv; ...
+                             ocrit_dgf_qh qcrit_ttv; ...
+                             olims(2) qcrit_ttv; ...
+                             olims(2) qcrit_sgf; ...
+                             olims(2) qlims(1); ...
+                             ocrit_dgf_ql qlims(1); ...
+                             ocrit_dgf_qh qcrit_sgf];
+
+                patch(axs(iFB), 'Faces', [1 2 3 4], 'Vertices', dgf, 'FaceColor',color_dgf,'EdgeAlpha',0);
+                patch(axs(iFB), 'Faces', [1 2 3 4 5], 'Vertices', sgf, 'FaceColor',color_sgf,'EdgeAlpha',0);
+                patch(axs(iFB), 'Faces', [1 2 3 4], 'Vertices', fgm, 'FaceColor',color_fgm,'EdgeAlpha',0);
+                patch(axs(iFB), 'Faces', [1 2 3 4 5], 'Vertices', frs, 'FaceColor',color_frs,'EdgeAlpha',0);
+                patch(axs(iFB), 'Faces', [1 2 3 4 5], 'Vertices', ttv, 'FaceColor',color_ttv,'EdgeAlpha',0);
+
+                patch(axs(iFB), 'Faces', [1 2 3 4], 'Vertices', fgm_2_ttv,'FaceVertexCData',[color_fgm; color_fgm; color_ttv; color_ttv], 'FaceColor','interp','EdgeAlpha',0);
+                patch(axs(iFB), 'Faces', [1 2 3 4 5 6 7], 'Vertices', sgf_2_fgm,'FaceVertexCData',[color_fgm; color_fgm; color_ttv; [1 1 1]; color_sgf; color_sgf; color_sgf], 'FaceColor','interp','EdgeAlpha',0);
+                patch(axs(iFB), 'Faces', [1 2 3 4 5 6], 'Vertices', frs_2_ttv,'FaceVertexCData',[[1 1 1]; color_ttv; color_ttv; color_frs; color_frs; color_frs; color_frs], 'FaceColor','interp','EdgeAlpha',0);
+
+                % patch(axs(iFB), 'Faces', [1 2 3 4], 'Vertices', frs, 'FaceAlpha',0);
+                % patch(axs(iFB), 'Faces', [1 2 3 4], 'Vertices', ttv, 'FaceAlpha',0);
+                % patch(axs(iFB), 'Faces', [1 2 3 4], 'Vertices', dgf, 'FaceAlpha',0);
+                % patch(axs(iFB), 'Faces', [1 2 3 4], 'Vertices', sgf, 'FaceAlpha',0);
+                % patch(axs(iFB), 'Faces', [1 2 3 4], 'Vertices', fgm, 'FaceAlpha',0);
+
+                % fgm_2_ttv_patch.CLim = cmat_FGM_2_TTV;
+                % colormap(axs(iFB), cmat);
+                % clim(fgm_2_ttv_patch, cmat_FGM_2_TTV);
+
+                % colormap(axs(iFB), cmat);
+                % colorbar(axs(iFB))
+                iFB = iFB + 1;
+            end
+
+            title(axs(1), '$$ 113 $$ micron', 'Interpreter', 'LaTeX', 'FontSize', 14);
+            title(axs(2), '$$ 49 $$ micron', 'Interpreter', 'LaTeX', 'FontSize', 14);
+
+            set(axs,'YScale','linear','XScale','log');
+            xlabel(axs, '$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',14)
+            ylabel(axs(1), '$$q= Q/Q_{inc}$$', 'Interpreter', 'LaTeX','FontSize',14)
+            xlim(axs, olims);
+            ylim(axs(1), qlims_mat_plot(1,:));
+            ylim(axs(2), qlims_mat_plot(2,:));
+
+            txbx_pos1 = [0.090 0.600 0.1 0.1; ...
+                         0.090 0.350 0.1 0.1; ...
+                         0.090 0.200 0.1 0.1; ...
+                         0.335 0.600 0.1 0.1; ...
+                         0.355 0.300 0.1 0.1];
+            txbx_pos2 = [0.565 0.750 0.1 0.1; ...
+                         0.565 0.500 0.1 0.1; ...
+                         0.565 0.200 0.1 0.1; ...
+                         0.810 0.600 0.1 0.1; ...
+                         0.830 0.300 0.1 0.1];
+            txbx_pos1_2 = txbx_pos1 - [0 0.05 0 0];
+
+            textbox_FGM_FB1 = annotation('textbox',txbx_pos1(1,:), 'Interpreter', 'LaTeX', 'String', 'FGM: $$ \tau \propto \omega_i^{\alpha}$$', 'LineStyle', 'none', 'FontSize', 12);
+            textbox_SGF_FB1 = annotation('textbox',txbx_pos1(2,:), 'Interpreter', 'LaTeX', 'String', 'SGF: $$ \tau \neq f(\omega_i)$$', 'LineStyle', 'none', 'FontSize', 12);
+            textbox_DGF_FB1 = annotation('textbox',txbx_pos1(3,:), 'Interpreter', 'LaTeX', 'String', 'DGF: $$ \tau = \tau_s$$,', 'LineStyle', 'none', 'FontSize', 12);
+            textbox_TTV_FB1 = annotation('textbox',txbx_pos1(4,:), 'Interpreter', 'LaTeX', 'String', 'TTV:', 'LineStyle', 'none', 'FontSize', 12);
+            textbox_FRS_FB1 = annotation('textbox',txbx_pos1(5,:), 'Interpreter', 'LaTeX', 'String', 'FRS:', 'LineStyle', 'none', 'FontSize', 12);
+
+            textbox_FGM_FB1_2 = annotation('textbox',txbx_pos1_2(1,:), 'Interpreter', 'LaTeX', 'String', '$$ 0 < | \alpha | < 1 $$', 'LineStyle', 'none', 'FontSize', 12);
+
+            textbox_FGM_FB2 = annotation('textbox',txbx_pos2(1,:), 'Interpreter', 'LaTeX', 'String', 'FGM: $$ \tau \propto \omega_i^{\alpha}$$', 'LineStyle', 'none', 'FontSize', 12);
+            textbox_SGF_FB2 = annotation('textbox',txbx_pos2(2,:), 'Interpreter', 'LaTeX', 'String', 'SGF: $$ \tau \propto \omega_i^{\alpha}$$', 'LineStyle', 'none', 'FontSize', 12);
+            textbox_DGF_FB2 = annotation('textbox',txbx_pos2(3,:), 'Interpreter', 'LaTeX', 'String', 'DGF: $$ \tau \propto \omega_i^{\alpha}$$', 'LineStyle', 'none', 'FontSize', 12);
+            textbox_TTV_FB2 = annotation('textbox',txbx_pos2(4,:), 'Interpreter', 'LaTeX', 'String', 'TTV:', 'LineStyle', 'none', 'FontSize', 12);
+            textbox_FRS_FB2 = annotation('textbox',txbx_pos2(5,:), 'Interpreter', 'LaTeX', 'String', 'FRS:', 'LineStyle', 'none', 'FontSize', 12);
+
+            fig_out = AYfig_;
+        end
+        function fig_out = FB_dimensionless_regime_plot(obj,AYfig_,FB1, FB2)
+            run figure_properties.m
+
+            color_ttv = [255 220 0]/255;
+            color_fgm = [0 190 0]/255;
+            color_sgf = [60 255 255]/255;
+            color_dgf = [0 160 255]/255;
+            color_frs = [0 228 116]/255;
+
+            AYfig_.init_tiles([1,2]);
+            axs = AYfig_.ax_tile;
+            hold(axs, 'on');
+            box(axs,'on');
+            olims = [1e-2 1.5e2];
+            % qlims_mat = [0 2.0; 0 15.0];
+            % qlims_mat = [0 2.0; 0 5.0];
+            qlims_mat = [0 3.0; 0 3.0];
+            % qlims_mat = [0 2.5; 0 2.5];
+
+            iFB=1;
+            for FB = [FB1 FB2]
+                qlims = qlims_mat(iFB,:);
+                qcrit_sgf = FB.exp(iFB).qcrit_sgf;
+                qcrit_ttv = FB.exp(iFB).qcrit_ttv;
+                qcrit_fgm = FB.exp(iFB).qcrit_fgm;
+
+                ocrit_dgf_ql = FB.exp(iFB).ocrit_dgf_ql;
+                ocrit_dgf_qh = FB.exp(iFB).ocrit_dgf_qh;
+                ocrit_fgm_ql = FB.exp(iFB).ocrit_fgm_ql;
+                ocrit_fgm_qh = FB.exp(iFB).ocrit_fgm_qh;
+
+                dgf = [olims(1) qlims(1); olims(1) qcrit_sgf; ocrit_dgf_qh qcrit_sgf; ocrit_dgf_ql, qlims(1)];
+                sgf = [dgf(2,:); olims(1) qcrit_fgm; ocrit_fgm_ql qcrit_fgm; dgf(3,:)];
+                fgm = [sgf(2,:); olims(1) qlims(2); ocrit_fgm_qh qlims(2); sgf(3,:)];
+
+                mino = min([dgf(4,1) sgf(4,1), fgm(3,1)]);
+
+                frs = [0.9*mino qlims(1); 0.9*mino qcrit_ttv; olims(2) qcrit_ttv; olims(2) qlims(1)];
+                ttv = [0.9*mino qcrit_ttv; 0.9*mino qlims(2); olims(2) qlims(2); olims(2) qcrit_ttv];
+
+                patch(axs(iFB), 'Faces', [1 2 3 4], 'Vertices', frs, 'FaceColor',color_frs);
+                patch(axs(iFB), 'Faces', [1 2 3 4], 'Vertices', ttv, 'FaceColor',color_ttv);
+                patch(axs(iFB), 'Faces', [1 2 3 4], 'Vertices', dgf, 'FaceColor',color_dgf);
+                patch(axs(iFB), 'Faces', [1 2 3 4], 'Vertices', sgf, 'FaceColor',color_sgf);
+                patch(axs(iFB), 'Faces', [1 2 3 4], 'Vertices', fgm, 'FaceColor',color_fgm);
+
+                iFB = iFB + 1;
+            end
+
+            title(axs(1), '$$ 113 $$ micron', 'Interpreter', 'LaTeX', 'FontSize', 14);
+            title(axs(2), '$$ 49 $$ micron', 'Interpreter', 'LaTeX', 'FontSize', 14);
+
+            set(axs,'YScale','linear','XScale','log');
+            xlabel(axs, '$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',14)
+            ylabel(axs(1), '$$q= Q/Q_{inc}$$', 'Interpreter', 'LaTeX','FontSize',14)
+            xlim(axs, olims);
+            ylim(axs(1), qlims_mat(1,:));
+            ylim(axs(2), qlims_mat(2,:));
+
+            fig_out = AYfig_;
         end
         function write_figures(obj, figs_, save_dir_, save_type_)
             if (obj.write_figs)
@@ -667,4 +887,8 @@ function ax_out = set_alpha_cf_vs_Res_axes(AYfig_, ax21_)
     ax_out(1) = axa;
     ax_out(2) = axb;
     ax_out(3) = axc;
+end
+
+function colors_out = make_color_gradient(color1_, color2_, n_)
+    colors_out = [linspace(color1_(1),color2_(1),n_); linspace(color1_(2),color2_(2),n_); linspace(color1_(3),color2_(3),n_)]';
 end

@@ -4,6 +4,7 @@ classdef AYfig < handle
         ax;
         props_in;
 
+        monitors;
 
         %% movie stuff
         movie_gen;
@@ -31,6 +32,7 @@ classdef AYfig < handle
             for i=1:size(props_in_, 1)
                 obj.fig.set(props_in_{i, 1}, props_in_{i, 2});
             end
+            obj.monitors = get(0, 'MonitorPositions');
         end
         function init_movie(obj, Frames_, watch_tag)
             str(Frames_) = struct('cdata', [], 'colormap', []);

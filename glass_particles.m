@@ -1,36 +1,98 @@
 classdef glass_particles < fluid
   properties (Constant)
-    FB1_fitted_Bingham_pars = [ 537.690929408553e-003, 9.18691677210794e+000; ...
-                                444.726575871366e-003, 7.10246482140808e+000;
-                                392.078088934654e-003, 6.24139017094094e+000;
-                                352.490555859975e-003, 3.11168295852187e+000;
-                                340.372328339211e-003, 1.89112420279007e+000;
-                                401.355725892093e-003, 858.817832122024e-003;
-                                492.954363299252e-003, 315.984629212069e-003;
-                                553.044580931443e-003, 96.8608548721506e-003;
-                                564.944555262480e-003, 45.7751894871735e-003;
-                                562.441435131049e-003, 21.5413693251745e-003];
-                                
-    FB2_fitted_Bingham_pars = [ 24.4378908920722e-003, 157.460841381830e+000;
-                                36.3373036436781e-003, 121.830616449455e+000;
-                                82.8273969819299e-003, 80.6692143181455e+000;
-                                153.742258779745e-003, 56.2426005271026e+000;
-                                426.745578712666e-003, 5.64194088750916e+000;
-                                235.427386908162e-003, 3.41854966772968e+000;
-                                132.107955094165e-003, 819.109167607307e-003;
-                                208.288799251176e-003, 186.405714361666e-003;
-                                237.726031676352e-003, 57.0251145138637e-003;
-                                242.294553322549e-003, 25.9194618693695e-003;
-                                237.752742208553e-003, 21.2100000000000e-003;
-                                238.307278609320e-003, 17.1000000000000e-003;
-                                238.096100419629e-003, 15.5734412527183e-003];
+
+  FB1_fitted_Bingham_pars = [ 378.530492995389e-003, 6.28094150915044e+000; ...
+                              378.530492995389e-003, 4.16381760751623e+000; ...
+                              378.530492995389e-003, 3.31865155159905e+000; ...
+                              378.530492995389e-003, 2.42036671673347e+000; ...
+                              378.530492995389e-003, 1.73199355270967e+000; ...
+                              378.530492995389e-003, 1.01238769853469e+000; ...
+                              378.530492995389e-003, 473.446974480333e-003; ...
+                              378.530492995389e-003, 161.378284711471e-003; ...
+                              378.530492995389e-003, 59.3270602844780e-003; ...
+                              378.530492995389e-003, 25.1549265065348e-003];
+
+  FB2_fitted_Bingham_pars = [ 159.563272748457e-003, 112.609126250170e+000; ...
+                              159.563272748457e-003, 91.8331552182046e+000; ...
+                              159.563272748457e-003, 68.5436101356031e+000; ...
+                              159.563272748457e-003, 56.7924230695716e+000; ...
+                              159.563272748457e-003, 7.38548643589069e+000; ...
+                              159.563272748457e-003, 2.01724382742770e+000; ...
+                              159.563272748457e-003, 954.251542692846e-003; ...
+                              159.563272748457e-003, 419.307491496978e-003; ...
+                              159.563272748457e-003, 188.521542800797e-003; ...
+                              159.563272748457e-003, 106.739296382524e-003; ...
+                              159.563272748457e-003, 36.9896921556610e-003; ...
+                              159.563272748457e-003, 25.0846961202578e-003; ...
+                              159.563272748457e-003, 14.9243439168757e-003];
+
+
+    FB1_fitted_Bingham_pars_alphac1 = [ 539.972934049413e-003, 4.28210964965162e+000; ...
+                              500.401242804961e-003, 2.97187373914703e+000; ...
+                              470.533195239440e-003, 2.50304142325580e+000; ...
+                              453.170766564924e-003, 2.01403077135486e+000; ...
+                              436.698107956334e-003, 1.52402626304743e+000; ...
+                              415.516445221783e-003, 932.983012998242e-003; ...
+                              406.327817983630e-003, 451.534222387656e-003; ...
+                              403.521610185886e-003, 155.183657669718e-003; ...
+                              394.755521462465e-003, 56.8573517262373e-003; ...
+                              378.530492995389e-003, 25.1546491556427e-003];
+
+    FB2_fitted_Bingham_pars_alphac1 = [ 38.8523198309861e-003, 152.221134316335e+000; ...
+                              80.2069469474971e-003, 111.592359266209e+000; ...
+                              151.856384062472e-003, 69.8343062712958e+000; ...
+                              212.887115858154e-003, 50.1221902868528e+000; ...
+                              420.226942674461e-003, 2.68506080751069e+000; ...
+                              299.649330507157e-003, 554.422200560705e-003; ...
+                              210.778835245209e-003, 631.227731270466e-003; ...
+                              192.350711505991e-003, 367.479030215719e-003; ...
+                              186.762007209490e-003, 174.911084642439e-003; ...
+                              181.380565193234e-003, 100.808287810796e-003; ...
+                              172.144670360619e-003, 35.0771252210463e-003; ...
+                              164.656363315792e-003, 24.6949738016100e-003; ...
+                              159.563272748457e-003, 14.9251744811154e-003];
+
+    FB1_fitted_Bingham_pars_alphac3 = [ 539.972934049413e-003, 4.28210964965162e+000; ...
+                                        500.401242804961e-003, 2.97187373914703e+000; ...
+                                        470.533195239440e-003, 2.50304142325580e+000; ...
+                                        453.170766564924e-003, 2.01403077135486e+000; ...
+                                        436.698107956334e-003, 1.52402626304743e+000; ...
+                                        415.516445221783e-003, 932.983012998242e-003; ...
+                                        406.327817983630e-003, 451.534222387656e-003; ...
+                                        403.521610185886e-003, 155.183657669718e-003; ...
+                                        394.755521462465e-003, 56.8573517262373e-003; ...
+                                        378.530492995389e-003, 25.1546491556427e-003];
+
+    FB2_fitted_Bingham_pars_alphac3 = [ 38.8523198309861e-003, 152.221134316335e+000; ...
+                                        80.2069469474971e-003, 111.592359266209e+000; ...
+                                        151.856384062472e-003, 69.8343062712958e+000; ...
+                                        212.887115858154e-003, 50.1221902868528e+000; ...
+                                        420.226942674461e-003, 2.68506080751069e+000; ...
+                                        299.649330507157e-003, 554.422200560705e-003; ...
+                                        210.778835245209e-003, 631.227731270466e-003; ...
+                                        192.350711505991e-003, 367.479030215719e-003; ...
+                                        186.762007209490e-003, 174.911084642439e-003; ...
+                                        181.380565193234e-003, 100.808287810796e-003; ...
+                                        172.144670360619e-003, 35.0771252210463e-003; ...
+                                        164.656363315792e-003, 24.6949738016100e-003; ...
+                                        159.563272748457e-003, 14.9251744811154e-003];
+
+    FB1_mu_p_qmax_alphac0 = 418.900590388897e-003;
+    FB2_mu_p_qmax_alphac0 = 483.803552932330e-003;
+    FB1_mu_p_qmax_alphac1 = 211.736676631971e-003;
+    FB2_mu_p_qmax_alphac1 = 101.019247801572e-003;
+    FB1_mu_p_qmax_alphac3 = 378.530492995389e-003;
+    FB2_mu_p_qmax_alphac3 = 159.563272748457e-003;
   end
   properties
+    exp_id=0;
     tag = 'FB';
     Q;
     q;
     q_inc;
     tau_static;
+
+    FB_fitted_Bingham_pars;
 
     mu_flow_lmin;
 
@@ -114,8 +176,29 @@ classdef glass_particles < fluid
     Re_b_Carreau;
     G_b_Carreau;
 
+    mu_p_Bingham_intr=NaN;
+    alpha_tol_Bingham =3.0;
+    omega_crit_min = 1;
+    omega_crit=NaN;
+    omega_crit_alpha_peak=NaN;
+    omega_cap_Bingham_use=NaN;
+
     tau_y_Bingham;
     mu_p_Bingham;
+    gamma_Bingham;
+    S_Bingham;
+    Re_s_Bingham;
+    cf_Bingham;
+    G_b_Bingham;
+
+    qcrit_sgf;
+    qcrit_ttv;
+    qcrit_fgm;
+
+    ocrit_dgf_ql;
+    ocrit_dgf_qh;
+    ocrit_fgm_ql;
+    ocrit_fgm_qh;
   end
   methods
     function obj = glass_particles(name_, color_)
@@ -126,34 +209,28 @@ classdef glass_particles < fluid
     end
     function Re_s_out = get_Re_s(obj)
         if (obj.q<1)
-            Re_s_out = obj.Re_s;
+            % Re_s_out = obj.Re_s;
+            Re_s_out = obj.Re_s_Bingham;
         else
             Re_s_out = obj.Re_s_Carreau;
         end
     end
     function G_out = get_G(obj)
         if (obj.q<1)
-            G_out = obj.G;
+            % G_out = obj.G;
+            G_out = obj.G_b_Bingham;
         else
             G_out = obj.G_b_Carreau;
         end
     end
-    function fit_Bingham_model(obj)
+    function fit_Bingham_model(obj,omega_cap_,omega_fit_,tau_fit_)
         % obj.tau_y_Bingham=obj.tau_y;
         % obj.mu_p_Bingham=obj.mu_p;
 
-        % omega_cap = 15;
-        % omega_cap = 10;
-        omega_cap = 1e3;
-        ind = obj.omega<omega_cap;
-        omega_fit = obj.omega(ind);
-        tau_fit = obj.tau(ind);
-        % w_fit = glass_particles.compute_distance_weighting(omega_fit);
-        % w_fit = ones(size(omega_fit))/norm(ones(size(omega_fit)));
-        w_fit = glass_particles.compute_equidistant_weighting(omega_fit);
-        % w_fit = 1./(abs(tau_fit));
-        % w_fit = 1./(abs(omega_fit));
-        % w_fit = 1./(abs(tau_fit)).*glass_particles.compute_distance_weighting(omega_fit);
+        ind = omega_fit_<omega_cap_;
+        omega_fit = omega_fit_(ind);
+        tau_fit = tau_fit_(ind);
+        w_fit = glass_particles.compute_equidistant_weighting(omega_fit,tau_fit);
 
         [obj.mu_p_Bingham obj.tau_y_Bingham] = obj.fit_internal_Bingham_fluid(omega_fit, tau_fit, w_fit);
     end
@@ -240,7 +317,6 @@ classdef glass_particles < fluid
         % tw_pred = @(mp,ty,o,t) 2*mp*o + ty*(1 + log(t/ty));
         % penalty_func = @(mp,ty,o,t,w) w.*(t-tw_pred(mp,ty,o,t));
 
-        % penalty_func = @(mp,ty,o,t,w) w.*(o-glass_particles.omegai_pred_Bingham(mp,ty,t));
         penalty_func = @(mp,ty,o,t,w) w.*(t-glass_particles.taui_pred_Bingham(mp,ty,o,t));
 
         [mp_b ty_b] = obj.determine_Bingham_fluid_bounds(omega_fit,tau_fit);
@@ -388,6 +464,38 @@ classdef glass_particles < fluid
           obj.Re_s(i) = obj.S(i)*d^(2)/nu;
           obj.cf(i) = obj.mu_torque(i)/(2*pi*obj.r_i*obj.r_i*obj.h*obj.S(i)*obj.S(i)*d*d);
       end
+    end
+    function compute_dimensionless_Bingham_new(obj)
+        [ri,ro,h] = deal(obj.r_i, obj.r_o, obj.h);
+        [o_,mp_,ty_] = deal(obj.omega, obj.mu_p_Bingham, obj.tau_y_Bingham);
+        nu = mp_/obj.rho_b;
+        eta = ri/ro;
+        imp_ = 1/mp_;
+        ocrit = 0.5*ty_*imp_*(log(eta*eta) + ((1/(eta*eta)) - 1));
+        i_full = reshape(1:length(o_), size(o_));
+        i_plug = o_<ocrit;
+        i_shear = ~i_plug;
+
+        o_shear = o_(i_shear);
+        o_plug = o_(i_plug);
+
+        rc = ro*ones(size(o_));
+        ti = glass_particles.taui_pred_Bingham(mp_,ty_,o_);
+        rc(i_plug) = ri*sqrt(ti(i_plug)/ty_);
+        rc2 = rc.*rc;
+        rt = sqrt(ri * rc);
+        rt2 = rt.*rt;
+        etac = ri./rc;
+        etac2 = etac.*etac;
+        % obj.gamma_Bingham(i_shear) = imp_*(ty_+2*(o_(i_shear)*mp_+ty_*log(1/eta))/(eta*eta-1));
+        obj.gamma_Bingham = imp_*(ti-ty_);
+        obj.S_Bingham = imp_*(((2./rt2).*((mp_*o_-ty_*log(etac)))./(1/(ri*ri) - 1./(rc2)))-ty_);
+
+        d = rc - ri;
+
+        obj.Re_s_Bingham = (obj.S_Bingham.*(d.*d))/nu;
+        obj.cf_Bingham = obj.mu_torque./(2*pi*ri*ri*h*obj.S_Bingham.*obj.S_Bingham.*d.*d);
+        obj.G_b_Bingham = (obj.rho_b/(h*mp_*mp_))*obj.mu_torque;
     end
     function alpha_out = alpha_comp(obj)
       alpha_out = obj.alpha_G();
@@ -739,41 +847,80 @@ classdef glass_particles < fluid
 
     end
     function [mp_bout ty_bout] = determine_Bingham_fluid_bounds(obj,o_,t_)
-        o_min=min(o_);
-        t_max=max(obj.tau);
-        t_min=min(obj.tau);
+        if (nargin==1)
+            o_min=min(obj.omega);
+            t_max=max(obj.tau);
+            t_min=min(obj.tau);
+        else
+            o_min=min(o_);
+            t_max=max(obj.tau);
+            t_min=min(obj.tau);
+        end
 
-        % ty_min = 1e-10;
+
+        ty_min = 1e-2;
+
+        % ty_min = obj.tau_y*0.1;
+        % ty_min = obj.tau_y*0.2;
         % ty_min = obj.tau_y*0.50;
         % ty_min = obj.tau_y*0.75;
-        ty_min = obj.tau_y*0.9;
         % ty_min = obj.tau_y*0.95;
+        % ty_min = obj.tau_y*0.9;
+
+
+        % ty_max = 1e3;
+
+        % ty_max = obj.tau_y*10;
+        % ty_max = obj.tau_y*5;
+        % ty_max = obj.tau_y*1.2;
+        % ty_max = obj.tau_y*2;
+        % ty_max = t_min;
+        ty_max = obj.tau_static;
         % ty_max = 0.999999*t_min;
-        ty_max = obj.tau_y*1.01;
-        % ty_max = t_max;
+        % ty_max = obj.tau_y*1.01;
+
+
+        % ty_0 = sqrt(ty_min*ty_max);
+
+        ty_0 = t_min;
+        % ty_0 = sqrt(ty_min*obj.tau_y);
         % ty_0 = obj.tau_y;
         % ty_0 = 0.5*(ty_min + ty_max);
-        ty_0 = obj.tau_y;
-        % if (obj.tau_y > ty_max)
-        %     ty_0 = 0.99*ty_max;
-        % else
-        %     ty_0 = obj.tau_y;
-        % end
+        % ty_0 = obj.tau_y;
+        % ty_0 = 1.01*ty_min;
 
-        mp_min = 1e-10;
-        % mp_min = obj.mu_p/10000;
-        % mp_min =t_min/10;
+
+        % mp_min = 1e-6;
+
+        mp_min = obj.mu_p_Bingham_intr;
+        % mp_min = obj.mu_p*0.01;
+        % mp_min =obj.mu_p*0.1;
+
+        % mp_max = 1;
+
+        mp_max = obj.mu_p_Bingham_intr;
+        % mp_max = obj.mu_p*1.25;
+        % mp_max = obj.mu_p*1.25;
+        % mp_max = obj.mu_p*100;
         % mp_max = 0.5*(ty_max*log(t_max/ty_min))/o_min;
         % mp_max = 10;
         % mp_max = 2;
         % mp_max = 0.2;
-        mp_max = obj.mu_p*2;
-        % mp_max = obj.mu_p*1.01;
         % mp_max = obj.mu_p;
+        % mp_max = obj.mu_p*1.01;
+
+
+        % mp_0 = sqrt(mp_max*mp_min);
+        mp_0 = 0.5*(mp_max+mp_min);
+
+        % mp_0 = obj.mu_p_Bingham_intr;
+        % mp_0 = mp_min*1.01;
+        % mp_0 = mp_max*0.99;
+        % mp_0 = sqrt(mp_min*obj.mu_p);
+        % mp_0 = sqrt(mp_max*obj.mu_p);
         % mp_0 = obj.mu_p;
-        mp_0 = 1.01*mp_min;
-        % mp_0 = obj.mu_p*10;
         % mp_0 = 0.5*(mp_min + mp_max);
+
 
         mp_bout = [mp_min mp_0 mp_max];
         ty_bout = [ty_min ty_0 ty_max];
@@ -816,17 +963,57 @@ classdef glass_particles < fluid
     end
   end
   methods (Static)
-    function w_out = compute_equidistant_weighting(o_)
+    function [oc_out tc_out] = get_plug_crit(mp_,ty_)
+        eta = fluid.r_i_def/fluid.r_o_def;
+        oc_out = 0.5*(ty_/mp_)*(log(eta*eta) + ((1/(eta*eta)) - 1));
+        tc_out = ty_/(eta*eta);
+    end
+    function appmu_out = compute_appmu_Bingham(ty_, o_, t_)
+      [ri ro h] = deal(glass_particles.r_i_def, glass_particles.r_o_def, glass_particles.h_def);
+
+      rc = ro*ones(size(t_));
+      tc = ty_*((ro*ro)/(ri*ri));
+
+      i_shear = t_>tc;
+      i_plug = ~i_shear;
+
+      rc(i_plug) = ri*sqrt(t_(i_plug)/ty_);
+      etac = ri./rc;
+      appmu_out = (ty_*log(etac) + 0.5*t_.*(1 - etac.*etac) )./o_;
+    end
+
+    function ocrit_out = determine_omega_crit_alpha_peak(o_, a_)
+        [alpha_max imax] = max(a_);
+        ocrit_out = 1.0001*o_(imax);
+    end
+
+    function ocrit_out = determine_omega_crit(alpha_tol_, omega_min_, o_, a_)
+      ifull = 1:length(o_);
+      i_transitioned = logical((o_>omega_min_).*(a_>alpha_tol_));
+
+      if (sum(i_transitioned))
+          icrit = min(ifull(i_transitioned));
+          % ocrit_out=(alpha_tol_-a_(icrit))*((o_(icrit)-o_(icrit-1))/(a_(icrit)-a_(icrit-1))) + o_(icrit);
+          ocrit_out=1.000001*o_(icrit);
+      else
+          ocrit_out = 1.1*max(o_);
+      end
+    end
+
+    function w_out = compute_equidistant_weighting(o_,t_)
         w_out = nan(size(o_));
         for i = 1:length(o_)
             diff = o_-o_(i);
             % w_out(i) = sqrt(sum(diff.*diff));
-            % w_out(i) = sqrt(sum(diff.*diff))/abs(o_(i));
+            % w_out(i) = sqrt(sum(diff.*diff))/abs(t_(i));
             % w_out(i) = sum(abs(diff));
-            % w_out(i) = sum(abs(diff))/abs(o_(i));
-            w_out(i) = 1;
-            % w_out(i) = 1/abs(o_(i));
+            w_out(i) = sum(abs(diff))/abs(t_(i));
+            % w_out(i) = sum(sqrt(abs(diff)));
+            % w_out(i) = sum(sqrt(abs(diff)))/abs(t_(i));
+            % w_out(i) = 1/abs(t_(i));
+            % w_out(i) = 1;
         end
+        w_out = w_out/length(w_out);
         w_out = w_out/norm(w_out);
     end
     function o_out = omegai_pred_Bingham(mp_,ty_,t_)
@@ -858,9 +1045,6 @@ classdef glass_particles < fluid
         i_plug = o_<ocrit;
         i_shear = ~i_plug;
 
-        % omegai_shear_func = @(t_) imp_*(ty_*log(eta) + 0.5*t_*(1 - (eta*eta)));
-        % omegai_plug_func = @(t_) 0.5*ty_*imp_*(log(ty_/t_) + ((t_/ty_)-1));
-
         gi_shear = imp_*(ty_+2*(o_(i_shear)*mp_+ty_*log(1/eta))/(eta*eta-1));
         t_out(i_shear)=mp_*abs(gi_shear)+ty_;
 
@@ -868,10 +1052,17 @@ classdef glass_particles < fluid
         bingham_solve = @(t,o) (mp_ * abs(gammai_solve(t,o))) + ty_ - t;
 
         bounds = [ty_,1e3];
-        % for i = reshape(i_full(i_plug),1,[])
-        parfor i = reshape(i_full(i_plug),1,[])
-            solve_i = @(t) abs(bingham_solve(t,o_(i)));
-            t_out(i) = fminbnd(solve_i,bounds(1),bounds(2));
+
+        if (isempty(gcp('nocreate')))
+            for i = reshape(i_full(i_plug),1,[])
+                solve_i = @(t) abs(bingham_solve(t,o_(i)));
+                t_out(i) = fminbnd(solve_i,bounds(1),bounds(2));
+            end
+        else
+            parfor i = reshape(i_full(i_plug),1,[])
+                solve_i = @(t) abs(bingham_solve(t,o_(i)));
+                t_out(i) = fminbnd(solve_i,bounds(1),bounds(2));
+            end
         end
     end
     function w_out = compute_distance_weighting(o_)

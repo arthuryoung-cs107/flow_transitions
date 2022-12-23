@@ -19,8 +19,21 @@ classdef glass49 < glass_particles
       obj.phi = 0.50;
       obj.q_inc = 0.2;
       obj.tau_static = 159.582557507215e+000;
+
+      obj.FB_fitted_Bingham_pars = glass_particles.FB2_fitted_Bingham_pars;
+      obj.mu_p_Bingham_intr = glass_particles.FB2_mu_p_qmax_alphac3;
+
+      obj.qcrit_sgf = 0.8;
+      obj.qcrit_ttv = 1.0;
+      obj.qcrit_fgm = 2.0;
+
+      obj.ocrit_dgf_ql = 80;
+      obj.ocrit_dgf_qh = 20;
+      obj.ocrit_fgm_ql = 15;
+      obj.ocrit_fgm_qh = 15;
     end
-    function process_raw(obj, raw_,i_)
+    function process_raw(obj,raw_,i_)
+      obj.exp_id = i_;
       obj.rho_b = obj.rho_p * obj.phi + obj.rho_f*(1.0-obj.phi);
 
       obj.RD_flow_lmin = raw_(:, 2);
@@ -71,10 +84,21 @@ classdef glass49 < glass_particles
       obj.compute_dimensionless;
       obj.G = obj.mu_torque/((obj.h)*(obj.mu_p*obj.mu_p)/(obj.rho_b));
 
+      obj.omega_crit = glass_particles.determine_omega_crit(obj.alpha_tol_Bingham, obj.omega_crit_min,obj.omega,obj.alpha_T);
+      obj.omega_crit_alpha_peak = glass_particles.determine_omega_crit_alpha_peak(obj.omega,obj.alpha_T);
+
+      obj.omega_cap_Bingham_use = obj.omega_crit;
+      % obj.omega_cap_Bingham_use = obj.omega_crit_alpha_peak;
+
+      omega_fit = obj.omega;
+      tau_fit = obj.tau;
+
       obj.fit_Carreau_model;
-      % obj.fit_Bingham_model;
-      obj.mu_p_Bingham = glass_particles.FB2_fitted_Bingham_pars(i_,1);
-      obj.tau_y_Bingham = glass_particles.FB2_fitted_Bingham_pars(i_,2);
+      % obj.fit_Bingham_model(obj.omega_cap_Bingham_use,omega_fit,tau_fit);
+      obj.mu_p_Bingham = obj.FB_fitted_Bingham_pars(i_,1);
+      obj.tau_y_Bingham = obj.FB_fitted_Bingham_pars(i_,2);
+
+      obj.compute_dimensionless_Bingham_new;
     end
   end
 end

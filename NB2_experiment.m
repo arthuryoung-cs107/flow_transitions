@@ -98,5 +98,8 @@ classdef NB2_experiment < experiment
 
       obj.len = length(obj.mu_torque);
     end
+    function gen_powerfit(obj)
+        obj.gen_powerfit_internal(100);
+    end
   end
 end

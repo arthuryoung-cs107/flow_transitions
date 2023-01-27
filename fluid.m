@@ -13,7 +13,6 @@ classdef fluid < handle
     r_o=fluid.r_o_def;
     h=fluid.h_def;
 
-
     phi;
     phi_m;
     rho_p;
@@ -284,6 +283,20 @@ classdef fluid < handle
       plot(obj.mu_rpm, obj.mu_torque, ' -', 'Color', green4, 'LineWidth', 1.0, 'DisplayName', 'mean')
       legend('Show', 'Location', 'SouthEast')
     end
+    function o_out = dtdo_o(obj)
+        os = mink(obj.omega,length(obj.omega));
+        o_out = 0.5*(os(1:(length(os)-1))+os(2:end));
+    end
+    function o_out = d2tdo2_o(obj)
+        os = mink(obj.omega,length(obj.omega));
+        o_out = os(2:(length(os)-1));
+    end
+    function d_out = dtdo_d(obj)
+        d_out = fluid.comp_deriv_central(obj.omega,obj.tau);
+    end
+    function d_out = d2tdo2_d(obj)
+        d_out = fluid.comp_2deriv_central(obj.omega,obj.tau);
+    end
   end
   methods (Static)
       function [Rc, Gc] = interp_trans(alpha_tol_,R_,alpha_,G_,It_)
@@ -297,6 +310,27 @@ classdef fluid < handle
 
           Rc=(alpha_tol_-alpha2)*((R2-R1)/(alpha2-alpha1)) + R2;
           Gc=(Rc-R2)*((G2-G1)/(R2-R1)) + G2;
+      end
+      function deriv_out = comp_deriv_central(x_,y_)
+          lx = length(x_);
+          [xs is] = mink(reshape(x_,[],1),lx);
+          ys = reshape(y_(is),[],1);
+          deriv_out = (ys(2:end)-ys(1:(lx-1)))./(xs(2:end)-xs(1:(lx-1)));
+      end
+      function deriv2_out = comp_2deriv_central(x_,y_)
+          lx = length(x_);
+          [xs is] = mink(reshape(x_,[],1),lx);
+          ys = reshape(y_(is),[],1);
+
+          ydiff = ys(2:end)-ys(1:(lx-1));
+          xdiff = xs(2:end)-xs(1:(lx-1));
+
+          deriv = ydiff./xdiff;
+
+          dforw = deriv(2:end);
+          dback = deriv(1:(lx-2));
+
+          deriv2_out = (dforw-dback)./(0.5*(xdiff(2:end) + xdiff(1:(lx-2))));
       end
   end
 end

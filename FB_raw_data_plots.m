@@ -20,24 +20,20 @@ classdef FB_raw_data_plots
             obj.write_all_figs = write_all_figs_;
             obj.figs_to_write = figs_to_write_;
         end
-        function fig_out_ = FB1_torque_vs_rpm_raw_plot(obj,AYfig_,FB,tile_dims_)
-            axs=prep_tiles(AYfig_,tile_dims_);
+        function fig_out_ = FB1_torque_vs_rpm_raw_plot(obj,AYfig_,FB)
+            axs=prep_tiles(AYfig_,[4,5]);
 
-            % set(axs, 'YScale', 'log');
-            % set(axs, 'YScale', 'log', 'XScale', 'log');
             for i = 1:length(FB.exp)
                 exp = FB.exp(i);
-                % [exp.Tf_clean exp.nf_clean exp.qf_clean exp.if_clean] = exp.get_clean_data;
-                % [exp.T_stats exp.n_stats exp.q_stats] = exp.get_clean_stats;
+                plot(axs(i), exp.nf_raw, exp.Tf_raw, exp.specs, 'Color', FB.exp(i).color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', FB.exp(i).label);
+                plot(axs(i), exp.mu_rpm, exp.mu_torque, '- p', 'Color', [0 0 0], 'LineWidth', 2*FB.LW, 'MarkerSize', 3*FB.MS, 'DisplayName', FB.exp(i).label);
 
-                inds_bound = 15;
-
-                inds1 = exp.nf_clean<inds_bound;
-                inds2 = exp.mu_rpm<inds_bound;
-                plot(axs(i), exp.nf_clean(inds1), exp.Tf_clean(inds1), exp.specs, 'Color', FB.exp(i).color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', FB.exp(i).label);
-                plot(axs(i), exp.mu_rpm(inds2), exp.mu_torque(inds2), '- p', 'Color', [0 0 0], 'LineWidth', 2*FB.LW, 'MarkerSize', 3*FB.MS, 'DisplayName', FB.exp(i).label);
+                plot(axs(i+10), exp.nf_clean, exp.Tf_clean, exp.specs, 'Color', FB.exp(i).color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', FB.exp(i).label);
+                plot(axs(i+10), exp.mu_rpm, exp.mu_torque, '- p', 'Color', [0 0 0], 'LineWidth', 2*FB.LW, 'MarkerSize', 3*FB.MS, 'DisplayName', FB.exp(i).label);
             end
             fig_out_=AYfig_;
+            % set(axs, 'YScale', 'log');
+            set(axs, 'YScale', 'log', 'XScale', 'log');
         end
     end
     methods (Static)

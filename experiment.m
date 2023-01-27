@@ -1,56 +1,102 @@
 classdef experiment < handle
-  properties
-    label;
-    color;
-    specs;
-    LW = 0.7;
-    MS = 3.5;
-    LW_L = 1.0;
-    MS_L = 8.0;
-    def_pos;
+    properties (Constant)
+        UB1_Bingham_tauy_bounds = [1e-1 1 1e1];
+        UB2_Bingham_tauy_bounds = [1e-1 1 1e1];
+        XB1_Bingham_tauy_bounds = [1e-1 1 1e1];
+        XB2_Bingham_tauy_bounds = [1e-1 1 1e1];
+
+        UB1_Bingham_mup_bounds = [1e-2 5e-2 1e-1];
+        UB2_Bingham_mup_bounds = [1e-2 5e-2 1e-1];
+        XB1_Bingham_mup_bounds = [1e-2 5e-2 1e-1];
+        XB2_Bingham_mup_bounds = [1e-2 5e-2 1e-1];
+
+        UB1_Bingham_omega_cap = 7.3;
+        UB2_Bingham_omega_cap = 5.2;
+        XB1_Bingham_omega_cap = 8.5;
+        XB2_Bingham_omega_cap = 9.5;
+
+        UB1_Bingham_omega_floor = 0.62;
+        UB2_Bingham_omega_floor = 0.41;
+        XB1_Bingham_omega_floor = 0.31;
+        XB2_Bingham_omega_floor = 0.41;
+    end
+    properties
+        label;
+        color;
+        specs;
+        LW = 0.7;
+        MS = 3.5;
+        LW_L = 1.0;
+        MS_L = 8.0;
+        def_pos;
 
 
-    mu_f;
-    rho_f;
-    phi_m;
-    phi;
-    rho_p;
-    mu_eff;
+        mu_f;
+        rho_f;
+        phi_m;
+        phi;
+        rho_p;
+        mu_eff;
 
-    mu_torque;
-    sigma_torque;
-    G;
-    G_rat;
-    cf;
+        mu_torque;
+        sigma_torque;
+        G;
+        G_rat;
+        cf;
 
-    omega;
-    Re_s;
+        omega;
+        Re_s;
 
-    alpha_tol=1.3;
-    TV_range=1;
-    powerfit=struct('b',NaN,'m',NaN);
+        alpha_tol=1.3;
+        TV_range=1;
+        powerfit=struct('b',NaN,'m',NaN);
+        powerfit_Grat_Res=struct('b',NaN,'m',NaN);
 
-    Re_s_TV=NaN;
-    G_TV=NaN;
-    alpha_TV=NaN;
+        Re_s_TV=NaN;
+        G_TV=NaN;
+        Grat_TV=NaN;
+        alpha_TV=NaN;
 
-    % Re_sc=NaN;
-    Re_sc1=NaN;
-    Re_sc2=NaN;
-    Re_sc3=NaN;
+        % Re_sc=NaN;
+        Re_sc1=NaN;
+        Re_sc2=NaN;
+        Re_sc3=NaN;
 
-    G_c1=NaN;
-    G_c2=NaN;
-    G_c3=NaN;
+        G_c1=NaN;
+        G_c2=NaN;
+        G_c3=NaN;
 
-    exp;
-    len; %% this is the number of data sets
-    dat_num; %% this is the length of the measurement sets
-  end
+        tau_qs;
+        omega_fit_Bingham;
+        tau_fit_Bingham;
+        i_fit_Bingham;
+
+        Bingham_tauy_bounds;
+        Bingham_mup_bounds;
+        Bingham_omega_cap=10;
+        Bingham_omega_floor=0;
+        Bingham_wscheme='tmagnorm_odist1';
+
+        tau_y_Bingham;
+        mu_p_Bingham;
+        gamma_Bingham;
+        Re_b_Bingham;
+        cf_Bingham;
+        G_b_Bingham;
+        G_rat_Bingham;
+        rc_Bingham;
+
+        exp;
+        len; %% this is the number of data sets
+        dat_num; %% this is the length of the measurement sets
+    end
   methods
     function obj = experiment(exp_list_in)
       obj.exp = exp_list_in;
       obj.len = length(exp_list_in);
+    end
+    function tau_out = tau_comp(obj)
+        tau_out = obj.mu_torque/(2*pi*(fluid.r_i_def*fluid.r_i_def)*fluid.h_def);
     end
     function process_raws(obj, raws)
       for i=1:obj.len
@@ -91,6 +137,24 @@ classdef experiment < handle
     function Res_out = Re_s_alpha(obj)
       Res_out = obj.Re_s;
     end
+    function fit_Bingham_model(obj)
+        tau_full = obj.tau_comp;
+        ind = logical(double(obj.omega < obj.Bingham_omega_cap).*double(obj.omega > obj.Bingham_omega_floor));
+        [omega_fit tau_fit] = deal(obj.omega(ind),tau_full(ind));
+
+        obj.tau_qs = mean(tau_fit);
+
+        [obj.omega_fit_Bingham obj.tau_fit_Bingham obj.i_fit_Bingham] = deal(omega_fit, tau_fit,ind);
+        w_fit = glass_particles.compute_equidistant_weighting(omega_fit, tau_fit, obj.Bingham_wscheme);
+
+        [mp_b ty_b] = deal(obj.Bingham_mup_bounds, obj.Bingham_tauy_bounds);
+
+        [obj.mu_p_Bingham obj.tau_y_Bingham] = glass_particles.fit_internal_Bingham_fluid(omega_fit, tau_fit, w_fit, mp_b, ty_b);
+
+        ti = glass_particles.taui_pred_Bingham(obj.mu_p_Bingham,obj.tau_y_Bingham,obj.omega);
+        obj.gamma_Bingham = (ti-obj.tau_y_Bingham)/obj.mu_p_Bingham;
+        obj.rc_Bingham = glass_particles.determine_rc_Bingham(obj.mu_p_Bingham, obj.tau_y_Bingham, obj.omega);
+    end
     function gen_powerfit(obj)
       r_i = 0.01208;
       r_o = 0.025;
@@ -117,6 +181,33 @@ classdef experiment < handle
       obj.Re_sc2 = exp((1/(alpha-1))*log(m/beta));
       obj.G_c2 = beta*(obj.Re_sc2)^alpha;
     end
+    function gen_powerfit_internal(obj, Re_sc_floor_)
+        [r_i r_o] = deal(fluid.r_i_def,fluid.r_o_def);
+        alpha_full = obj.alpha;
+        ifull = 1:length(obj.Re_s);
+        iTV = obj.Re_s > Re_sc_floor_;
+        obj.TV_range = ifull(iTV);
+        obj.Re_s_TV = obj.Re_s(obj.TV_range);
+        obj.G_TV = obj.G(obj.TV_range);
+        obj.Grat_TV = obj.G_rat(obj.TV_range);
+        obj.alpha_TV = alpha_full(obj.TV_range);
+        obj.Re_sc1 = obj.Re_s_TV(1);
+        obj.G_c1 = obj.G_TV(1);
+
+        [obj.Re_sc3, obj.G_c3] = fluid.interp_trans(obj.alpha_tol, obj.Re_s, alpha_full, obj.G, obj.TV_range(1));
+
+        Res_fit = reshape(obj.Re_s_TV,[],1);
+        G_fit = reshape(obj.G_TV,[],1);
+        Grat_fit = reshape(obj.Grat_TV,[],1);
+
+        obj.powerfit = fit(Res_fit,G_fit,'b*x^m', 'StartPoint', [70, 1]);
+        obj.powerfit_Grat_Res = fit(Res_fit,Grat_fit,'b*x^m', 'StartPoint', [1/(sqrt(70)), 0.5]);
+        alpha = obj.powerfit.m;
+        beta = obj.powerfit.b;
+        m = (2*pi*r_i*r_o)/((r_o-r_i)^2);
+        obj.Re_sc2 = exp((1/(alpha-1))*log(m/beta));
+        obj.G_c2 = beta*(obj.Re_sc2)^alpha;
+    end
     function inspect_torques(obj)
       fig_specs = AYfig.specs_gen(obj.label, obj.def_pos);
       fig_out = AYfig.figure(fig_specs);
@@ -130,6 +221,23 @@ classdef experiment < handle
       xlabel('$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
       legend('Show')
       hold off
+    end
+    function Re_b_out = Re_b_comp(obj)
+        Re_b_out = ((fluid.r_o_def + fluid.r_i_def)/(2*fluid.r_o_def))*obj.Re_s;
+    end
+    function o_out = dtdo_o(obj)
+        os = mink(obj.omega,length(obj.omega));
+        o_out = 0.5*(os(1:(length(os)-1))+os(2:end));
+    end
+    function o_out = d2tdo2_o(obj)
+        os = mink(obj.omega,length(obj.omega));
+        o_out = os(2:(length(os)-1));
+    end
+    function d_out = dtdo_d(obj)
+        d_out = fluid.comp_deriv_central(obj.omega,obj.tau_comp);
+    end
+    function d_out = d2tdo2_d(obj)
+        d_out = fluid.comp_2deriv_central(obj.omega,obj.tau_comp);
     end
   end
 end

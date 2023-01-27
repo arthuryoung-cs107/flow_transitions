@@ -31,6 +31,13 @@ classdef XB2_experiment < experiment
       obj.rho_p = rho_p;
       obj.mu_eff = obj.Krieger_Dougherty(mu_f, phi, phi_m);
 
+      obj.Bingham_tauy_bounds = experiment.XB2_Bingham_tauy_bounds;
+      obj.Bingham_mup_bounds = experiment.XB2_Bingham_mup_bounds;
+      obj.Bingham_omega_cap = experiment.XB2_Bingham_omega_cap;
+      obj.Bingham_omega_floor = experiment.XB2_Bingham_omega_floor;
+    end
+    function gen_powerfit(obj)
+        obj.gen_powerfit_internal(250);
     end
   end
 end

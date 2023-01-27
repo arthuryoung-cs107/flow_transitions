@@ -38,7 +38,7 @@ FB2.def_pos = fig_pos12(2, :);
 FB2.process_raws(raw_FB2_structure)
 
 load ./raw_data_structures/PF1_rawdata.mat
-name_list_PF1 = {'PF1, smooth, run 1'; 'PF1, smooth, run 2'; 'PF1, smooth, run 3'; 'PF1, smooth, run 4';};
+name_list_PF1 = {'PL1, smooth, run 1'; 'PL1, smooth, run 2'; 'PL1, smooth, run 3'; 'PL1, smooth, run 4';};
 PF1_all = fluid.empty(size(name_list_PF1, 1), 0);
 for i = 1:size(name_list_PF1, 1)
   PF1_all(i) = fluid(name_list_PF1{i}, blue12(i, :));
@@ -50,7 +50,7 @@ PF1.MS = 5;
 PF1.process_raws(raw_PF1_structure);
 %z
 load ./raw_data_structures/PF2_rawdata.mat
-name_list_PF2 = {'PF2, smooth, run 1'; 'PF2, smooth, run 2'; 'PF2, smooth, run 3'; 'PF2, smooth, run 4'; 'PF2, smooth, run 5';};
+name_list_PF2 = {'PL2, smooth, run 1'; 'PL2, smooth, run 2'; 'PL2, smooth, run 3'; 'PL2, smooth, run 4'; 'PL2, smooth, run 5';};
 PF2_all = fluid.empty(size(name_list_PF2, 1), 0);
 for i = 1:size(name_list_PF2, 1)
   PF2_all(i) = fluid(name_list_PF2{i}, red12(i, :));
@@ -151,13 +151,16 @@ PFR.gen_powerfit();
 NB1.gen_powerfit();
 NB2.gen_powerfit();
 NB3.gen_powerfit();
-NBall.gen_powerfit([NB1.Re_s_TV(:);NB2.Re_s_TV(:);NB3.Re_s_TV(:)], [NB1.G_TV(:);NB2.G_TV(:);NB3.G_TV(:)], [NB1.alpha_TV(:);NB2.alpha_TV(:);NB3.alpha_TV(:)]);
+% NBall.gen_powerfit([NB1.Re_s_TV(:);NB2.Re_s_TV(:);NB3.Re_s_TV(:)], [NB1.G_TV(:);NB2.G_TV(:);NB3.G_TV(:)], [NB1.alpha_TV(:);NB2.alpha_TV(:);NB3.alpha_TV(:)]);
+NBall.gen_powerfit({NB1;NB2;NB3});
 UB1.gen_powerfit();
 UB2.gen_powerfit();
 UBall.gen_powerfit([UB1.Re_s_TV(:);UB2.Re_s_TV(:)], [UB1.G_TV(:);UB2.G_TV(:)], [UB1.alpha_TV(:);UB2.alpha_TV(:)]);
+% UBall.gen_powerfit({UB1;UB2});
 XB1.gen_powerfit();
 XB2.gen_powerfit();
 XBall.gen_powerfit([XB1.Re_s_TV(:);XB2.Re_s_TV(:)], [XB1.G_TV(:);XB2.G_TV(:)], [XB1.alpha_TV(:);XB2.alpha_TV(:)]);
+% XBall.gen_powerfit({UB1; UB2});
 FB1.gen_powerfit();
 FB2.gen_powerfit();
 
@@ -194,3 +197,5 @@ EC000.LW = FB1.LW;
 EC050.LW = FB1.LW;
 EC075.LW = FB1.LW;
 EC100.LW = FB1.LW;
+
+FB1_phi_exp = FB1_phi_experiment();

@@ -1,5 +1,10 @@
 classdef glass113 < glass_particles
   properties
+    Tf_raw=0;
+    nf_raw=0;
+    qf_raw=0;
+    if_raw=0;
+
     Tf_clean=0;
     nf_clean=0;
     qf_clean=0;
@@ -10,6 +15,8 @@ classdef glass113 < glass_particles
     q_stats=0;
 
     clean_flag=true;
+
+    glass_id = 1;
   end
   methods
     function obj = glass113(name_, color_, phi_)
@@ -19,8 +26,17 @@ classdef glass113 < glass_particles
       obj.q_inc = 1.4;
       obj.tau_static = 225.046219998818e+000;
 
-      obj.FB_fitted_Bingham_pars = glass_particles.FB1_fitted_Bingham_pars;
-      obj.mu_p_Bingham_intr = glass_particles.FB1_mu_p_qmax_alphac3;
+      % obj.FB_Bingham_tauy_bounds = glass_particles.FB1_Bingham_tauy_bounds_prethin;
+      % obj.FB_Bingham_mup_bounds = glass_particles.FB1_Bingham_mup_bounds_prethin;
+      % obj.FB_Bingham_omega_cap = glass_particles.FB1_Bingham_omega_cap_prethin;
+      % obj.FB_Bingham_wscheme = glass_particles.FB1_Bingham_wscheme_prethin;
+      obj.FB_Bingham_tauy_bounds = glass_particles.FB1_Bingham_tauy_bounds_incthin;
+      obj.FB_Bingham_mup_bounds = glass_particles.FB1_Bingham_mup_bounds_incthin;
+      obj.FB_Bingham_omega_cap = glass_particles.FB1_Bingham_omega_cap_incthin;
+      obj.FB_Bingham_wscheme = glass_particles.FB1_Bingham_wscheme_incthin;
+
+      % obj.FB_fitted_Bingham_pars = glass_particles.FB1_fitted_Bingham_pars;
+      % obj.mu_p_Bingham_intr = glass_particles.FB1_mu_p_qmax_alphac3;
 
       obj.qcrit_sgf = 0.7;
       obj.qcrit_ttv = 1.0;
@@ -30,10 +46,13 @@ classdef glass113 < glass_particles
       obj.ocrit_dgf_qh = 30;
       obj.ocrit_fgm_ql = 15;
       obj.ocrit_fgm_qh = 15;
+
+      % obj.qcrit_Bingham2Carreau = 1;
+      obj.qcrit_Bingham2Carreau = obj.qcrit_fgm;
     end
     function [Tf_clean nf_clean qf_clean if_clean] = get_clean_data(obj)
-        [Tf_raw nf_raw qf_raw if_raw] = concat_sort_raw(obj.true_raw);
-        [Tf_clean nf_clean qf_clean if_clean] = clean_raw_bin(Tf_raw,nf_raw,qf_raw,if_raw);
+        [obj.Tf_raw obj.nf_raw obj.qf_raw obj.if_raw] = concat_sort_raw(obj.true_raw);
+        [Tf_clean nf_clean qf_clean if_clean] = clean_raw_bin(obj.Tf_raw,obj.nf_raw,obj.qf_raw,obj.if_raw);
     end
     function [T_out n_out q_out] = get_clean_stats(obj)
         if (length(obj.Tf_clean) == 1)
@@ -42,26 +61,6 @@ classdef glass113 < glass_particles
             [Tf_clean nf_clean qf_clean if_clean]=deal(obj.Tf_clean,obj.nf_clean,obj.qf_clean,obj.if_clean);
         end
         [T_out n_out q_out] = comp_bin_stats(Tf_clean,nf_clean,qf_clean,if_clean);
-    end
-    function [mu0_out, lambda_out, n_out, k_out, muinf_out] = fit_Carreau_fluid(obj, omega_cap_, full_flag_)
-        omega_full = 2*pi/60*obj.nf_clean;
-        tau_full = obj.Tf_clean/(2*pi*(obj.r_i^2)*obj.h);
-        if (nargin==1)
-            omega_cap=15;
-            full_flag=true;
-        elseif (nargin==2)
-            omega_cap=15;
-            full_flag=true;
-        elseif (nargin==3)
-            omega_cap=15;
-            full_flag=full_flag_;
-        end
-        ind = omega_full<omega_cap;
-        omega_fit=omega_full(ind);
-        tau_fit=tau_full(ind);
-        % w_fit = glass_particles.compute_distance_weighting(omega_fit);
-        w_fit = ones(size(omega_fit))/norm(ones(size(omega_fit)));
-        [mu0_out, lambda_out, n_out, k_out, muinf_out] = obj.fit_internal_Carreau_fluid(omega_fit,tau_fit,w_fit,full_flag);
     end
     function process_raw(obj, raw,i_)
       obj.exp_id = i_;
@@ -112,20 +111,44 @@ classdef glass113 < glass_particles
       obj.omega_crit = glass_particles.determine_omega_crit(obj.alpha_tol_Bingham, obj.omega_crit_min,obj.omega,obj.alpha_T);
       obj.omega_crit_alpha_peak = glass_particles.determine_omega_crit_alpha_peak(obj.omega,obj.alpha_T);
 
-      obj.omega_cap_Bingham_use = obj.omega_crit;
+      % obj.omega_cap_Bingham_use = obj.omega_crit;
       % obj.omega_cap_Bingham_use = obj.omega_crit_alpha_peak;
-
+      obj.omega_cap_Bingham_use = obj.FB_Bingham_omega_cap(obj.exp_id);
       % omega_fit = 2*pi/60*obj.nf_clean;
       % tau_fit = obj.Tf_clean/(2*pi*(obj.r_i^2)*obj.h);
-      omega_fit = obj.omega;
-      tau_fit = obj.tau;
+      % omega_fit = obj.omega;
+      % tau_fit = obj.tau;
 
       obj.fit_Carreau_model;
-      % obj.fit_Bingham_model(obj.omega_cap_Bingham_use,omega_fit,tau_fit);
-      obj.mu_p_Bingham = obj.FB_fitted_Bingham_pars(i_,1);
-      obj.tau_y_Bingham = obj.FB_fitted_Bingham_pars(i_,2);
+      obj.fit_Bingham_model(obj.omega_cap_Bingham_use,obj.omega,obj.tau);
+      % obj.mu_p_Bingham = obj.FB_fitted_Bingham_pars(i_,1);
+      % obj.tau_y_Bingham = obj.FB_fitted_Bingham_pars(i_,2);
 
       obj.compute_dimensionless_Bingham_new;
+    end
+    function [mu0_out, lambda_out, n_out, k_out, muinf_out] = fit_Carreau_fluid(obj, omega_cap_, full_flag_)
+        omega_full = 2*pi/60*obj.nf_clean;
+        tau_full = obj.Tf_clean/(2*pi*(obj.r_i^2)*obj.h);
+        if (nargin==1)
+            omega_cap=15;
+            full_flag=true;
+        elseif (nargin==2)
+            omega_cap=15;
+            full_flag=true;
+        elseif (nargin==3)
+            omega_cap=15;
+            full_flag=full_flag_;
+        end
+        ind = omega_full<omega_cap;
+        omega_fit=omega_full(ind);
+        tau_fit=tau_full(ind);
+        % w_fit = glass_particles.compute_distance_weighting(omega_fit);
+        w_fit = ones(size(omega_fit))/norm(ones(size(omega_fit)));
+        [mu0_out, lambda_out, n_out, k_out, muinf_out] = obj.fit_internal_Carreau_fluid(omega_fit,tau_fit,w_fit,full_flag);
+
+        ind_mean = obj.omega<max(omega_fit);
+        obj.omega_fit_Carreau = obj.omega(ind_mean);
+        obj.tau_fit_Carreau = obj.tau(ind_mean);
     end
     function steady_array = steady_state(obj, range_array, raw)
       steady_array = range_array;

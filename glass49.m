@@ -11,6 +11,8 @@ classdef glass49 < glass_particles
 
     fix_tauy_flag=true;
     % fix_tauy_flag=false;
+
+    glass_id = 2;
   end
   methods
     function obj = glass49(name_, color_)
@@ -20,10 +22,21 @@ classdef glass49 < glass_particles
       obj.q_inc = 0.2;
       obj.tau_static = 159.582557507215e+000;
 
-      obj.FB_fitted_Bingham_pars = glass_particles.FB2_fitted_Bingham_pars;
-      obj.mu_p_Bingham_intr = glass_particles.FB2_mu_p_qmax_alphac3;
+      % obj.FB_Bingham_tauy_bounds = glass_particles.FB2_Bingham_tauy_bounds_prethin;
+      % obj.FB_Bingham_mup_bounds = glass_particles.FB2_Bingham_mup_bounds_prethin;
+      % obj.FB_Bingham_omega_cap = glass_particles.FB2_Bingham_omega_cap_prethin;
+      % obj.FB_Bingham_wscheme = glass_particles.FB2_Bingham_wscheme_prethin;
+      obj.FB_Bingham_tauy_bounds = glass_particles.FB2_Bingham_tauy_bounds_incthin;
+      obj.FB_Bingham_mup_bounds = glass_particles.FB2_Bingham_mup_bounds_incthin;
+      obj.FB_Bingham_omega_cap = glass_particles.FB2_Bingham_omega_cap_incthin;
+      obj.FB_Bingham_wscheme = glass_particles.FB2_Bingham_wscheme_incthin;
 
-      obj.qcrit_sgf = 0.8;
+      % obj.FB_fitted_Bingham_pars = glass_particles.FB2_fitted_Bingham_pars;
+      % obj.mu_p_Bingham_intr = glass_particles.FB2_mu_p_qmax_alphac3;
+
+      % obj.qcrit_sgf = 0.8;
+      % obj.qcrit_sgf = 0.85;
+      obj.qcrit_sgf = 0.9;
       obj.qcrit_ttv = 1.0;
       obj.qcrit_fgm = 2.0;
 
@@ -31,6 +44,9 @@ classdef glass49 < glass_particles
       obj.ocrit_dgf_qh = 20;
       obj.ocrit_fgm_ql = 15;
       obj.ocrit_fgm_qh = 15;
+
+      % obj.qcrit_Bingham2Carreau = 1;
+      obj.qcrit_Bingham2Carreau = obj.qcrit_fgm;
     end
     function process_raw(obj,raw_,i_)
       obj.exp_id = i_;
@@ -87,16 +103,16 @@ classdef glass49 < glass_particles
       obj.omega_crit = glass_particles.determine_omega_crit(obj.alpha_tol_Bingham, obj.omega_crit_min,obj.omega,obj.alpha_T);
       obj.omega_crit_alpha_peak = glass_particles.determine_omega_crit_alpha_peak(obj.omega,obj.alpha_T);
 
-      obj.omega_cap_Bingham_use = obj.omega_crit;
+      % obj.omega_cap_Bingham_use = obj.omega_crit;
       % obj.omega_cap_Bingham_use = obj.omega_crit_alpha_peak;
-
-      omega_fit = obj.omega;
-      tau_fit = obj.tau;
+      obj.omega_cap_Bingham_use = obj.FB_Bingham_omega_cap(obj.exp_id);
+      % omega_fit = obj.omega;
+      % tau_fit = obj.tau;
 
       obj.fit_Carreau_model;
-      % obj.fit_Bingham_model(obj.omega_cap_Bingham_use,omega_fit,tau_fit);
-      obj.mu_p_Bingham = obj.FB_fitted_Bingham_pars(i_,1);
-      obj.tau_y_Bingham = obj.FB_fitted_Bingham_pars(i_,2);
+      obj.fit_Bingham_model(obj.omega_cap_Bingham_use,obj.omega,obj.tau);
+      % obj.mu_p_Bingham = obj.FB_fitted_Bingham_pars(i_,1);
+      % obj.tau_y_Bingham = obj.FB_fitted_Bingham_pars(i_,2);
 
       obj.compute_dimensionless_Bingham_new;
     end

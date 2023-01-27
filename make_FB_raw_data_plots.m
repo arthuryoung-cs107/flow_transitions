@@ -10,11 +10,4 @@ fig_num = 0;
 
 fig_num = fig_num + 1;
 FB1_torque_vs_rpm_raw_AYfig = FB_raw_data_plots.make_fig('FB1_torque_vs_rpm_raw', FB_raw_data_plots.posdim_full);
-figs(fig_num) = fbrdp.FB1_torque_vs_rpm_raw_plot(FB1_torque_vs_rpm_raw_AYfig, FB1, [2,5]);
-
-%%%%%%%% --------------------------------------------------------------------------------------------
-%%%%%%%% -----------------------------------------  2  ---------------------------------------------
-%%%%%%%% --------------------------------------------------------------------------------------------
-
-% FB2_torque_vs_rpm_raw_AYfig = FB_raw_data_plots.make_fig('FB2_torque_vs_rpm_raw', FB_raw_data_plots.posdim_full);
-% figs(fig_num) = fbrdp.FB_torque_vs_rpm_raw_plot(FB2_torque_vs_rpm_raw_AYfig, FB2, [3,5]);
+figs(fig_num) = fbrdp.FB1_torque_vs_rpm_raw_plot(FB1_torque_vs_rpm_raw_AYfig, FB1);

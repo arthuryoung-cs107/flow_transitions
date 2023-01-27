@@ -16,12 +16,60 @@ classdef lit_data < handle
     omega;
     mu_torque;
     sigma_torque;
+    Q;
+    Q_inc;
     q;
     tau_y_rat;
+
+    tau_static;
+    phi_m;
+    rho_p;
+    rho_f;
+    phi;
+    rho_b;
+
+    Bingham_tauy_bounds;
+    Bingham_mup_bounds;
+    Bingham_omega_cap = 1e3;
+    Bingham_omega_floor = 0;
+    Bingham_wscheme = 'none';
+
+    tau_qs;
+    mu_p_Bingham;
+    tau_y_Bingham;
+    omega_fit_Bingham;
+    tau_fit_Bingham;
+    i_fit_Bingham;
+    gamma_Bingham;
+    rc_Bingham;
+    Re_b_Bingham;
+    G_b_Bingham;
+
   end
   methods
     function obj = lit_data()
 
+    end
+    function tau_out = tau_comp(obj)
+        tau_out = obj.mu_torque/(2*pi*(fluid.r_i_def*fluid.r_i_def)*fluid.h_def);
+    end
+    function fit_Bingham_model(obj)
+        tau_full = obj.tau_comp;
+        ind = logical(double(obj.omega < obj.Bingham_omega_cap).*double(obj.omega > obj.Bingham_omega_floor));
+        [omega_fit tau_fit] = deal(obj.omega(ind),tau_full(ind));
+
+        obj.tau_qs = mean(tau_fit);
+
+        [obj.omega_fit_Bingham obj.tau_fit_Bingham obj.i_fit_Bingham] = deal(omega_fit, tau_fit,ind);
+        w_fit = glass_particles.compute_equidistant_weighting(omega_fit, tau_fit, obj.Bingham_wscheme);
+
+        [mp_b ty_b] = deal(obj.Bingham_mup_bounds, obj.Bingham_tauy_bounds);
+
+        [obj.mu_p_Bingham obj.tau_y_Bingham] = glass_particles.fit_internal_Bingham_fluid(omega_fit, tau_fit, w_fit, mp_b, ty_b);
+
+        ti = glass_particles.taui_pred_Bingham(obj.mu_p_Bingham,obj.tau_y_Bingham,obj.omega);
+        obj.gamma_Bingham = (ti-obj.tau_y_Bingham)/obj.mu_p_Bingham;
+        obj.rc_Bingham = glass_particles.determine_rc_Bingham(obj.mu_p_Bingham, obj.tau_y_Bingham, obj.omega);
     end
     function init_Ramesh(obj, id)
       fid0 = fopen('./data_directory/torque_data.txt','r');
@@ -129,6 +177,13 @@ classdef lit_data < handle
     function init_Chuan(obj, id, color_)
       % run figure_properties.m
       torque_static = 7.42827477979528e-003;
+      obj.tau_static = 225.046219998818e+000;
+      obj.phi_m = 0.5869;
+      obj.rho_p = 2500;
+      obj.rho_f = 1.225;
+      obj.phi = 0.5541;
+      obj.Q_inc = 1.4;
+      obj.rho_b = obj.rho_p * obj.phi + obj.rho_f*(1.0-obj.phi);
       obj.specs = '*';
       switch id
         case '0.0'
@@ -137,8 +192,13 @@ classdef lit_data < handle
           obj.sigma_torque = [53.4906393458386e-006; 408.314499239035e-006; 70.3662817579475e-006; 34.6602665561042e-006; 27.2589996217045e-006; 110.616728288155e-006; 71.1017514881501e-006];
           obj.label = 'FB1 q=0.0';
           % obj.color = grey15(1, :);
-          obj.q = 0.0;
+          obj.Q = 0.0;
+          obj.q = obj.Q/obj.Q_inc;
           obj.tau_y_rat = 1;
+          obj.Bingham_tauy_bounds = glass_particles.FB1_EC_Bingham_tauy_bounds(1,:);
+          obj.Bingham_mup_bounds = glass_particles.FB1_EC_Bingham_mup_bounds(1,:);
+          obj.Bingham_omega_cap = glass_particles.FB1_EC_Bingham_omega_cap(1);
+          obj.Bingham_omega_floor = glass_particles.FB1_EC_Bingham_omega_floor(1);
           obj.color = color_;
         case '0.5'
           obj.omega = [10.4709010659071e+000; 20.9399438904452e+000; 31.4116957049155e+000; 41.8818824189874e+000; 52.3530884648949e+000; 62.8615129285921e+000; 73.2961174017939e+000; 83.7691695018464e+000; 94.2413796740110e+000; 104.713836647983e+000; 115.184393124975e+000];
@@ -146,8 +206,13 @@ classdef lit_data < handle
           obj.sigma_torque = [44.5806695214019e-006; 38.0139034855783e-006; 35.8602875102105e-006; 115.299408782644e-006; 147.368858937030e-006; 25.3092055545984e-006; 133.769450766827e-006; 118.865955198661e-006; 127.523995747510e-006; 71.0284042033536e-006; 36.2119061342456e-006];
           obj.label = 'FB1 q=0.3';
           % obj.color = grey15(2, :);
-          obj.q = 0.5/1.4;
+          obj.Q = 0.5;
+          obj.q = obj.Q/obj.Q_inc;
           obj.tau_y_rat = min(obj.mu_torque)/torque_static;
+          obj.Bingham_tauy_bounds = glass_particles.FB1_EC_Bingham_tauy_bounds(2,:);
+          obj.Bingham_mup_bounds = glass_particles.FB1_EC_Bingham_mup_bounds(2,:);
+          obj.Bingham_omega_cap = glass_particles.FB1_EC_Bingham_omega_cap(2);
+          obj.Bingham_omega_floor = glass_particles.FB1_EC_Bingham_omega_floor(2);
           obj.color = color_;
         case '0.75'
           obj.omega = [10.4690873336664e+000; 20.9398989811737e+000; 31.4103473786741e+000; 41.8836885762354e+000; 52.3542572470467e+000; 62.7937343757488e+000; 73.3008562351569e+000; 83.7718621197607e+000; 94.2419811050370e+000; 104.714018606973e+000; 115.182473834160e+000];
@@ -155,8 +220,13 @@ classdef lit_data < handle
           obj.sigma_torque = [42.8962425903257e-006; 34.9826956190008e-006; 93.2249503301729e-006; 112.883472203444e-006; 135.927976216652e-006; 35.2420776712163e-006; 123.581684540591e-006; 108.496938967469e-006; 96.7370046260344e-006; 63.4278958729085e-006; 34.1307815291551e-006];
           obj.label = 'FB1 q=0.4';
           % obj.color = grey15(3, :);
-          obj.q = 0.75/1.4;
+          obj.Q = 0.75;
+          obj.q = obj.Q/obj.Q_inc;
           obj.tau_y_rat = min(obj.mu_torque)/torque_static;
+          obj.Bingham_tauy_bounds = glass_particles.FB1_EC_Bingham_tauy_bounds(3,:);
+          obj.Bingham_mup_bounds = glass_particles.FB1_EC_Bingham_mup_bounds(3,:);
+          obj.Bingham_omega_cap = glass_particles.FB1_EC_Bingham_omega_cap(3);
+          obj.Bingham_omega_floor = glass_particles.FB1_EC_Bingham_omega_floor(3);
           obj.color = color_;
         case '1.0'
           obj.omega = [10.4699789320195e+000; 20.9395442164895e+000; 31.4124990189983e+000; 41.8819195780697e+000; 52.3541108976392e+000; 62.8128732194048e+000; 73.2969934970426e+000; 83.7704938135510e+000; 94.2413730152678e+000; 104.715806901865e+000; 115.181944751061e+000];
@@ -164,10 +234,22 @@ classdef lit_data < handle
           obj.sigma_torque = [32.8655662461165e-006; 35.3587750299827e-006; 11.4620888705079e-006; 105.482330104475e-006; 118.406867935334e-006; 10.3007492763657e-006; 113.043361687547e-006; 99.9893033027316e-006; 104.721787496264e-006; 58.0413346074914e-006; 27.5369950721156e-006];
           obj.label = 'FB1 q=0.5';
           % obj.color = grey15(4, :);
-          obj.q = 1.0/1.4;
+          obj.Q = 1.0;
+          obj.q = obj.Q/obj.Q_inc;
           obj.tau_y_rat = min(obj.mu_torque)/torque_static;
+          obj.Bingham_tauy_bounds = glass_particles.FB1_EC_Bingham_tauy_bounds(4,:);
+          obj.Bingham_mup_bounds = glass_particles.FB1_EC_Bingham_mup_bounds(4,:);
+          obj.Bingham_omega_cap = glass_particles.FB1_EC_Bingham_omega_cap(4);
+          obj.Bingham_omega_floor = glass_particles.FB1_EC_Bingham_omega_floor(4);
           obj.color = color_;
       end
+      obj.fit_Bingham_model;
+      [h ri ro mp_ ty_] = deal(fluid.h_def, fluid.r_i_def, fluid.r_o_def, obj.mu_p_Bingham, obj.tau_y_Bingham);
+      obj.rc_Bingham = glass_particles.determine_rc_Bingham(mp_,ty_,obj.omega);
+      obj.Re_b_Bingham = (obj.rho_b*obj.omega*ri*(ro-ri))/mp_;
+      % obj.Re_b_Bingham = (obj.rho_b*obj.omega*ri.*(obj.rc_Bingham-ri))/mp_;
+      obj.G_b_Bingham = (obj.rho_b/(h*mp_*mp_))*obj.mu_torque;
+
     end
   end
 end

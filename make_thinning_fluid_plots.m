@@ -103,6 +103,16 @@ fig_specs{fig_num} = {'Name', 'ALL_G_vs_Res_CarreauFB'; 'Renderer', 'painters'; 
 ALL_G_vs_Res_CarreauFB_AYfig = AYfig(fig_specs{fig_num}, true);
 figs(fig_num) = tfp.ALL_G_vs_Res_CarreauFB(ALL_G_vs_Res_CarreauFB_AYfig, PF1, PFR, NB1, NB2, NB3, UB1, UB2, XB1, XB2, FB1, FB2, NBall, UBall, XBall);
 
+% %%%%%%%% --------------------------------------------------------------------------------------------
+% %%%%%%%% -----------------------------------------  13  ---------------------------------------------
+% %%%%%%%% --------------------------------------------------------------------------------------------
+
+fig_num = fig_num + 1;
+fig_specs{fig_num} = {'Name', 'FB_Carreau_err_vs_omegai'; 'Renderer', 'painters'; 'Position', tfp.posdimfull;};
+FB_Carreau_err_vs_omegai_AYfig = AYfig(fig_specs{fig_num}, true);
+figs(fig_num) = tfp.FB_Carreau_err_vs_omegai(FB_Carreau_err_vs_omegai_AYfig, FB1, FB2);
+
+
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% -----------------------------------------  13  ---------------------------------------------
 %%%%%%%% --------------------------------------------------------------------------------------------

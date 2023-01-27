@@ -6,6 +6,595 @@ classdef bingham_plots < main_plots
         function obj = bingham_plots(write_figs_, write_all_figs_, figs_to_write_)
             obj@main_plots(write_figs_, write_all_figs_, figs_to_write_);
         end
+        function fig_out = FBext_Bingham_fits_summary(obj,AYfig_,FBall)
+            axs_full = prep_tiles(AYfig_, [4,4]);
+
+            [EC000 EC050 EC075 EC100 FB1 FB2] = deal(FBall{1},FBall{2},FBall{3},FBall{4},FBall{5},FBall{6});
+
+            iEC = 0;
+            for EC = [EC000 EC050 EC075 EC100]
+                iEC = iEC+1;
+
+                plot(axs_full(iEC), EC.omega, EC.tau_comp, EC.specs, 'Color', EC.color, 'LineWidth', EC.LW, 'MarkerSize', EC.MS, 'DisplayName', EC.label);
+                plot(axs_full(iEC+4), EC.omega, EC.tau_comp, EC.specs, 'Color', EC.color, 'LineWidth', EC.LW, 'MarkerSize', EC.MS, 'DisplayName', EC.label);
+                plot(axs_full(iEC), EC.omega_fit_Bingham, EC.tau_fit_Bingham, 'o', 'Color', EC.color, 'LineWidth', 2, 'MarkerSize', 8, 'DisplayName', EC.label);
+                plot(axs_full(iEC+4), EC.omega_fit_Bingham, EC.tau_fit_Bingham, 'o', 'Color', EC.color, 'LineWidth', 2, 'MarkerSize', 8, 'DisplayName', EC.label);
+
+                [mup ty] = deal(EC.mu_p_Bingham, EC.tau_y_Bingham);
+                otest_log = logspace(-2,2,100);
+                otest_lin = linspace(min(EC.omega),max(EC.omega),100);
+                otest_fit = linspace(min(EC.omega_fit_Bingham),max(EC.omega_fit_Bingham),100);
+                ti_log = glass_particles.taui_pred_Bingham(mup,ty,otest_log);
+                ti_lin = glass_particles.taui_pred_Bingham(mup,ty,otest_lin);
+                ti_fit = glass_particles.taui_pred_Bingham(mup,ty,otest_fit);
+
+                plot(axs_full(iEC), otest_lin, ti_lin, '-', 'Color', EC.color, 'LineWidth', EC.LW, 'MarkerSize', EC.MS, 'DisplayName', EC.label);
+                plot(axs_full(iEC+4), otest_log, ti_log, '-', 'Color', EC.color, 'LineWidth', EC.LW, 'MarkerSize', EC.MS, 'DisplayName', EC.label);
+
+                plot(axs_full(9), EC.omega, EC.tau_comp, EC.specs, 'Color', EC.color, 'LineWidth', EC.LW, 'MarkerSize', EC.MS, 'DisplayName', EC.label);
+                plot(axs_full(9), otest_log, ti_log, '-', 'Color', EC.color, 'LineWidth', EC.LW, 'MarkerSize', EC.MS, 'DisplayName', EC.label);
+
+                plot(axs_full(13), EC.q, EC.tau_y_Bingham, EC.specs, 'Color', EC.color, 'LineWidth', 2, 'MarkerSize', 9, 'DisplayName', EC.label);
+                plot(axs_full(15), EC.q, EC.mu_p_Bingham, EC.specs, 'Color', EC.color, 'LineWidth', 2, 'MarkerSize', 9, 'DisplayName', EC.label);
+            end
+
+            FB_orig = [FB1 FB2];
+
+            for iFB = 1:length(FB_orig)
+                FB = FB_orig(iFB);
+                exp = FB.exp;
+                for i = 1:length(exp)
+                    expi = exp(i);
+                    [ofit tfit ifit] = deal(expi.omega_fit_Bingham, expi.tau_fit_Bingham, expi.i_fit_Bingham);
+                    [gfit rfit] = deal(expi.gamma_Bingham(ifit), expi.rc_Bingham(ifit));
+
+                    plot(axs_full(8+iFB), expi.omega, expi.tau, FB.specs, 'Color', expi.color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', expi.label);
+
+                    plot(axs_full(13+iFB-1), expi.q, expi.tau_y_Bingham, FB.specs, 'Color', expi.color, 'LineWidth', 2, 'MarkerSize', 9, 'DisplayName', expi.label);
+                    plot(axs_full(15+iFB-1), expi.q, expi.mu_p_Bingham, FB.specs, 'Color', expi.color, 'LineWidth', 2, 'MarkerSize', 9, 'DisplayName', expi.label);
+                end
+            end
+
+            set(axs_full(5:10), 'XScale', 'log', 'YScale', 'log');
+
+            fig_out = AYfig_;
+        end
+        function fig_out = UXB_FB_taustar_vs_Gamma_combined(obj,AYfig_,UBall,XBall,FBall,FBext)
+            axs_full = prep_tiles(AYfig_, [1,2]);
+
+            [UB1 UB2] = deal(UBall.UB1_in, UBall.UB2_in);
+            [XB1 XB2] = deal(XBall.XB1_in, XBall.XB2_in);
+            [FB1 FB2] = deal(FBall(1),FBall(2));
+
+            UXB = {UB1; UB2; XB1; XB2};
+            UXBlen = length(UXB);
+            UXBlabels = cell(UXBlen,1);
+
+            expALL = cell(4 + length(FB1.exp) + length(FB2.exp),1);
+            iexp = 4;
+            ileg = 0;
+            for iFB = 1:length(FBall)
+                FB = FBall(iFB);
+                exp = FB.exp;
+                for i = 1:length(exp)
+                    expi = exp(i);
+                    iexp = iexp + 1;
+                    expALL{iexp} = expi;
+
+                    if (expi.q < expi.qcrit_sgf)
+                    % if (expi.q < expi.qcrit_Bingham2Carreau)
+                        [ofit tfit ifit] = deal(expi.omega_fit_Bingham, expi.tau_fit_Bingham, expi.i_fit_Bingham);
+                        [gfit rfit] = deal(expi.gamma_Bingham(ifit), expi.rc_Bingham(ifit));
+                        tau_star = tfit/expi.tau_y_Bingham;
+                        Gamma = (expi.mu_p_Bingham*gfit)/expi.tau_y_Bingham;
+                        Gamma_omega = (expi.mu_p_Bingham*fluid.r_i_def*(ofit./(rfit-fluid.r_i_def)))/expi.tau_y_Bingham;
+                        % Gamma_omega = (expi.mu_p_Bingham*fluid.r_i_def*(ofit/(fluid.r_o_def-  fluid.r_i_def)))/expi.tau_y_Bingham;
+
+                        ileg = ileg +1;
+                        legend_set_a(ileg) = plot(axs_full(1), Gamma, tau_star, FB.specs, 'Color', expi.color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', expi.label);
+                        legend_set_b(ileg) = plot(axs_full(2), Gamma_omega, tau_star, FB.specs, 'Color', expi.color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', expi.label);
+                    end
+                end
+            end
+
+            for i = 1:length(FBext)
+                expi = FBext{i};
+                [ofit tfit ifit] = deal(expi.omega_fit_Bingham, expi.tau_fit_Bingham, expi.i_fit_Bingham);
+                [gfit rfit] = deal(expi.gamma_Bingham(ifit), expi.rc_Bingham(ifit));
+
+                tau_star = tfit/expi.tau_y_Bingham;
+                Gamma = (expi.mu_p_Bingham*gfit)/expi.tau_y_Bingham;
+                Gamma_omega = (expi.mu_p_Bingham*fluid.r_i_def*(ofit./(rfit-fluid.r_i_def)))/expi.tau_y_Bingham;
+
+
+                ileg = ileg +1;
+                legend_set_a(ileg) = plot(axs_full(1), Gamma, tau_star, expi.specs, 'Color', expi.color, 'LineWidth', expi.LW, 'MarkerSize', expi.MS, 'DisplayName', expi.label);
+                legend_set_b(ileg) = plot(axs_full(2), Gamma_omega, tau_star, expi.specs, 'Color', expi.color, 'LineWidth', expi.LW, 'MarkerSize', expi.MS, 'DisplayName', expi.label);
+            end
+
+            for i = 1:UXBlen
+                expi = UXB{i};
+                expALL{i} = expi;
+                [mup ty] = deal(expi.mu_p_Bingham, expi.tau_y_Bingham);
+                [ofit tfit ifit] = deal(expi.omega_fit_Bingham, expi.tau_fit_Bingham, expi.i_fit_Bingham);
+                [gfit rfit] = deal(expi.gamma_Bingham(ifit), expi.rc_Bingham(ifit));
+
+                tau_star = tfit/expi.tau_y_Bingham;
+                Gamma = (expi.mu_p_Bingham*gfit)/expi.tau_y_Bingham;
+                % Gamma_omega = (expi.mu_eff*fluid.r_i_def*(ofit./(rfit-fluid.r_i_def)))/expi.tau_qs;
+                Gamma_omega = (expi.mu_p_Bingham*fluid.r_i_def*(ofit./(rfit-fluid.r_i_def)))/expi.tau_y_Bingham;
+                % Gamma_omega = (expi.mu_p_Bingham*fluid.r_i_def*(ofit/(fluid.r_o_def-fluid.r_i_def)))/expi.tau_y_Bingham;
+
+                ileg = ileg + 1;
+                legend_set_a(ileg) = plot(axs_full(1), Gamma, tau_star, expi.specs, 'Color', expi.color, 'LineWidth', expi.LW, 'MarkerSize', expi.MS, 'DisplayName', expi.label);
+                legend_set_b(ileg) = plot(axs_full(2), Gamma_omega, tau_star, expi.specs, 'Color', expi.color, 'LineWidth', expi.LW, 'MarkerSize', expi.MS, 'DisplayName', expi.label);
+            end
+            set(axs_full,'XScale','log','YScale','log');
+
+            ylabel(axs_full, '$$\tau^* = \tau/\tau_y$$ [dimensionless]', 'Interpreter', 'Latex')
+            xlabel(axs_full(1), '$$\Gamma = \dot{\gamma}_B \mu_p/\tau_y$$ [dimensionless]', 'Interpreter', 'Latex')
+            xlabel(axs_full(2), '$$\Gamma = [\omega_i r_i / (r_c-r_i) ] \mu_p /\tau_y$$ [dimensionless]', 'Interpreter', 'Latex')
+
+            legend(axs_full(1), legend_set_a,'Location', 'NorthWest', 'Interpreter', 'Latex','NumColumns',2);
+            legend(axs_full(2), legend_set_b,'Location', 'NorthWest', 'Interpreter', 'Latex','NumColumns',2);
+
+            fig_out = AYfig_;
+        end
+        function fig_out = UXB_FB_taustar_vs_Gamma(obj,AYfig_,UBall,XBall,FBall)
+            axs_full = prep_tiles(AYfig_, [4,4]);
+
+            [UB1 UB2] = deal(UBall.UB1_in, UBall.UB2_in);
+            [XB1 XB2] = deal(XBall.XB1_in, XBall.XB2_in);
+            [FB1 FB2] = deal(FBall(1),FBall(2));
+
+            UXB = {UB1; UB2; XB1; XB2};
+            UXBlen = length(UXB);
+            UXBlabels = cell(UXBlen,1);
+
+            expALL = cell(4 + length(FB1.exp) + length(FB2.exp),1);
+            iexp = 4;
+            for iFB = 1:length(FBall)
+                FB = FBall(iFB);
+                exp = FB.exp;
+                for i = 1:length(exp)
+                    expi = exp(i);
+                    iexp = iexp + 1;
+                    expALL{iexp} = expi;
+                    [ofit tfit ifit] = deal(expi.omega_fit_Bingham, expi.tau_fit_Bingham, expi.i_fit_Bingham);
+                    [gfit rfit] = deal(expi.gamma_Bingham(ifit), expi.rc_Bingham(ifit));
+
+                    tau_star = tfit/expi.tau_y_Bingham;
+                    Gamma = (expi.mu_p_Bingham*gfit)/expi.tau_y_Bingham;
+                    Gamma_omega = (expi.mu_p_Bingham*fluid.r_i_def*(ofit./(rfit-fluid.r_i_def)))/expi.tau_y_Bingham;
+                    % Gamma_omega = (expi.mu_p_Bingham*fluid.r_i_def*(ofit/(fluid.r_o_def-fluid.r_i_def)))/expi.tau_y_Bingham;
+
+                    % if (expi.q < expi.qcrit_Bingham2Carreau)
+                    if (expi.q < expi.qcrit_sgf)
+                        plot(axs_full(2+iFB), Gamma, tau_star, FB.specs, 'Color', expi.color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', expi.label);
+                        plot(axs_full(2+iFB + 4), Gamma, tau_star, FB.specs, 'Color', expi.color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', expi.label);
+
+                        plot(axs_full(9), Gamma, tau_star, FB.specs, 'Color', expi.color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', expi.label);
+                        plot(axs_full(13), Gamma, tau_star, FB.specs, 'Color', expi.color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', expi.label);
+
+                        plot(axs_full(11), Gamma_omega, tau_star, FB.specs, 'Color', expi.color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', expi.label);
+                        plot(axs_full(15), Gamma_omega, tau_star, FB.specs, 'Color', expi.color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', expi.label);
+                    end
+                end
+            end
+
+            for i = 1:UXBlen
+                expi = UXB{i};
+                expALL{i} = expi;
+                [mup ty] = deal(expi.mu_p_Bingham, expi.tau_y_Bingham);
+                [ofit tfit ifit] = deal(expi.omega_fit_Bingham, expi.tau_fit_Bingham, expi.i_fit_Bingham);
+                [gfit rfit] = deal(expi.gamma_Bingham(ifit), expi.rc_Bingham(ifit));
+
+                tau_star = tfit/expi.tau_y_Bingham;
+                Gamma = (expi.mu_p_Bingham*gfit)/expi.tau_y_Bingham;
+                % Gamma_omega = (expi.mu_eff*fluid.r_i_def*(ofit./(rfit-fluid.r_i_def)))/expi.tau_qs;
+                Gamma_omega = (expi.mu_p_Bingham*fluid.r_i_def*(ofit./(rfit-fluid.r_i_def)))/expi.tau_y_Bingham;
+                % Gamma_omega = (expi.mu_p_Bingham*fluid.r_i_def*(ofit/(fluid.r_o_def-fluid.r_i_def)))/expi.tau_y_Bingham;
+
+                plot(axs_full(1+floor((i-1)/2)), Gamma, tau_star, expi.specs, 'Color', expi.color, 'LineWidth', expi.LW, 'MarkerSize', expi.MS, 'DisplayName', expi.label);
+                plot(axs_full(1+floor((i-1)/2) + 4), Gamma, tau_star, expi.specs, 'Color', expi.color, 'LineWidth', expi.LW, 'MarkerSize', expi.MS, 'DisplayName', expi.label);
+                plot(axs_full(9), Gamma, tau_star, expi.specs, 'Color', expi.color, 'LineWidth', expi.LW, 'MarkerSize', expi.MS, 'DisplayName', expi.label);
+                plot(axs_full(10), Gamma, tau_star, expi.specs, 'Color', expi.color, 'LineWidth', expi.LW, 'MarkerSize', expi.MS, 'DisplayName', expi.label);
+                plot(axs_full(13), Gamma, tau_star, expi.specs, 'Color', expi.color, 'LineWidth', expi.LW, 'MarkerSize', expi.MS, 'DisplayName', expi.label);
+                plot(axs_full(14), Gamma, tau_star, expi.specs, 'Color', expi.color, 'LineWidth', expi.LW, 'MarkerSize', expi.MS, 'DisplayName', expi.label);
+
+                plot(axs_full(11), Gamma_omega, tau_star, expi.specs, 'Color', expi.color, 'LineWidth', expi.LW, 'MarkerSize', expi.MS, 'DisplayName', expi.label);
+                plot(axs_full(12), Gamma_omega, tau_star, expi.specs, 'Color', expi.color, 'LineWidth', expi.LW, 'MarkerSize', expi.MS, 'DisplayName', expi.label);
+                plot(axs_full(15), Gamma_omega, tau_star, expi.specs, 'Color', expi.color, 'LineWidth', expi.LW, 'MarkerSize', expi.MS, 'DisplayName', expi.label);
+                plot(axs_full(16), Gamma_omega, tau_star, expi.specs, 'Color', expi.color, 'LineWidth', expi.LW, 'MarkerSize', expi.MS, 'DisplayName', expi.label);
+
+            end
+
+            set(axs_full(1:4),'XScale','log','YScale','log');
+
+            set(axs_full(13:end),'XScale','log','YScale','log');
+
+            fig_out = AYfig_;
+        end
+        function fig_out = UXB_Bingham_fit_summary(obj,AYfig_,UBall,XBall,FBall)
+            [UB1 UB2] = deal(UBall.UB1_in, UBall.UB2_in);
+            [XB1 XB2] = deal(XBall.XB1_in, XBall.XB2_in);
+            [FB1 FB2] = deal(FBall(1),FBall(2));
+
+            UXB = {UB1; UB2; XB1; XB2};
+            UXBlen = length(UXB);
+            UXBlabels = cell(UXBlen,1);
+
+            expALL = cell(4 + length(FB1.exp) + length(FB2.exp),1);
+
+            axs_full = set_UXB_Bingham_summary_axes(AYfig_);
+            axFB = axs_full((length(axs_full)-1):end);
+            iexp = 4;
+            for FB = FBall
+                exp = FB.exp;
+                for i = 1:length(exp)
+                    expi = exp(i);
+                    iexp = iexp + 1;
+                    expALL{iexp} = expi;
+                    plot(axFB(1), expi.q, expi.tau_y_Bingham, expi.specs, 'Color', expi.color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', expi.label);
+                    plot(axFB(2), expi.q, expi.mu_p_Bingham, FB.specs, 'Color', expi.color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', expi.label);
+                end
+            end
+
+            mup_bounds = nan(UXBlen,3);
+            tauy_bounds = nan(UXBlen,3);
+            for i = 1:UXBlen
+                axs = axs_full(i:UXBlen:(length(axs_full)-(UXBlen-i)));
+
+                expi = UXB{i};
+                expALL{i} = expi;
+                [mup ty] = deal(expi.mu_p_Bingham, expi.tau_y_Bingham);
+
+                otest_log = logspace(-2,2,100);
+                otest_lin = linspace(min(expi.omega),max(expi.omega),100);
+                otest_fit = linspace(min(expi.omega_fit_Bingham),max(expi.omega_fit_Bingham),100);
+                ti_log = glass_particles.taui_pred_Bingham(mup,ty,otest_log);
+                ti_lin = glass_particles.taui_pred_Bingham(mup,ty,otest_lin);
+                ti_fit = glass_particles.taui_pred_Bingham(mup,ty,otest_fit);
+
+                plot(axs(1), expi.omega, expi.tau_comp, expi.specs, 'Color', expi.color, 'LineWidth', expi.LW, 'MarkerSize', expi.MS, 'DisplayName', expi.label);
+                plot(axs(1), otest_log, ti_log, '-', 'Color', [0 0 0], 'LineWidth', 2);
+
+                plot(axs(2), expi.omega, expi.tau_comp, expi.specs, 'Color', expi.color, 'LineWidth', expi.LW, 'MarkerSize', expi.MS, 'DisplayName', expi.label);
+                plot(axs(2), otest_lin, ti_lin, '-', 'Color', [0 0 0], 'LineWidth', 2);
+
+                plot(axs(3), expi.omega_fit_Bingham, expi.tau_fit_Bingham, expi.specs, 'Color', expi.color, 'LineWidth', expi.LW, 'MarkerSize', expi.MS, 'DisplayName', expi.label);
+                plot(axs(3), otest_fit, ti_fit, '-', 'Color', [0 0 0], 'LineWidth', 2);
+
+                plot(axs_full(length(axs_full)-3), i, expi.tau_y_Bingham, 'p', 'Color', expi.color, 'LineWidth', 1.5, 'MarkerSize', 5);
+                plot(axs_full(length(axs_full)-3), i, expi.tau_qs, 's', 'Color', expi.color, 'LineWidth', 1.5, 'MarkerSize', 5);
+                plot(axs_full(length(axs_full)-2), i, expi.mu_p_Bingham, 'p', 'Color', expi.color, 'LineWidth', 1.5, 'MarkerSize', 5);
+                plot(axs_full(length(axs_full)-2), i, expi.mu_eff, 's', 'Color', expi.color, 'LineWidth', 1.5, 'MarkerSize', 5);
+
+                tauy_bounds(i,:) = expi.Bingham_tauy_bounds;
+                mup_bounds(i,:) = expi.Bingham_mup_bounds;
+            end
+
+            plot(axs_full(length(axs_full)-3), 1:UXBlen, tauy_bounds(:,1), 'v', 'Color', [0 0 0], 'LineWidth', 1.5, 'MarkerSize', 5);
+            plot(axs_full(length(axs_full)-3), 1:UXBlen, tauy_bounds(:,2), 'o', 'Color', [0 0 0], 'LineWidth', 1.5, 'MarkerSize', 5);
+            plot(axs_full(length(axs_full)-3), 1:UXBlen, tauy_bounds(:,3), '^', 'Color', [0 0 0], 'LineWidth', 1.5, 'MarkerSize', 5);
+
+            plot(axs_full(length(axs_full)-2), 1:UXBlen, mup_bounds(:,1), 'v', 'Color', [0 0 0], 'LineWidth', 1.5, 'MarkerSize', 5);
+            plot(axs_full(length(axs_full)-2), 1:UXBlen, mup_bounds(:,2), 'o', 'Color', [0 0 0], 'LineWidth', 1.5, 'MarkerSize', 5);
+            plot(axs_full(length(axs_full)-2), 1:UXBlen, mup_bounds(:,3), '^', 'Color', [0 0 0], 'LineWidth', 1.5, 'MarkerSize', 5);
+
+            set(axs_full(1:4),'XScale','log','YScale','log');
+
+            set(axs_full((length(axs_full)-3):(length(axs_full)-2)),'YScale','log');
+
+            fig_out = AYfig_;
+        end
+        function fig_out = FB_Bingham_err_vs_num_spread(obj,AYfig_,FB1,FB2,FBext,log_flag)
+            if (log_flag)
+                axscale = 'log';
+                % xlim_set = [1e-2 1e2];
+                % ylim_set = [1e-4 1e3];
+            else
+                axscale = 'linear';
+                % xlim_set = [0 130];
+                % ylim_set = [0 200];
+            end
+
+            dims = [4 6];
+            axs_full=prep_tiles(AYfig_,dims);
+
+            B_coeff = (fluid.r_o_def-fluid.r_i_def)/(fluid.r_i_def);
+
+            ql_count = 0;
+            qh_count = 0;
+            Bl_sum = 0;
+            Bh_sum = 0;
+            Bl_set = [];
+            Bh_set = [];
+
+            for i=1:length(FBext)
+                expi = FBext{i};
+
+                [omega_fit tau_fit i_fit] = deal(expi.omega_fit_Bingham, expi.tau_fit_Bingham, expi.i_fit_Bingham);
+                omega_nfit = expi.omega(~i_fit);
+
+                B_fit = B_coeff*(expi.tau_y_Bingham/expi.mu_p_Bingham)./(omega_fit);
+
+                ql_count = ql_count +1;
+                Bl_sum = Bl_sum + sum(B_fit);
+                Bl_set = [Bl_set; B_fit];
+            end
+
+            axs = axs_full;
+            for FB = [FB1 FB2]
+                explen = length(FB.exp);
+                for i=1:explen
+                    expi = FB.exp(i);
+                    par = [expi.mu_p_Bingham expi.tau_y_Bingham];
+                    ti = glass_particles.taui_pred_Bingham(par(1),par(2),expi.omega);
+                    tau_err = (abs(expi.tau - ti))./expi.tau;
+
+                    [omega_fit tau_fit] = deal(expi.omega_fit_Bingham, expi.tau_fit_Bingham);
+                    [omega_not_fit i_nf] = setdiff(expi.omega, omega_fit);
+                    tau_not_fit = expi.tau(i_nf);
+                    i_f = logical(ones(size(expi.omega)));
+                    i_f(i_nf) = 0;
+                    [tau_err_fit tau_err_not_fit] = deal(abs(tau_fit-ti(i_f))./tau_fit,abs(tau_not_fit-ti(i_nf))./tau_not_fit);
+
+                    B_all = B_coeff*(expi.tau_y_Bingham/expi.mu_p_Bingham)./expi.omega;
+                    B_fit = B_coeff*(expi.tau_y_Bingham/expi.mu_p_Bingham)./(expi.omega(i_f));
+                    B_not_fit = B_coeff*(expi.tau_y_Bingham/expi.mu_p_Bingham)./(expi.omega(i_nf));
+
+                    plot(axs(i), B_all, tau_err, FB.specs, 'Color', FB.exp(i).color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', FB.exp(i).label);
+                    plot(axs(i), B_fit, tau_err_fit, 'o', 'Color', [0 0 0], 'LineWidth', 1, 'MarkerSize', 5, 'DisplayName', FB.exp(i).label);
+                    plot(axs(i), B_not_fit, tau_err_not_fit, 'x', 'Color', [0 0 0], 'LineWidth', 1, 'MarkerSize', 8, 'DisplayName', FB.exp(i).label);
+
+                    if (expi.q<1)
+                        ql_count = ql_count +1;
+                        Bl_sum = Bl_sum + sum(B_fit);
+                        Bl_set = [Bl_set; B_fit];
+                    else
+                        qh_count = qh_count +1;
+                        Bh_sum = Bh_sum + sum(B_fit);
+                        Bh_set = [Bh_set; B_fit];
+                    end
+
+                    title(axs(i), expi.label, 'Interpreter', 'Latex', 'Fontsize', 14)
+                end
+                axs=axs_full(explen+1:end);
+            end
+
+            ylabel(axs_full(1:dims(2):22), '$$| \tau_i - \tau_B |/\tau_i $$', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs_full(22:end), '$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
+
+            set(axs_full,'XScale',axscale,'YScale',axscale);
+
+            fprintf('Mean q<1 fitted Bingham number: %e, median :%e. Mean q>1 fitted Bingham number: %e, median: %e. \n', Bl_sum/ql_count, median(Bl_set),  Bh_sum/qh_count, median(Bh_set));
+
+            fig_out = AYfig_;
+        end
+        function fig_out = FB_taui_rat_Bingham_vs_omegai_spread(obj,AYfig_,FB1,FB2,log_flag_)
+            if (nargin==4)
+                log_flag = true;
+            else
+                log_flag = log_flag_;
+            end
+            if (log_flag)
+                axscale = 'log';
+                xlim_set = [1e-2 1e2];
+                ylim_set = [1e-4 1e3];
+            else
+                axscale = 'linear';
+                xlim_set = [0 130];
+                ylim_set = [0 200];
+            end
+
+            dims = [4 6];
+            axs_full=prep_tiles(AYfig_,dims);
+
+            axs = axs_full;
+            for FB = [FB1 FB2]
+                explen = length(FB.exp);
+                for i=1:explen
+                    expi = FB.exp(i);
+                    par = [expi.mu_p_Bingham expi.tau_y_Bingham];
+                    ti = glass_particles.taui_pred_Bingham(par(1),par(2),expi.omega);
+                    tau_rat = expi.tau./ti;
+
+                    [omega_fit tau_fit] = deal(expi.omega_fit_Bingham, expi.tau_fit_Bingham);
+                    [omega_not_fit i_nf] = setdiff(expi.omega, omega_fit);
+                    tau_not_fit = expi.tau(i_nf);
+                    i_f = logical(ones(size(expi.omega)));
+                    i_f(i_nf) = 0;
+                    [tau_rat_fit tau_rat_not_fit] = deal(tau_fit./ti(i_f),tau_not_fit./ti(i_nf));
+
+                    [oc tc] = glass_particles.get_plug_crit(par(1),par(2));
+                    plot(axs(i), expi.omega, tau_rat, FB.specs, 'Color', FB.exp(i).color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', FB.exp(i).label);
+                    plot(axs(i), omega_fit, tau_rat_fit, 'o', 'Color', [0 0 0], 'LineWidth', 1, 'MarkerSize', 5, 'DisplayName', FB.exp(i).label);
+                    plot(axs(i), omega_not_fit, tau_rat_not_fit, 'x', 'Color', [0 0 0], 'LineWidth', 1, 'MarkerSize', 8, 'DisplayName', FB.exp(i).label);
+
+                    plot(axs(i), [min(expi.omega) oc oc], [1 1 min(tau_rat)], '--', 'Color', [0 0 0], 'LineWidth', 1, 'MarkerSize', 1);
+
+                    title(axs(i), expi.label, 'Interpreter', 'Latex', 'Fontsize', 14)
+                end
+                axs=axs_full(explen+1:end);
+            end
+
+            ylabel(axs_full(1:dims(2):22), '$$\tau_i$$ [Pa]', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs_full(22:end), '$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
+
+            set(axs_full,'XScale',axscale,'YScale',axscale);
+
+            fig_out = AYfig_;
+        end
+        function fig_out = ALL_tau_vs_omegai_spread(obj,AYfig_,FBall,PFall,NBall,UBall,XBall,log_flag_)
+            if (nargin==7)
+                log_flag = true;
+            else
+                log_flag = log_flag_;
+            end
+            if (log_flag)
+                axscale = 'log';
+                xlim_set = [1e-2 1e2];
+                ylim_set = [1e-4 1e3];
+            else
+                axscale = 'linear';
+                % xlim_set = [0 130];
+                % ylim_set = [0 250];
+                xlim_set = [0 130];
+                ylim_set = [0 200];
+            end
+
+            [PF1 PFR] = deal(PFall{1}, PFall{2});
+            [NB1 NB2 NB3] = deal(NBall.NB1_in, NBall.NB2_in, NBall.NB3_in);
+            [UB1 UB2] = deal(UBall.UB1_in, UBall.UB2_in);
+            [XB1 XB2] = deal(XBall.XB1_in, XBall.XB2_in);
+
+            dims = [4 7];
+            axs_full=prep_tiles(AYfig_,dims);
+
+            axs = axs_full;
+            for FB = FBall
+                explen = length(FB.exp);
+                for i=1:explen
+                    expi = FB.exp(i);
+
+                    plot(axs(i), expi.omega, expi.tau, FB.specs, 'Color', FB.exp(i).color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', FB.exp(i).label);
+
+                    title(axs(i), expi.label, 'Interpreter', 'Latex', 'Fontsize', 14)
+                end
+                axs=axs_full(explen+1:end);
+            end
+
+            plot(axs_full(24), PF1.omega, PF1.tau_comp, PF1.specs, 'Color', PF1.color, 'LineWidth', PF1.LW, 'MarkerSize', PF1.MS, 'DisplayName', PF1.label);
+            plot(axs_full(24), PFR.omega, PFR.tau_comp, PFR.specs, 'Color', PFR.color, 'LineWidth', PFR.LW, 'MarkerSize', PFR.MS, 'DisplayName', PFR.label);
+
+            plot(axs_full(25), NB1.omega, NB1.tau_comp, NB1.specs, 'Color', NB1.color, 'LineWidth', NB1.LW, 'MarkerSize', NB1.MS, 'DisplayName', NB1.label);
+            plot(axs_full(25), NB2.omega, NB2.tau_comp, NB2.specs, 'Color', NB2.color, 'LineWidth', NB2.LW, 'MarkerSize', NB2.MS, 'DisplayName', NB2.label);
+            plot(axs_full(25), NB3.omega, NB3.tau_comp, NB3.specs, 'Color', NB3.color, 'LineWidth', NB3.LW, 'MarkerSize', NB3.MS, 'DisplayName', NB3.label);
+
+            plot(axs_full(26), UB1.omega, UB1.tau_comp, UB1.specs, 'Color', UB1.color, 'LineWidth', UB1.LW, 'MarkerSize', UB1.MS, 'DisplayName', UB1.label);
+            plot(axs_full(26), UB2.omega, UB2.tau_comp, UB2.specs, 'Color', UB2.color, 'LineWidth', UB2.LW, 'MarkerSize', UB2.MS, 'DisplayName', UB2.label);
+
+            plot(axs_full(27), XB1.omega, XB1.tau_comp, XB1.specs, 'Color', XB1.color, 'LineWidth', XB1.LW, 'MarkerSize', XB1.MS, 'DisplayName', XB1.label);
+            plot(axs_full(27), XB2.omega, XB2.tau_comp, XB2.specs, 'Color', XB2.color, 'LineWidth', XB2.LW, 'MarkerSize', XB2.MS, 'DisplayName', XB2.label);
+
+            ylabel(axs_full(1:dims(2):22), '$$\tau_i$$ [Pa]', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs_full(22:end), '$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
+
+            set(axs_full,'XScale',axscale,'YScale',axscale);
+            xlim(axs_full,xlim_set);
+            % ylim(axs_full,ylim_set);
+
+            fig_out = AYfig_;
+        end
+        function fig_out = FB1_FB2_Bingham_fluid_params_fitcheck(obj,AYfig_,FB1,FB2)
+            [tdim1,tdim2] = deal(2,2);
+            axs=prep_tiles(AYfig_,[tdim1 tdim2]);
+            axi=0;
+
+            for FB = [FB1 FB2]
+                explen=length(FB.exp);
+                [tauy_vec mup_vec q_vec] = deal(nan(explen,1));
+                [tauy_vec_old mup_vec_old] = deal(nan(explen,1));
+                [mup_bounds_mat tauy_bounds_mat] = deal(nan(explen,3));
+                color_mat=nan(explen,3);
+                for i=1:(explen)
+                    expi=FB.exp(i);
+
+                    [tauy_vec(i) mup_vec(i)] = deal(expi.tau_y_Bingham, expi.mu_p_Bingham);
+                    [tauy_vec_old(i) mup_vec_old(i)] = deal(expi.tau_y, expi.mu_p);
+                    [mup_bounds_mat(i,:) tauy_bounds_mat(i,:)] = expi.determine_Bingham_fluid_bounds;
+                    [color_mat(i,:) q_vec(i)] = deal(FB.exp(i).color, FB.exp(i).q);
+                end
+                scatter(axs(axi+1), q_vec, tauy_vec, FB.specs,'CData',color_mat,'LineWidth',FB.LW_L,'SizeData',3*FB.MS_L*FB.MS_L);
+                scatter(axs(axi+1), q_vec, tauy_bounds_mat(:,1), 'v','CData',[0 0 0],'LineWidth',2*FB.LW_L,'SizeData',15);
+                scatter(axs(axi+1), q_vec, tauy_bounds_mat(:,2), 'p','CData',[0 0 0],'LineWidth',2*FB.LW_L,'SizeData',15);
+                scatter(axs(axi+1), q_vec, tauy_bounds_mat(:,3), '^','CData',[0 0 0],'LineWidth',2*FB.LW_L,'SizeData',15);
+
+                scatter(axs(axi+3), q_vec, mup_vec, FB.specs,'CData',color_mat,'LineWidth',FB.LW_L,'SizeData',3*FB.MS_L*FB.MS_L);
+                scatter(axs(axi+3), q_vec, mup_bounds_mat(:,1), 'v','CData',[0 0 0],'LineWidth',2*FB.LW_L,'SizeData',15);
+                scatter(axs(axi+3), q_vec, mup_bounds_mat(:,2), 'p','CData',[0 0 0],'LineWidth',2*FB.LW_L,'SizeData',15);
+                scatter(axs(axi+3), q_vec, mup_bounds_mat(:,3), '^','CData',[0 0 0],'LineWidth',2*FB.LW_L,'SizeData',15);
+
+                axi=axi+1;
+            end
+            ylabel(axs(1:2), '$$\tau_y$$', 'Interpreter', 'LaTeX','FontSize',14)
+            ylabel(axs(3:4), '$$\mu_p$$', 'Interpreter', 'LaTeX','FontSize',14)
+
+            xlabel(axs, '$$q= Q/Q_{inc}$$', 'Interpreter', 'LaTeX','FontSize',14)
+            % set(axs,'YScale','log')
+            % set(axs,'YScale','linear')
+            set(axs(1:2),'YScale','log')
+            set(axs(3:4),'YScale','log')
+
+            % ylim(axs(1:2), [1e-3 5e2]);
+            % ylim(axs(3:4), [1e-4 1e2]);
+
+            xlim(axs(1:2:3), [0 2]);
+            xlim(axs(2:2:4), [0 16]);
+            % ylim(axs(1:2), [1e-5 1]);
+            % ylim(axs(3:4), [0 0.6]);
+
+            fig_out=AYfig_;
+        end
+        function fig_out = FB1_FB2_Bingham_fits_spread(obj,AYfig_,FB1,FB2,log_flag_)
+            if (nargin==4)
+                log_flag = false;
+            else
+                log_flag = log_flag_;
+            end
+
+            if (log_flag)
+                axscale = 'log';
+                omega_test = logspace(-2, 2, 100);
+            else
+                axscale = 'linear';
+            end
+
+            AYfig_.init_tiles([4,6]);
+            axs_full = AYfig_.ax_tile;
+            hold(axs_full, 'on');
+            box(axs_full,'on');
+
+            axs=axs_full;
+            for FB = [FB1 FB2]
+                explen = length(FB.exp);
+                for i=1:explen
+                    par = [FB.exp(i).mu_p_Bingham FB.exp(i).tau_y_Bingham];
+                    omega_fit = FB.exp(i).omega_fit_Bingham;
+                    tau_fit = FB.exp(i).tau_fit_Bingham;
+
+                    if (log_flag)
+                        ti = glass_particles.taui_pred_Bingham(par(1),par(2),omega_test);
+                        plot(axs(i), omega_test, ti, '-', 'Color', FB.exp(i).color, 'LineWidth', 2, 'DisplayName', FB.exp(i).label);
+                        plot(axs(i), omega_fit, tau_fit, 'o', 'Color', [0 0 0], 'LineWidth', 1, 'MarkerSize', 5, 'DisplayName', FB.exp(i).label);
+
+                        [omega_not_fit i_nf] = setdiff(FB.exp(i).omega, omega_fit);
+                        tau_not_fit = FB.exp(i).tau(i_nf);
+
+                        plot(axs(i), omega_not_fit, tau_not_fit, 'x', 'Color', [0 0 0], 'LineWidth', 1, 'MarkerSize', 8, 'DisplayName', FB.exp(i).label);
+
+                        [oc tc] = glass_particles.get_plug_crit(par(1),par(2));
+                        plot(axs(i), [min(omega_fit) oc oc], [tc tc min(tau_fit)], '--', 'Color', [0 0 0], 'LineWidth', 1, 'MarkerSize', 1);
+
+                    else
+                        omega_test = linspace(0, max(omega_fit), 100);
+                        ti = glass_particles.taui_pred_Bingham(par(1),par(2),omega_test);
+                        plot(axs(i), omega_test, ti, '-', 'Color', FB.exp(i).color, 'LineWidth', 2, 'DisplayName', FB.exp(i).label);
+                        plot(axs(i), omega_fit, tau_fit, FB.specs, 'Color', FB.exp(i).color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', FB.exp(i).label);
+                    end
+
+                    title(axs(i), FB.exp(i).label, 'Interpreter', 'Latex', 'Fontsize', 14)
+                end
+                axs=axs_full(explen+2:end);
+            end
+            ylabel(axs_full, '$$\tau_w$$ [Pa]', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs_full, '$$\omega_i$$ [rad.s]', 'Interpreter', 'LaTeX','FontSize',12)
+
+            set(axs_full, 'YScale', axscale, 'XScale', axscale);
+
+            fig_out = AYfig_;
+        end
         function fig_out = FB1_FB2_Bingham_fluid_fits_full(obj,AYfig_,FB1,FB2,full_flag_)
             if (nargin==4)
                 full_flag=true;
@@ -162,8 +751,8 @@ classdef bingham_plots < main_plots
             % set(axs,'YScale','linear')
             set(axs(1:2),'YScale','log')
 
-            % ylim(axs(1:2), [1e-3 5e2]);
-            % ylim(axs(3:4), [1e-4 1e2]);
+            ylim(axs(1:2), [1e-3 5e2]);
+            ylim(axs(3:4), [1e-4 1e2]);
 
             xlim(axs(1:2:3), [0 2]);
             xlim(axs(2:2:4), [0 16]);
@@ -538,6 +1127,10 @@ classdef bingham_plots < main_plots
             fig_out = AYfig_;
         end
     end
+end
+
+function ax_out = set_UXB_Bingham_summary_axes(AYfig_)
+    ax_out = prep_tiles(AYfig_,[4,4]);
 end
 
 function plot_FB_data(ax_,FB_,x_,Y_)

@@ -6,6 +6,205 @@ classdef thinning_fluid_plots < bingham_plots
         function obj = thinning_fluid_plots(write_figs_, write_all_figs_, figs_to_write_)
             obj@bingham_plots(write_figs_, write_all_figs_, figs_to_write_);
         end
+        function fig_out = FB_Carreau_err_vs_omegai(obj,AYfig_,FB1,FB2)
+            axs_full=prep_tiles(AYfig_,[4 6]);
+
+            axs=axs_full;
+            for FB = [FB1 FB2]
+                explen = length(FB.exp);
+                for i=1:explen
+                    expi = FB.exp(i);
+                    pari = expi.Carreau_fit_params;
+                    [mu0i, lambdai, ni, ki, muinfi] = deal(pari(1),pari(2),pari(3),pari(4),pari(5));
+                    [ti,gi,mui] = expi.comp_Carreau_fluid(expi.omega_fit_Carreau, mu0i, lambdai, ni, ki, muinfi);
+
+                    tau_err = abs(expi.tau_fit_Carreau - ti)./expi.tau_fit_Carreau;
+
+                    plot(axs(i), expi.omega_fit_Carreau, tau_err, FB.specs, 'Color', FB.exp(i).color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', FB.exp(i).label);
+
+                    title(axs(i), FB.exp(i).label, 'Interpreter', 'Latex', 'Fontsize', 14)
+                end
+                axs=axs_full(explen+2:end);
+            end
+            ylabel(axs_full, '$$\tau_w$$ [Pa]', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs_full, '$$\omega_i$$ [rad.s]', 'Interpreter', 'LaTeX','FontSize',12)
+
+            fig_out = AYfig_;
+        end
+        function fig_out = FB1_FB2_Carreau_fits_spread(obj,AYfig_,FB1,FB2,log_flag_)
+            if (nargin==4)
+                log_flag = false;
+            else
+                log_flag = log_flag_;
+            end
+
+            if (log_flag)
+                axscale = 'log';
+                omega_test = logspace(-2, 2, 100);
+            else
+                axscale = 'linear';
+            end
+
+            AYfig_.init_tiles([4,6]);
+            axs_full = AYfig_.ax_tile;
+            hold(axs_full, 'on');
+            box(axs_full,'on');
+
+            axs=axs_full;
+            for FB = [FB1 FB2]
+                explen = length(FB.exp);
+                for i=1:explen
+                    par = [FB.exp(i).mu_p_Bingham FB.exp(i).tau_y_Bingham];
+                    omega_fit = FB.exp(i).omega_fit_Bingham;
+                    tau_fit = FB.exp(i).tau_fit_Bingham;
+
+                    if (log_flag)
+                        ti = glass_particles.taui_pred_Bingham(par(1),par(2),omega_test);
+                        plot(axs(i), omega_test, ti, '-', 'Color', FB.exp(i).color, 'LineWidth', 2, 'DisplayName', FB.exp(i).label);
+                        plot(axs(i), omega_fit, tau_fit, 'o', 'Color', [0 0 0], 'LineWidth', 1, 'MarkerSize', 5, 'DisplayName', FB.exp(i).label);
+
+                        [omega_not_fit i_nf] = setdiff(FB.exp(i).omega, omega_fit);
+                        tau_not_fit = FB.exp(i).tau(i_nf);
+
+                        plot(axs(i), omega_not_fit, tau_not_fit, 'x', 'Color', [0 0 0], 'LineWidth', 1, 'MarkerSize', 8, 'DisplayName', FB.exp(i).label);
+
+                        [oc tc] = glass_particles.get_plug_crit(par(1),par(2));
+                        plot(axs(i), [min(omega_fit) oc oc], [tc tc min(tau_fit)], '--', 'Color', [0 0 0], 'LineWidth', 1, 'MarkerSize', 1);
+
+                    else
+                        omega_test = linspace(0, max(omega_fit), 100);
+                        ti = glass_particles.taui_pred_Bingham(par(1),par(2),omega_test);
+                        plot(axs(i), omega_test, ti, '-', 'Color', FB.exp(i).color, 'LineWidth', 2, 'DisplayName', FB.exp(i).label);
+                        plot(axs(i), omega_fit, tau_fit, FB.specs, 'Color', FB.exp(i).color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', FB.exp(i).label);
+                    end
+
+                    title(axs(i), FB.exp(i).label, 'Interpreter', 'Latex', 'Fontsize', 14)
+                end
+                axs=axs_full(explen+2:end);
+            end
+            ylabel(axs_full, '$$\tau_w$$ [Pa]', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs_full, '$$\omega_i$$ [rad.s]', 'Interpreter', 'LaTeX','FontSize',12)
+
+            set(axs_full, 'YScale', axscale, 'XScale', axscale);
+
+            fig_out = AYfig_;
+        end
+        function fig_out = ALL_dtdo_vs_omegai_spread(obj,AYfig_,FBall,PFall,NBall,UBall,XBall,log_flag_)
+            if (nargin==7)
+                log_flag = true;
+            else
+                log_flag = log_flag_;
+            end
+            if (log_flag)
+                axscale = 'log';
+                xlim_set = [1e-2 1e2];
+                ylim_set = [-1 1];
+            else
+                axscale = 'linear';
+                xlim_set = [0 130];
+                ylim_set = [-1 1];
+            end
+
+            [PF1 PFR] = deal(PFall{1}, PFall{2});
+            [NB1 NB2 NB3] = deal(NBall.NB1_in, NBall.NB2_in, NBall.NB3_in);
+            [UB1 UB2] = deal(UBall.UB1_in, UBall.UB2_in);
+            [XB1 XB2] = deal(XBall.XB1_in, XBall.XB2_in);
+
+            dims = [4 7];
+            axs_full=prep_tiles(AYfig_,dims);
+
+            axs = axs_full;
+            for FB = FBall
+                explen = length(FB.exp);
+                for i=1:explen
+                    expi = FB.exp(i);
+                    plot(axs(i), expi.dtdo_o, expi.dtdo_d, FB.specs, 'Color', FB.exp(i).color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', FB.exp(i).label);
+
+                    title(axs(i), expi.label, 'Interpreter', 'Latex', 'Fontsize', 14)
+                end
+                axs=axs_full(explen+1:end);
+            end
+
+            plot(axs_full(24), PF1.dtdo_o, PF1.dtdo_d, PF1.specs, 'Color', PF1.color, 'LineWidth', PF1.LW, 'MarkerSize', PF1.MS, 'DisplayName', PF1.label);
+            plot(axs_full(24), PFR.dtdo_o, PFR.dtdo_d, PFR.specs, 'Color', PFR.color, 'LineWidth', PFR.LW, 'MarkerSize', PFR.MS, 'DisplayName', PFR.label);
+
+            plot(axs_full(25), NB1.dtdo_o, NB1.dtdo_d, NB1.specs, 'Color', NB1.color, 'LineWidth', NB1.LW, 'MarkerSize', NB1.MS, 'DisplayName', NB1.label);
+            plot(axs_full(25), NB2.dtdo_o, NB2.dtdo_d, NB2.specs, 'Color', NB2.color, 'LineWidth', NB2.LW, 'MarkerSize', NB2.MS, 'DisplayName', NB2.label);
+            plot(axs_full(25), NB3.dtdo_o, NB3.dtdo_d, NB3.specs, 'Color', NB3.color, 'LineWidth', NB3.LW, 'MarkerSize', NB3.MS, 'DisplayName', NB3.label);
+
+            plot(axs_full(26), UB1.dtdo_o, UB1.dtdo_d, UB1.specs, 'Color', UB1.color, 'LineWidth', UB1.LW, 'MarkerSize', UB1.MS, 'DisplayName', UB1.label);
+            plot(axs_full(26), UB2.dtdo_o, UB2.dtdo_d, UB2.specs, 'Color', UB2.color, 'LineWidth', UB2.LW, 'MarkerSize', UB2.MS, 'DisplayName', UB2.label);
+
+            plot(axs_full(27), XB1.dtdo_o, XB1.dtdo_d, XB1.specs, 'Color', XB1.color, 'LineWidth', XB1.LW, 'MarkerSize', XB1.MS, 'DisplayName', XB1.label);
+            plot(axs_full(27), XB2.dtdo_o, XB2.dtdo_d, XB2.specs, 'Color', XB2.color, 'LineWidth', XB2.LW, 'MarkerSize', XB2.MS, 'DisplayName', XB2.label);
+
+            ylabel(axs_full(1:dims(2):22), '$$\frac{d \tau}{d \omega}$$ ', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs_full(22:end), '$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
+
+            set(axs_full,'XScale',axscale,'YScale','linear');
+            xlim(axs_full,xlim_set);
+            ylim(axs_full,ylim_set);
+
+            fig_out = AYfig_;
+        end
+        function fig_out = ALL_d2tdo2_vs_omegai_spread(obj,AYfig_,FBall,PFall,NBall,UBall,XBall,log_flag_)
+            if (nargin==7)
+                log_flag = true;
+            else
+                log_flag = log_flag_;
+            end
+            if (log_flag)
+                axscale = 'log';
+                xlim_set = [1e-2 1e2];
+                ylim_set = [-1 1];
+            else
+                axscale = 'linear';
+                xlim_set = [0 130];
+                ylim_set = [-1 1];
+            end
+
+            [PF1 PFR] = deal(PFall{1}, PFall{2});
+            [NB1 NB2 NB3] = deal(NBall.NB1_in, NBall.NB2_in, NBall.NB3_in);
+            [UB1 UB2] = deal(UBall.UB1_in, UBall.UB2_in);
+            [XB1 XB2] = deal(XBall.XB1_in, XBall.XB2_in);
+
+            dims = [4 7];
+            axs_full=prep_tiles(AYfig_,dims);
+
+            axs = axs_full;
+            for FB = FBall
+                explen = length(FB.exp);
+                for i=1:explen
+                    expi = FB.exp(i);
+                    plot(axs(i), expi.d2tdo2_o, expi.d2tdo2_d, FB.specs, 'Color', FB.exp(i).color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', FB.exp(i).label);
+
+                    title(axs(i), expi.label, 'Interpreter', 'Latex', 'Fontsize', 14)
+                end
+                axs=axs_full(explen+1:end);
+            end
+
+            plot(axs_full(24), PF1.d2tdo2_o, PF1.d2tdo2_d, PF1.specs, 'Color', PF1.color, 'LineWidth', PF1.LW, 'MarkerSize', PF1.MS, 'DisplayName', PF1.label);
+            plot(axs_full(24), PFR.d2tdo2_o, PFR.d2tdo2_d, PFR.specs, 'Color', PFR.color, 'LineWidth', PFR.LW, 'MarkerSize', PFR.MS, 'DisplayName', PFR.label);
+
+            plot(axs_full(25), NB1.d2tdo2_o, NB1.d2tdo2_d, NB1.specs, 'Color', NB1.color, 'LineWidth', NB1.LW, 'MarkerSize', NB1.MS, 'DisplayName', NB1.label);
+            plot(axs_full(25), NB2.d2tdo2_o, NB2.d2tdo2_d, NB2.specs, 'Color', NB2.color, 'LineWidth', NB2.LW, 'MarkerSize', NB2.MS, 'DisplayName', NB2.label);
+            plot(axs_full(25), NB3.d2tdo2_o, NB3.d2tdo2_d, NB3.specs, 'Color', NB3.color, 'LineWidth', NB3.LW, 'MarkerSize', NB3.MS, 'DisplayName', NB3.label);
+
+            plot(axs_full(26), UB1.d2tdo2_o, UB1.d2tdo2_d, UB1.specs, 'Color', UB1.color, 'LineWidth', UB1.LW, 'MarkerSize', UB1.MS, 'DisplayName', UB1.label);
+            plot(axs_full(26), UB2.d2tdo2_o, UB2.d2tdo2_d, UB2.specs, 'Color', UB2.color, 'LineWidth', UB2.LW, 'MarkerSize', UB2.MS, 'DisplayName', UB2.label);
+
+            plot(axs_full(27), XB1.d2tdo2_o, XB1.d2tdo2_d, XB1.specs, 'Color', XB1.color, 'LineWidth', XB1.LW, 'MarkerSize', XB1.MS, 'DisplayName', XB1.label);
+            plot(axs_full(27), XB2.d2tdo2_o, XB2.d2tdo2_d, XB2.specs, 'Color', XB2.color, 'LineWidth', XB2.LW, 'MarkerSize', XB2.MS, 'DisplayName', XB2.label);
+
+            ylabel(axs_full(1:dims(2):22), '$$\frac{d^2 \tau}{d \omega^2}$$ ', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs_full(22:end), '$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
+
+            set(axs_full,'XScale',axscale,'YScale','linear');
+            xlim(axs_full,xlim_set);
+            ylim(axs_full,ylim_set);
+
+            fig_out = AYfig_;
+        end
         function fig_out = FB_power_fluid_fits(obj,AYfig_,FB,tile_dims_)
             axs=prep_tiles(AYfig_,tile_dims_);
 

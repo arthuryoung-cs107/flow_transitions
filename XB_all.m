@@ -7,6 +7,9 @@ classdef XB_all < super_experiment
     function obj = XB_all(XB1_in_, XB2_in_)
       obj@super_experiment({XB1_in_; XB2_in_});
 
+      XB1_in_.fit_Bingham_model;
+      XB2_in_.fit_Bingham_model;
+
       run figure_properties.m
       obj.XB1_in = XB1_in_;
       obj.XB2_in = XB2_in_;

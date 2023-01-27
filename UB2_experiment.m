@@ -31,6 +31,10 @@ classdef UB2_experiment < experiment
       obj.rho_p = rho_p;
       obj.mu_eff = obj.Krieger_Dougherty(mu_f, phi, phi_m);
 
+      obj.Bingham_tauy_bounds = experiment.UB2_Bingham_tauy_bounds;
+      obj.Bingham_mup_bounds = experiment.UB2_Bingham_mup_bounds;
+      obj.Bingham_omega_cap = experiment.UB2_Bingham_omega_cap;
+      obj.Bingham_omega_floor = experiment.UB2_Bingham_omega_floor;
     end
     function process_raws(obj, raws)
       for i=1:obj.len
@@ -87,6 +91,9 @@ classdef UB2_experiment < experiment
       obj.cf = mean(cf_mat','omitnan');
       obj.omega = mean(omega_mat','omitnan');
       obj.Re_s = mean(Re_mat','omitnan');
+    end
+    function gen_powerfit(obj)
+        obj.gen_powerfit_internal(350);
     end
   end
 end

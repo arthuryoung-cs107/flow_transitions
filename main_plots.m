@@ -6,6 +6,7 @@ classdef main_plots
 
         eta;
         G_obs_Res_slope;
+        G_obs_Reb_slope;
 
         dim2;
         dim21;
@@ -20,6 +21,7 @@ classdef main_plots
         tau2T = 2*pi*(0.01208)*(0.01208)*(0.036);
 
         omega_tau_range = [1e-2 1e2 1e-9 1e-2];
+        omega_T_range = [1e-2 1.26e2 1e-9 1e-2];
         Res_G_range = [1e-2 1e4 1e0 1e8];
         Res_alpha_range = [1e0 5e5 -1 2.1];
         Res_cf_range = [1e-1 1e4 1e-4 1e4];
@@ -83,6 +85,8 @@ classdef main_plots
 
         dim1 = [580 325];
 
+        dim32_tall = [580 500];
+
         % posdimfull = [1 1 1438 796];
         % posdimfull = [1 1 1728 1000];
         posdimfull = [0 0 1728 1000];
@@ -103,6 +107,7 @@ classdef main_plots
 
             obj.eta = obj.r_i/obj.r_o; % gap ratio
             obj.G_obs_Res_slope = (2*pi*obj.r_i*obj.r_o)/((obj.r_o-obj.r_i)^2);
+            obj.G_obs_Reb_slope = (4*pi*obj.r_i*obj.r_o*obj.r_o)/((obj.r_o-obj.r_i)*(obj.r_o-obj.r_i)*(obj.r_i + obj.r_o));
 
             obj.dim2 = obj.dim2_short;
             obj.dim21 = obj.dim21_short;
@@ -111,6 +116,348 @@ classdef main_plots
 
             obj.ax21 = obj.ax21_short;
 
+        end
+        function fig_out = UXB_FB_taustar_vs_Gamma_compact(obj,AYfig_,UBall,XBall,FBall,FBext)
+            axs_full = set_taustar_vs_Gamma_compact_axes(AYfig_);
+
+            [UB1 UB2] = deal(UBall.UB1_in, UBall.UB2_in);
+            [XB1 XB2] = deal(XBall.XB1_in, XBall.XB2_in);
+            [FB1 FB2] = deal(FBall(1),FBall(2));
+
+            UXB = {UB1; UB2; XB1; XB2};
+            UXBlen = length(UXB);
+
+            expALL = cell(4 + length(FB1.exp) + length(FB2.exp),1);
+            iexp = 4;
+            ileg = 0;
+            for iFB = 1:length(FBall)
+                FB = FBall(iFB);
+                exp = FB.exp;
+                for i = 1:length(exp)
+                    expi = exp(i);
+                    iexp = iexp + 1;
+                    expALL{iexp} = expi;
+
+                    if (expi.q < expi.qcrit_sgf)
+                        [ofit tfit ifit] = deal(expi.omega_fit_Bingham, expi.tau_fit_Bingham, expi.i_fit_Bingham);
+                        [gfit rfit] = deal(expi.gamma_Bingham(ifit), expi.rc_Bingham(ifit));
+                        tau_star = tfit/expi.tau_y_Bingham;
+                        Gamma = (expi.mu_p_Bingham*gfit)/expi.tau_y_Bingham;
+                        tau_star_full = expi.tau/expi.tau_y_Bingham;
+                        Gamma_full = (expi.mu_p_Bingham*expi.gamma_Bingham)/expi.tau_y_Bingham;
+
+                        ileg = ileg +1;
+                        legend_set_a(ileg) = plot(axs_full(1), Gamma_full, tau_star_full, FB.specs, 'Color', expi.color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', expi.label);
+                        legend_set_b(ileg) = plot(axs_full(2), Gamma, tau_star, FB.specs, 'Color', expi.color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', expi.label);
+                    end
+                end
+            end
+
+            for i = 1:length(FBext)
+                expi = FBext{i};
+                [ofit tfit ifit] = deal(expi.omega_fit_Bingham, expi.tau_fit_Bingham, expi.i_fit_Bingham);
+                [gfit rfit] = deal(expi.gamma_Bingham(ifit), expi.rc_Bingham(ifit));
+
+                tau_star = tfit/expi.tau_y_Bingham;
+                Gamma = (expi.mu_p_Bingham*gfit)/expi.tau_y_Bingham;
+                tau_star_full = expi.tau_comp/expi.tau_y_Bingham;
+                Gamma_full = (expi.mu_p_Bingham*expi.gamma_Bingham)/expi.tau_y_Bingham;
+
+                ileg = ileg +1;
+                legend_set_a(ileg) = plot(axs_full(1), Gamma_full, tau_star_full, expi.specs, 'Color', expi.color, 'LineWidth', expi.LW, 'MarkerSize', expi.MS, 'DisplayName', expi.label);
+                legend_set_b(ileg) = plot(axs_full(2), Gamma, tau_star, expi.specs, 'Color', expi.color, 'LineWidth', expi.LW, 'MarkerSize', expi.MS, 'DisplayName', expi.label);
+            end
+
+            for i = 1:UXBlen
+                expi = UXB{i};
+                expALL{i} = expi;
+                [mup ty] = deal(expi.mu_p_Bingham, expi.tau_y_Bingham);
+                [ofit tfit ifit] = deal(expi.omega_fit_Bingham, expi.tau_fit_Bingham, expi.i_fit_Bingham);
+                [gfit rfit] = deal(expi.gamma_Bingham(ifit), expi.rc_Bingham(ifit));
+
+                tau_star = tfit/expi.tau_y_Bingham;
+                Gamma = (expi.mu_p_Bingham*gfit)/expi.tau_y_Bingham;
+                tau_star_full = expi.tau_comp/expi.tau_y_Bingham;
+                Gamma_full = (expi.mu_p_Bingham*expi.gamma_Bingham)/expi.tau_y_Bingham;
+
+
+                ileg = ileg + 1;
+                legend_set_a(ileg) = plot(axs_full(1), Gamma_full, tau_star_full, expi.specs, 'Color', expi.color, 'LineWidth', expi.LW, 'MarkerSize', expi.MS, 'DisplayName', expi.label);
+                legend_set_b(ileg) = plot(axs_full(2), Gamma, tau_star, expi.specs, 'Color', expi.color, 'LineWidth', expi.LW, 'MarkerSize', expi.MS, 'DisplayName', expi.label);
+            end
+            set(axs_full,'XScale','log','YScale','log');
+            [box_x box_y] = deal(axs_full(2).XLim, axs_full(2).YLim);
+            box_a = [   box_x(1) box_y(1); ...
+                        box_x(1) box_y(2); ...
+                        box_x(2) box_y(2); ...
+                        box_x(2) box_y(1)];
+
+            patch(axs_full(1), 'Faces', 1:4, 'LineStyle', ':', 'Vertices', box_a, 'FaceAlpha',0,'EdgeAlpha',1,'LineWidth',1.5);
+            patch(axs_full(2), 'Faces', 1:4, 'LineStyle', ':', 'Vertices', box_a, 'FaceAlpha',0,'EdgeAlpha',1,'LineWidth',1.5);
+
+            ylabel(axs_full(1), '$$\tau^* = \tau/\tau_y$$ [dimensionless]', 'Interpreter', 'Latex')
+            xlabel(axs_full(1), '$$\Gamma = \dot{\gamma}_B \mu_p/\tau_y$$ [dimensionless]', 'Interpreter', 'Latex')
+
+            ylabel(axs_full(2), '$$\tau^*$$', 'Interpreter', 'Latex')
+            xlabel(axs_full(2), '$$\Gamma$$', 'Interpreter', 'Latex')
+
+            legend_a = legend(axs_full(1), legend_set_a,'Location','NorthWest', 'Interpreter', 'Latex','NumColumns',1);
+
+            set(axs_full(2), 'XTick', [1e-3,1e-2,1e-1,1e-0])
+
+            textbox_a = annotation('textbox', [0.15 0.125 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_b = annotation('textbox', [0.425 0.775 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none', 'FontSize', 16);
+
+            fig_out = AYfig_;
+        end
+        function fig_out = FB_Bingham_fits_Grat_vs_Reb(obj, AYfig_, FB1, FB2, PFR)
+            axs = set_FB_Bingham_Grat_vs_Reb_axes(AYfig_);
+
+            for i = 1:length(FB1.exp)
+                legend_set_a(i) = plot(axs(1), FB1.exp(i).Re_b_Bingham, FB1.exp(i).G_rat_Bingham, FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW, 'MarkerSize', FB1.MS, 'DisplayName', FB1.exp(i).label);
+            end
+
+            for i = 1:length(FB2.exp)
+                legend_set_b(i) = plot(axs(2), FB2.exp(i).Re_b_Bingham, FB2.exp(i).G_rat_Bingham, FB2.exp(i).specs,'Color', FB2.exp(i).color, 'LineWidth', FB2.LW, 'MarkerSize', FB2.MS, 'DisplayName', FB2.exp(i).label);
+            end
+
+            for i = 1:length(FB1.exp)
+                legend_set_c(i) = plot(axs(3), FB1.exp(i).q, (FB1.exp(i).tau_y_Bingham)/(FB1.exp(i).tau_static), FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW_L, 'MarkerSize', FB1.MS_L, 'DisplayName', FB1.exp(i).label);
+            end
+
+            for i = 1:length(FB2.exp)
+                legend_set_d(i) = plot(axs(4), FB2.exp(i).q, (FB2.exp(i).tau_y_Bingham)/(FB2.exp(i).tau_static), FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW_L, 'MarkerSize', FB2.MS_L, 'DisplayName', FB2.exp(i).label);
+            end
+
+            for i = 1:length(FB1.exp)
+                legend_set_e(i) = plot(axs(5), FB1.exp(i).q, FB1.exp(i).mu_p_Bingham, FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW_L, 'MarkerSize', FB1.MS_L, 'DisplayName', FB1.exp(i).label);
+            end
+
+            for i = 1:length(FB2.exp)
+                legend_set_f(i) = plot(axs(6), FB2.exp(i).q, FB2.exp(i).mu_p_Bingham, FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW_L, 'MarkerSize', FB2.MS_L, 'DisplayName', FB2.exp(i).label);
+            end
+
+            if (nargin==5)
+                legend_set_a(length(FB1.exp) + 1) = plot(axs(1), PFR.Re_b_comp, PFR.G_rat, PFR.specs,'Color', PFR.color, 'LineWidth', PFR.LW, 'MarkerSize', PFR.MS, 'DisplayName', PFR.label);
+                legend_set_B(length(FB2.exp) + 1) = plot(axs(2), PFR.Re_b_comp, PFR.G_rat, PFR.specs,'Color', PFR.color, 'LineWidth', PFR.LW, 'MarkerSize', PFR.MS, 'DisplayName', PFR.label);
+            end
+            % textbox_a = annotation('textbox', obj.textbox_pos22_a_NE, 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none', 'FontSize', 16);
+            % textbox_b = annotation('textbox', obj.textbox_pos22_b_NE, 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none', 'FontSize', 16);
+            % textbox_c = annotation('textbox', obj.textbox_pos22_c_NE, 'Interpreter', 'LaTeX', 'String', 'c)', 'LineStyle', 'none', 'FontSize', 16);
+            % textbox_d = annotation('textbox', obj.textbox_pos22_d_NE, 'Interpreter', 'LaTeX', 'String', 'd)', 'LineStyle', 'none', 'FontSize', 16);
+
+            set(axs(1:2),'YScale', 'log','XScale','log');
+
+            % set(axs(1:2), 'YTick', [1e-5,1e-4,1e-3,1e-2,1e-1,1])
+
+            ylabel(axs(1), '$$G_{rat} = G/G_B$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs(1:2), '$$Re_b$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+
+            ylabel(axs(3), '$$\tau_y/\tau_{q = 0}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+            ylabel(axs(5), '$$\tilde{\mu}_{p}$$ [Pa.s]', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs(5:6), '$$q = Q/Q_{inc}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+
+            % legend(axs(1), legend_set_a,'Location', 'NorthEast', 'Interpreter', 'Latex', 'NumColumns', 2);
+            % legend(axs(2), legend_set_b,'Location', 'NorthEast', 'Interpreter', 'Latex', 'NumColumns', 2);
+
+            axis(axs(1:2),[1e-2 1e4 1e-2 1e1])
+            % axis(axs(3),[0 2 1e-5 1.0])
+            % axis(axs(4),[0 16 1e-5 1.0])
+            % axis(axs(5),[0 2 1e-1 1.2])
+            % axis(axs(6),[0 16 1e-2 1.2])
+
+            fig_out = AYfig_;
+        end
+        function fig_out = ALL_G_vs_Reb(obj, AYfig_, FBall, PFall, NBall, UBall, XBall, FBext)
+            AYfig_.init_tiles([3,2]);
+            axs = AYfig_.ax_tile;
+            hold(axs, 'on');
+            box(axs,'on');
+
+            [FB1 FB2] = deal(FBall(1), FBall(2));
+            [PF1 PFR] = deal(PFall{1}, PFall{2});
+            [NB1 NB2 NB3] = deal(NBall.NB1_in,NBall.NB2_in,NBall.NB3_in);
+            [UB1 UB2] = deal(UBall.UB1_in,UBall.UB2_in);
+            [XB1 XB2] = deal(XBall.XB1_in,XBall.XB2_in);
+
+
+            for i = 1:6
+                fplot(axs(i), @(Re) obj.G_obs_Reb_slope*(Re), [1e-2 100],'--', 'Color', [0 0 0],'Linewidth', 2, 'DisplayName', '$$ \frac{4 \pi r_i r_o^2}{(r_o + r_i) \cdot (r_o-r_i)^2} Re_b $$')
+            end
+
+            %% handling pure fluid plot component
+            legend_set_a(1) = plot(axs(1), PF1.Re_b_comp, PF1.G, PF1.specs,'Color', PF1.color, 'LineWidth', PF1.LW, 'MarkerSize', PF1.MS, 'DisplayName', PF1.label);
+            legend_set_a(2) = plot(axs(1), PFR.Re_b_comp, PFR.G, PFR.specs,'Color', PFR.color, 'LineWidth', PFR.LW, 'MarkerSize', PFR.MS, 'DisplayName', PFR.label);
+            % fplot(axs(1), @(Re) (PF1.powerfit.b).*(Re).^(PF1.powerfit.m), [71 10000],'-', 'Color', PF1.color,'Linewidth', 2)
+            % fplot(axs(1), @(Re) (PFR.powerfit.b).*(Re).^(PFR.powerfit.m), [71 10000],'-', 'Color', PFR.color,'Linewidth', 2)
+
+            legend_set_b(1) = plot(axs(2), NB1.Re_b_comp, NB1.G, NB1.specs,'Color', NB1.color, 'LineWidth', NB1.LW, 'MarkerSize', NB1.MS, 'DisplayName', NB1.label);
+            legend_set_b(2) = plot(axs(2), NB2.Re_b_comp, NB2.G, NB2.specs,'Color', NB2.color, 'LineWidth', NB2.LW, 'MarkerSize', NB2.MS, 'DisplayName', NB2.label);
+            legend_set_b(3) = plot(axs(2), NB3.Re_b_comp, NB3.G, NB3.specs,'Color', NB3.color, 'LineWidth', NB3.LW, 'MarkerSize', NB3.MS, 'DisplayName', NB3.label);
+            % fplot(axs(2), @(Re) (NBall.powerfit.b).*(Re).^(NBall.powerfit.m), [71 10000],'-', 'Color', NBall.color,'Linewidth', 2, 'DisplayName', 'NB $$\beta Re_s^{\alpha}$$')
+
+            legend_set_c(1) = plot(axs(3), UB1.Re_b_comp, UB1.G, UB1.specs,'Color', UB1.color, 'LineWidth', UB1.LW, 'MarkerSize', UB1.MS, 'DisplayName', UB1.label);
+            legend_set_c(2) = plot(axs(3), UB2.Re_b_comp, UB2.G, UB2.specs,'Color', UB2.color, 'LineWidth', UB2.LW, 'MarkerSize', UB2.MS, 'DisplayName', UB2.label);
+            % fplot(axs(3), @(Re) (UBall.powerfit.b).*(Re).^(UBall.powerfit.m), [71 10000],'-', 'Color', UBall.color,'Linewidth', 2, 'DisplayName', 'UB $$\beta Re_s^{\alpha}$$')
+
+            legend_set_d(1) = plot(axs(4), XB1.Re_b_comp, XB1.G, XB1.specs,'Color', XB1.color, 'LineWidth', XB1.LW, 'MarkerSize', XB1.MS, 'DisplayName', XB1.label);
+            legend_set_d(2) = plot(axs(4), XB2.Re_b_comp, XB2.G, XB2.specs,'Color', XB2.color, 'LineWidth', XB2.LW, 'MarkerSize', XB2.MS, 'DisplayName', XB2.label);
+            % fplot(axs(4), @(Re) (XBall.powerfit.b).*(Re).^(XBall.powerfit.m), [71 10000],'-', 'Color', XBall.color,'Linewidth', 2, 'DisplayName', 'XB $$\beta Re_s^{\alpha}$$')
+
+            if (nargin==8)
+                legend_set_e(1) = plot(axs(5), FBext{1}.Re_b_Bingham, FBext{1}.G_b_Bingham, FBext{1}.specs, 'Color', FBext{1}.color, 'LineWidth', FBext{1}.LW, 'MarkerSize', FBext{1}.MS, 'DisplayName', FBext{1}.label);
+                legend_set_e(2) = plot(axs(5), FBext{2}.Re_b_Bingham, FBext{2}.G_b_Bingham, FBext{2}.specs, 'Color', FBext{2}.color, 'LineWidth', FBext{2}.LW, 'MarkerSize', FBext{2}.MS, 'DisplayName', FBext{2}.label);
+                legend_set_e(3) = plot(axs(5), FBext{3}.Re_b_Bingham, FBext{3}.G_b_Bingham, FBext{3}.specs, 'Color', FBext{3}.color, 'LineWidth', FBext{3}.LW, 'MarkerSize', FBext{3}.MS, 'DisplayName', FBext{3}.label);
+                legend_set_e(4) = plot(axs(5), FBext{4}.Re_b_Bingham, FBext{4}.G_b_Bingham, FBext{4}.specs, 'Color', FBext{4}.color, 'LineWidth', FBext{4}.LW, 'MarkerSize', FBext{4}.MS, 'DisplayName', FBext{4}.label);
+                ie_start = 4;
+            else
+                ie_start=0;
+            end
+
+            for i=1:length(FB1.exp)
+              legend_set_e(ie_start + i) = plot(axs(5), FB1.exp(i).get_Re_b, FB1.exp(i).get_G, FB1.specs, 'Color', FB1.exp(i).color, 'LineWidth', FB1.LW, 'MarkerSize', FB1.MS, 'DisplayName', FB1.exp(i).label);
+            end
+            % fplot(axs(5), @(Re) (FB1.powerfit.b).*(Re).^(FB1.powerfit.m), [71 10000],'-', 'Color', FB1.color,'Linewidth', 2,'DisplayName', 'FB1 $$\beta Re_s^{\alpha}$$');
+
+            for i=1:length(FB2.exp)
+              legend_set_f(i) = plot(axs(6), FB2.exp(i).get_Re_b, FB2.exp(i).get_G, FB2.specs, 'Color', FB2.exp(i).color,'LineWidth', FB2.LW, 'MarkerSize', FB2.MS, 'DisplayName', FB2.exp(i).label);
+            end
+            % fplot(axs(6), @(Re) (FB2.powerfit.b).*(Re).^(FB2.powerfit.m), [71 10000],'-', 'Color', FB2.color,'Linewidth', 2, 'DisplayName', 'FB2 $$\beta Re_s^{\alpha}$$');
+
+            textbox_a = annotation('textbox', [0.09 0.86 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_b = annotation('textbox', [0.56 0.86 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_c = annotation('textbox', [0.09 0.54 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'c)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_d = annotation('textbox', [0.56 0.54 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'd)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_e = annotation('textbox', [0.09 0.23 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'e)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_f = annotation('textbox', [0.56 0.23 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'f)', 'LineStyle', 'none', 'FontSize', 16);
+
+            set(axs,'YScale', 'log', 'XScale', 'log');
+
+            ylabel(axs(1:2:5), '$$G$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs(5:6), '$$Re_b$$', 'Interpreter', 'LaTeX','FontSize',12)
+
+            set(axs, 'XTick', [1e-2,1e-1,1e0,1e1,1e2,1e3,1e4])
+
+            legend(axs(1), legend_set_a,'Location', 'SouthEast', 'Interpreter', 'Latex');
+            legend(axs(2), legend_set_b,'Location', 'SouthEast', 'Interpreter', 'Latex');
+            legend(axs(3), legend_set_c,'Location', 'SouthEast', 'Interpreter', 'Latex');
+            legend(axs(4), legend_set_d,'Location', 'SouthEast', 'Interpreter', 'Latex');
+            legend(axs(5), legend_set_e,'Location', 'SouthEast', 'Interpreter', 'Latex', 'NumColumns', 2);
+            legend(axs(6), legend_set_f,'Location', 'SouthEast', 'Interpreter', 'Latex', 'NumColumns', 2);
+
+            axis(axs,[1e-2 1e4 3e-4 4e6])
+
+            fig_out = AYfig_;
+        end
+        function fig_out = UXB_Grat_vs_Res_NB_comparison(obj, AYfig_, UBall, XBall, NBall)
+            AYfig_.init_tiles([1,2]);
+            axs = AYfig_.ax_tile;
+            hold(axs, 'on');
+            box(axs,'on');
+
+            [UB1 UB2] = deal(UBall.UB1_in,UBall.UB2_in);
+            [XB1 XB2] = deal(XBall.XB1_in,XBall.XB2_in);
+            [NB1 NB2 NB3] = deal(NBall.NB1_in,NBall.NB2_in,NBall.NB3_in);
+
+            [beta_G, alpha_G] = deal(NBall.powerfit.b, NBall.powerfit.m);
+            [beta_Gr, alpha_Gr] = deal(NBall.powerfit_Grat_Res.b, NBall.powerfit_Grat_Res.m);
+
+            Res_lims = [1e2 2e3];
+
+            Gcomp = @(Res,G) (G-(beta_G*Res.^(alpha_G)))./(beta_G*Res.^(alpha_G));
+            Grcomp = @(Res,Grat) Grat./(beta_Gr*Res.^(alpha_Gr));
+
+            legend_set_a(1) = plot(axs(1), UB1.Re_s, Gcomp(UB1.Re_s,UB1.G), UB1.specs,'Color', UB1.color, 'LineWidth', UB1.LW, 'MarkerSize', UB1.MS, 'Displayname', UB1.label);
+            legend_set_a(2) = plot(axs(1), UB2.Re_s, Gcomp(UB2.Re_s,UB2.G), UB2.specs,'Color', UB2.color, 'LineWidth', UB2.LW, 'MarkerSize', UB2.MS, 'Displayname', UB2.label);
+            % legend_set_a(1) = plot(axs(1), UB1.Re_s, UB1.G, UB1.specs,'Color', UB1.color, 'LineWidth', UB1.LW, 'MarkerSize', UB1.MS, 'Displayname', UB1.label);
+            % legend_set_a(2) = plot(axs(1), UB2.Re_s, UB2.G, UB2.specs,'Color', UB2.color, 'LineWidth', UB2.LW, 'MarkerSize', UB2.MS, 'Displayname', UB2.label);
+            % legend_set_a(3) = fplot(axs(1), @(Re) beta_G*(Re).^alpha_G, Res_lims,'-','Color',NB3.color, 'LineWidth',NB3.LW);
+
+
+            legend_set_b(1) = plot(axs(2), UB1.Re_s, Grcomp(UB1.Re_s,UB1.G_rat), UB1.specs,'Color', UB1.color, 'LineWidth', UB1.LW, 'MarkerSize', UB1.MS, 'Displayname', UB1.label);
+            legend_set_b(2) = plot(axs(2), UB2.Re_s, Grcomp(UB2.Re_s,UB2.G_rat), UB2.specs,'Color', UB2.color, 'LineWidth', UB2.LW, 'MarkerSize', UB2.MS, 'Displayname', UB2.label);
+
+            textbox_a = annotation('textbox', obj.textbox_pos2_a_SW,   'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_b = annotation('textbox', obj.textbox_pos2_b_SW, 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none', 'FontSize', 16);
+
+            % ylabel(axs(1), '$$G_{rat} = G/G_{cc}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+            % ylabel(axs(2), '$$G_{rat} = G/G_{cc}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs, '$$Re_s$$', 'Interpreter', 'LaTeX','FontSize',12)
+
+            % legend(axs(1),legend_set_a,'Location', 'Northeast', 'Interpreter', 'Latex');
+            % legend(axs(2), legend_set_b,'Location', 'Northeast', 'Interpreter', 'Latex');
+
+            % set(axs(1), 'XScale', 'log', 'YScale', 'log');
+            set(axs(1), 'XScale', 'log', 'YScale', 'linear');
+            set(axs(2), 'XScale', 'log', 'YScale', 'linear');
+
+            xlim(axs, Res_lims)
+
+            fig_out = AYfig_;
+        end
+        function fig_out = UXB_NB_PL_Grat_vs_Res(obj, AYfig_, UB1, UB2, XB1, XB2, PF1, PFR, NB1, NB2, NB3)
+            AYfig_.init_tiles([1,2]);
+            axs = AYfig_.ax_tile;
+            hold(axs, 'on');
+            box(axs,'on');
+
+            [bGratPF1 aGratPF1 bGratPFR aGratPFR] = deal(PF1.powerfit_Grat_Res.b,PF1.powerfit_Grat_Res.m,PFR.powerfit_Grat_Res.b,PFR.powerfit_Grat_Res.m);
+
+            legend_set_a(1) = plot(axs(1), PF1.Re_s, PF1.G_rat, PF1.specs,'Color', PF1.color, 'LineWidth', PF1.LW, 'MarkerSize', PF1.MS, 'Displayname', PF1.label);
+            legend_set_a(2) = plot(axs(1), PFR.Re_s, PFR.G_rat, PFR.specs,'Color', PFR.color, 'LineWidth', PFR.LW, 'MarkerSize', PFR.MS, 'Displayname', PFR.label);
+            legend_set_a(3) = plot(axs(1), NB1.Re_s, NB1.G_rat, NB1.specs,'Color', NB1.color, 'LineWidth', NB1.LW, 'MarkerSize', NB1.MS, 'Displayname', NB1.label);
+            legend_set_a(4) = plot(axs(1), NB2.Re_s, NB2.G_rat, NB2.specs,'Color', NB2.color, 'LineWidth', NB2.LW, 'MarkerSize', NB2.MS, 'Displayname', NB2.label);
+            legend_set_a(5) = plot(axs(1), NB3.Re_s, NB3.G_rat, NB3.specs,'Color', NB3.color, 'LineWidth', NB3.LW, 'MarkerSize', NB3.MS, 'Displayname', NB3.label);
+            legend_set_a(6) = plot(axs(1), UB1.Re_s, UB1.G_rat, UB1.specs,'Color', UB1.color, 'LineWidth', UB1.LW, 'MarkerSize', UB1.MS, 'Displayname', UB1.label);
+            legend_set_a(7) = plot(axs(1), UB2.Re_s, UB2.G_rat, UB2.specs,'Color', UB2.color, 'LineWidth', UB2.LW, 'MarkerSize', UB2.MS, 'Displayname', UB2.label);
+
+            legend_set_b(1) = plot(axs(2), PF1.Re_s, PF1.G_rat, PF1.specs,'Color', PF1.color, 'LineWidth', PF1.LW, 'MarkerSize', PF1.MS, 'Displayname', PF1.label);
+            legend_set_b(2) = plot(axs(2), PFR.Re_s, PFR.G_rat, PFR.specs,'Color', PFR.color, 'LineWidth', PFR.LW, 'MarkerSize', PFR.MS, 'Displayname', PFR.label);
+            legend_set_b(3) = plot(axs(2), NB1.Re_s, NB1.G_rat, NB1.specs,'Color', NB1.color, 'LineWidth', NB1.LW, 'MarkerSize', NB1.MS, 'Displayname', NB1.label);
+            legend_set_b(4) = plot(axs(2), NB2.Re_s, NB2.G_rat, NB2.specs,'Color', NB2.color, 'LineWidth', NB2.LW, 'MarkerSize', NB2.MS, 'Displayname', NB2.label);
+            legend_set_b(5) = plot(axs(2), NB3.Re_s, NB3.G_rat, NB3.specs,'Color', NB3.color, 'LineWidth', NB3.LW, 'MarkerSize', NB3.MS, 'Displayname', NB3.label);
+            legend_set_b(6) = plot(axs(2), XB1.Re_s, XB1.G_rat, XB1.specs,'Color', XB1.color, 'LineWidth', XB1.LW, 'MarkerSize', XB1.MS, 'Displayname', XB1.label);
+            legend_set_b(7) = plot(axs(2), XB2.Re_s, XB2.G_rat, XB2.specs,'Color', XB2.color, 'LineWidth', XB2.LW, 'MarkerSize', XB2.MS, 'Displayname', XB2.label);
+
+            textbox_a = annotation('textbox', obj.textbox_pos2_a_SW,   'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_b = annotation('textbox', obj.textbox_pos2_b_SW, 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none', 'FontSize', 16);
+
+            ylabel(axs(1), '$$G_{rat} = G/G_{cc}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs, '$$Re_s$$', 'Interpreter', 'LaTeX','FontSize',12)
+
+            legend(axs(1), legend_set_a,'Location', 'Northeast', 'Interpreter', 'Latex');
+            legend(axs(2), legend_set_b,'Location', 'Northeast', 'Interpreter', 'Latex');
+
+            set(axs, 'XScale', 'log', 'YScale', 'log');
+
+            axis(axs,[1e-1 2e4 8e-1 3e3])
+
+            fig_out = AYfig_;
+        end
+        function fig_out = FB_phi_vs_omegai_vs_q(obj,AYfig_,FB1_phi_exp)
+            AYfig_.init_tiles([1,1]);
+            axs = AYfig_.ax_tile;
+            hold(axs, 'on');
+            box(axs,'on');
+
+            poq = FB1_phi_exp.phi_o_q_mat;
+            [phi_vec o_vec q_vec] = deal(poq(:,1), poq(:,2), poq(:,3));
+
+            scatter3(axs(1),q_vec,o_vec,phi_vec,'*','LineWidth',0.75,'SizeData',50,'CData',phi_vec);
+
+            % set(axs(1),'YScale','log');
+            % ylim(axs(1), [1e-3, 1.1e2]);
+
+            zlabel('$$\phi$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+            ylabel('$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel('$$q = \frac{Q}{Q_{inc}}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+            cbar = colorbar(axs(1));
+            cbar.Label.String = '$$ \phi $$';
+            cbar.Label.Interpreter = 'Latex';
+            cbar.Label.FontSize = 16;
+            colormap(axs(1),cool);
+            view([45 45 45]);
+            fig_out = AYfig_;
         end
         function fig_out = PF_NB_T_vs_omega(obj, AYfig_, PF1, PFR, NB1, NB2, NB3)
             AYfig_.init_tiles([1,2]);
@@ -130,7 +477,7 @@ classdef main_plots
             textbox_a = annotation('textbox', obj.textbox_pos2_a_NW,   'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none', 'FontSize', 16);
             textbox_b = annotation('textbox', obj.textbox_pos2_b_NW, 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none', 'FontSize', 16);
 
-            ylabel(axs(1), '$$T_{avg}$$ [N.m]', 'Interpreter', 'LaTeX','FontSize',12)
+            ylabel(axs(1), '$$T_{z}$$ [N.m]', 'Interpreter', 'LaTeX','FontSize',12)
             xlabel(axs, '$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
 
             legend(axs(1), legend_set_a,'Location', 'SouthEast', 'Interpreter', 'Latex');
@@ -138,7 +485,9 @@ classdef main_plots
 
             set(axs, 'XScale', 'log', 'YScale', 'log');
 
-            axis(axs,obj.omega_tau_range)
+            % axis(axs,obj.omega_tau_range)
+            axis(axs,obj.omega_T_range)
+            set(axs, 'XTick', [1e-2,1e-1,1e0,1e1,1e2])
 
             fig_out = AYfig_;
         end
@@ -243,7 +592,7 @@ classdef main_plots
             textbox_a = annotation('textbox', obj.textbox_pos2_a_NW,   'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none', 'FontSize', 16);
             textbox_b = annotation('textbox', obj.textbox_pos2_b_NW, 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none', 'FontSize', 16);
 
-            ylabel(axs(1), '$$T_{avg}$$ [N.m]', 'Interpreter', 'LaTeX','FontSize',12)
+            ylabel(axs(1), '$$T_{z}$$ [N.m]', 'Interpreter', 'LaTeX','FontSize',12)
             xlabel(axs, '$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
 
             legend(axs(1), legend_set_a,'Location', 'SouthEast', 'Interpreter', 'Latex');
@@ -251,7 +600,10 @@ classdef main_plots
 
             set(axs, 'XScale', 'log', 'YScale', 'log');
 
-            axis(axs,obj.omega_tau_range)
+            % axis(axs,obj.omega_tau_range)
+            axis(axs,obj.omega_T_range)
+            set(axs, 'XTick', [1e-2,1e-1,1e0,1e1,1e2])
+
 
             fig_out = AYfig_;
         end
@@ -382,13 +734,46 @@ classdef main_plots
 
             set(axs,'YScale', 'log', 'XScale', 'log');
 
-            ylabel(axs(1), '$$T_{avg}$$ [N.m]', 'Interpreter', 'LaTeX','FontSize',12)
+            ylabel(axs(1), '$$T_{z}$$ [N.m]', 'Interpreter', 'LaTeX','FontSize',12)
             xlabel(axs, '$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
 
             legend(axs(1), legend_set_a,'Location', 'SouthEast', 'Interpreter', 'Latex', 'NumColumns', 2);
             legend(axs(2), legend_set_b,'Location', 'SouthEast', 'Interpreter', 'Latex', 'NumColumns', 2);
 
-            axis(axs,obj.omega_tau_range)
+            % axis(axs,obj.omega_tau_range)
+            axis(axs,obj.omega_T_range)
+            set(axs, 'XTick', [1e-2,1e-1,1e0,1e1,1e2])
+
+            fig_out = AYfig_;
+        end
+        function fig_out = FB_appmu_vs_omegai(obj, AYfig_, FB1, FB2)
+            AYfig_.init_tiles([1,2]);
+            axs = AYfig_.ax_tile;
+            hold(axs, 'on');
+            box(axs,'on');
+
+            for i = 1:length(FB1.exp)
+                appmup = glass_particles.compute_appmu_Bingham(FB1.exp(i).tau_y_Bingham, FB1.exp(i).omega, FB1.exp(i).tau);
+                legend_set_a(i) = plot(axs(1), FB1.exp(i).omega, appmup, FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW, 'MarkerSize', FB1.MS, 'DisplayName', FB1.exp(i).label);
+            end
+
+            for i = 1:length(FB2.exp)
+                appmup = glass_particles.compute_appmu_Bingham(FB2.exp(i).tau_y_Bingham, FB2.exp(i).omega, FB2.exp(i).tau);
+                legend_set_b(i) = plot(axs(2), FB2.exp(i).omega, appmup, FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW, 'MarkerSize', FB2.MS, 'DisplayName', FB2.exp(i).label);
+            end
+
+            textbox_a = annotation('textbox', obj.textbox_pos2_a_NW, 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_b = annotation('textbox', obj.textbox_pos2_b_NW, 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none', 'FontSize', 16);
+
+            set(axs,'YScale', 'log', 'XScale', 'log');
+
+            ylabel(axs(1), '$$\mu_{app}$$ [Pa.s]', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs, '$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
+
+            legend(axs(1), legend_set_a,'Location', 'NorthEast', 'Interpreter', 'Latex', 'NumColumns', 2);
+            legend(axs(2), legend_set_b,'Location', 'NorthEast', 'Interpreter', 'Latex', 'NumColumns', 2);
+
+            % axis(axs,obj.omega_appmu_range)
 
             fig_out = AYfig_;
         end
@@ -421,7 +806,7 @@ classdef main_plots
 
             fig_out = AYfig_;
         end
-        function fig_out = FB_tauyrat_mup_vs_q(obj, AYfig_, FB1, FB2, EC000, EC050, EC075, EC100)
+        function fig_out = FB_tauyrat_vs_q(obj, AYfig_, FB1, FB2, EC000, EC050, EC075, EC100)
             AYfig_.init_tiles([2,2]);
             axs = AYfig_.ax_tile;
             hold(axs, 'on');
@@ -468,6 +853,144 @@ classdef main_plots
             axis(axs(2),[0 16 1e-5 1.0])
             axis(axs(3),[0 2 1e-1 1.2])
             axis(axs(4),[0 16 1e-2 1.2])
+
+            fig_out = AYfig_;
+        end
+        function fig_out = FB_tauyrat_mup_vs_q(obj, AYfig_, FB1, FB2, EC000, EC050, EC075, EC100)
+            AYfig_.init_tiles([2,2]);
+            axs = AYfig_.ax_tile;
+            hold(axs, 'on');
+            box(axs,'on');
+
+            qlims_FB1 = [0 2.05];
+            qlims_FB2 = [0 15.2];
+
+            tyr_lims = [1e-4 1e0];
+            mup_lims = [1e-2 3e-1];
+
+            % legend_set_a(1) = plot(axs(1), EC000.q, EC000.tau_y_rat, EC000.specs, 'Color', EC000.color, 'LineWidth', EC000.LW_L, 'MarkerSize', EC000.MS_L, 'DisplayName', EC000.label);
+            % legend_set_a(2) = plot(axs(1), EC050.q, EC050.tau_y_rat, EC050.specs, 'Color', EC050.color, 'LineWidth', EC050.LW_L, 'MarkerSize', EC050.MS_L, 'DisplayName', EC050.label);
+            % legend_set_a(3) = plot(axs(1), EC075.q, EC075.tau_y_rat, EC075.specs, 'Color', EC075.color, 'LineWidth', EC075.LW_L, 'MarkerSize', EC075.MS_L, 'DisplayName', EC075.label);
+            % legend_set_a(4) = plot(axs(1), EC100.q, EC100.tau_y_rat, EC100.specs, 'Color', EC100.color, 'LineWidth', EC100.LW_L, 'MarkerSize', EC100.MS_L, 'DisplayName', EC100.label);
+            for ax_active = [axs(1) axs(2)]
+                for i = 1:length(FB1.exp)
+                    plot(ax_active, FB1.exp(i).q, (FB1.exp(i).tau_y_Bingham)/(FB1.exp(i).tau_static), FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW_L, 'MarkerSize', FB1.MS_L, 'DisplayName', FB1.exp(i).label);
+                end
+                for i = 1:length(FB2.exp)
+                    plot(ax_active, FB2.exp(i).q, (FB2.exp(i).tau_y_Bingham)/(FB2.exp(i).tau_static), FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW_L, 'MarkerSize', FB2.MS_L, 'DisplayName', FB2.exp(i).label);
+                end
+            end
+
+            for ax_active = [axs(3) axs(4)]
+                for i = 1:length(FB1.exp)
+                    plot(ax_active, FB1.exp(i).q, FB1.exp(i).mu_p_Bingham, FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW_L, 'MarkerSize', FB1.MS_L, 'DisplayName', FB1.exp(i).label);
+                end
+                for i = 1:length(FB2.exp)
+                    plot(ax_active, FB2.exp(i).q, FB2.exp(i).mu_p_Bingham, FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW_L, 'MarkerSize', FB2.MS_L, 'DisplayName', FB2.exp(i).label);
+                end
+            end
+
+            textbox_a = annotation('textbox', obj.textbox_pos22_a_NE, 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_b = annotation('textbox', obj.textbox_pos22_b_NE, 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_c = annotation('textbox', obj.textbox_pos22_c_NE, 'Interpreter', 'LaTeX', 'String', 'c)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_d = annotation('textbox', obj.textbox_pos22_d_NE, 'Interpreter', 'LaTeX', 'String', 'd)', 'LineStyle', 'none', 'FontSize', 16);
+
+            set(axs(1:2),'YScale', 'log');
+            % set(axs,'YScale', 'log');
+
+            set(axs(1:2), 'YTick', [1e-4,1e-3,1e-2,1e-1,1e0])
+
+            ylabel(axs(1), '$$\tau_y/\tau_{q = 0}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+            ylabel(axs(3), '$$\mu_p$$ [Pa.s]', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs(3:4), '$$q = Q/Q_{inc}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+
+            % legend(axs(1), legend_set_a,'Location', 'NorthEast', 'Interpreter', 'Latex', 'NumColumns', 2);
+            % legend(axs(2), legend_set_b,'Location', 'NorthEast', 'Interpreter', 'Latex', 'NumColumns', 2);
+
+            ylim([axs(1) axs(2)], tyr_lims);
+            ylim([axs(3) axs(4)], mup_lims);
+            xlim([axs(1) axs(3)], qlims_FB1);
+            xlim([axs(2) axs(4)], qlims_FB2);
+
+            fig_out = AYfig_;
+        end
+        function fig_out = FB_tauyrat_mup_vs_q_compact(obj, AYfig_, FB1, FB2, FBext)
+            axs = set_mup_tyr_vs_q_compact_axes(AYfig_);
+            axs_FB1_qlim = [axs(1) axs(3)];
+            axs_FB2_qlim = [axs(2) axs(4)];
+            axs_tyr = [axs(1) axs(2)];
+            axs_mup = [axs(3) axs(4)];
+
+            qlims_FB1 = [0 2.05];
+            qlims_FB2 = [0 15.2];
+
+            tyr_lims = [1e-4 1e0];
+            % mup_lims = [1e-2 3e-1];
+            mup_lims = [0 3e-1];
+
+            box_tyr_vs_q = [    qlims_FB1(1) tyr_lims(1); ...
+                                qlims_FB1(1) tyr_lims(2); ...
+                                qlims_FB1(2) tyr_lims(2); ...
+                                qlims_FB1(2) tyr_lims(1)];
+
+            box_mup_vs_q = [    qlims_FB1(1) mup_lims(1); ...
+                                qlims_FB1(1) mup_lims(2); ...
+                                qlims_FB1(2) mup_lims(2); ...
+                                qlims_FB1(2) mup_lims(1)];
+
+            for ax_active = axs_tyr
+                patch(ax_active, 'Faces', 1:4, 'LineStyle', ':', 'Vertices', box_tyr_vs_q, 'FaceAlpha',0,'EdgeAlpha',1,'LineWidth',1.5);
+                if (nargin==5)
+                    for i = 1:length(FBext)
+                        expi = FBext{i};
+                        plot(ax_active, expi.q, (expi.tau_y_Bingham)/(expi.tau_static), expi.specs,'Color', expi.color, 'LineWidth', expi.LW_L, 'MarkerSize', expi.MS_L, 'DisplayName', expi.label);
+                    end
+                end
+                for i = 1:length(FB1.exp)
+                    plot(ax_active, FB1.exp(i).q, (FB1.exp(i).tau_y_Bingham)/(FB1.exp(i).tau_static), FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW_L, 'MarkerSize', FB1.MS_L, 'DisplayName', FB1.exp(i).label);
+                end
+                for i = 1:length(FB2.exp)
+                    plot(ax_active, FB2.exp(i).q, (FB2.exp(i).tau_y_Bingham)/(FB2.exp(i).tau_static), FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW_L, 'MarkerSize', FB2.MS_L, 'DisplayName', FB2.exp(i).label);
+                end
+            end
+
+            for ax_active = axs_mup
+                patch(ax_active , 'Faces', 1:4, 'LineStyle', ':', 'Vertices', box_mup_vs_q, 'FaceAlpha',0,'EdgeAlpha',1,'LineWidth',1.5);
+                if (nargin==5)
+                    for i = 1:length(FBext)
+                        expi = FBext{i};
+                        plot(ax_active, expi.q, expi.mu_p_Bingham, expi.specs,'Color', expi.color, 'LineWidth', expi.LW_L, 'MarkerSize', expi.MS_L, 'DisplayName', expi.label);
+                    end
+                end
+                for i = 1:length(FB1.exp)
+                    plot(ax_active, FB1.exp(i).q, FB1.exp(i).mu_p_Bingham, FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW_L, 'MarkerSize', FB1.MS_L, 'DisplayName', FB1.exp(i).label);
+                end
+                for i = 1:length(FB2.exp)
+                    plot(ax_active, FB2.exp(i).q, FB2.exp(i).mu_p_Bingham, FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW_L, 'MarkerSize', FB2.MS_L, 'DisplayName', FB2.exp(i).label);
+                end
+            end
+
+            textbox_a = annotation('textbox', [0.425 0.20 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_b = annotation('textbox', [0.25 0.7 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_c = annotation('textbox', [0.925 0.20 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'c)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_d = annotation('textbox', [0.75 0.85 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'd)', 'LineStyle', 'none', 'FontSize', 16);
+
+            set(axs_tyr,'YScale', 'log');
+            set(axs_tyr(1), 'YTick', [1e-4,1e-2,1e0])
+            set(axs_tyr(2), 'YTick', [1e-4,1e-3,1e-2,1e-1,1e0])
+
+            ylabel(axs_FB2_qlim(1), '$$\tau_y/\tau_{q = 0}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+            ylabel(axs_FB2_qlim(2), '$$\mu_p$$ [Pa.s]', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs_FB2_qlim, '$$q = Q/Q_{inc}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+
+            ylabel(axs_FB1_qlim(1), '$$\tau_y/\tau_{q = 0}$$', 'Interpreter', 'LaTeX','FontSize',12)
+            ylabel(axs_FB1_qlim(2), '$$\mu_p$$ [Pa.s]', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs_FB1_qlim, '$$q = Q/Q_{inc}$$', 'Interpreter', 'LaTeX','FontSize',12)
+
+            ylim(axs_tyr, tyr_lims);
+            ylim(axs_mup, mup_lims);
+            xlim(axs_FB1_qlim, qlims_FB1);
+            xlim(axs_FB2_qlim, qlims_FB2);
 
             fig_out = AYfig_;
         end
@@ -529,6 +1052,103 @@ classdef main_plots
             axis(axs(4),[qrange_FB2 1e-1 1e3])
             axis(axs(5),[qrange_FB1 0 1e0])
             axis(axs(6),[qrange_FB2 0 1e0])
+            fig_out = AYfig_;
+        end
+        function fig_out = FB_Carreau_par_vs_q_compact(obj, AYfig_, FB1, FB2)
+            axs = set_Carreau_params_vs_q_compact_axes(AYfig_);
+            axs_m = [axs(1) axs(2)];
+            axs_l = [axs(3) axs(4)];
+            axs_n = [axs(5) axs(6)];
+
+            axs_FB2_qlims = [axs(1) axs(3) axs(5)];
+            axs_FB1_qlims = [axs(2) axs(4) axs(6)];
+
+            qlims_FB1 = [0 2.05];
+            qlims_FB2 = [0 15.2];
+
+            m_lims = [4e-1 1e4];
+            l_lims = [1e-1 1e3];
+            n_lims = [0 1];
+
+            box_m_vs_q = [  qlims_FB1(1) m_lims(1); ...
+                            qlims_FB1(1) m_lims(2); ...
+                            qlims_FB1(2) m_lims(2); ...
+                            qlims_FB1(2) m_lims(1)];
+
+            box_l_vs_q = [  qlims_FB1(1) l_lims(1); ...
+                            qlims_FB1(1) l_lims(2); ...
+                            qlims_FB1(2) l_lims(2); ...
+                            qlims_FB1(2) l_lims(1)];
+
+            box_n_vs_q = [  qlims_FB1(1) n_lims(1); ...
+                            qlims_FB1(1) n_lims(2); ...
+                            qlims_FB1(2) n_lims(2); ...
+                            qlims_FB1(2) n_lims(1)];
+
+            for ax_active = axs_m
+                patch(ax_active, 'Faces', 1:4, 'LineStyle', ':', 'Vertices', box_m_vs_q, 'FaceAlpha',0,'EdgeAlpha',1,'LineWidth',1.5);
+                for i = 1:length(FB1.exp)
+                    legend_set_a(i) = plot(ax_active, FB1.exp(i).q, FB1.exp(i).mu0_Carreau, FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW_L, 'MarkerSize', FB1.MS_L, 'DisplayName', FB1.exp(i).label);
+                end
+                for i = 1:length(FB2.exp)
+                    legend_set_b(i) = plot(ax_active, FB2.exp(i).q, FB2.exp(i).mu0_Carreau, FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW_L, 'MarkerSize', FB2.MS_L, 'DisplayName', FB2.exp(i).label);
+                end
+            end
+
+            for ax_active = axs_l
+                patch(ax_active, 'Faces', 1:4, 'LineStyle', ':', 'Vertices', box_l_vs_q, 'FaceAlpha',0,'EdgeAlpha',1,'LineWidth',1.5);
+                for i = 1:length(FB1.exp)
+                    legend_set_c(i) = plot(ax_active, FB1.exp(i).q, FB1.exp(i).lambda_Carreau, FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW_L, 'MarkerSize', FB1.MS_L, 'DisplayName', FB1.exp(i).label);
+                end
+                for i = 1:length(FB2.exp)
+                    legend_set_d(i) = plot(ax_active, FB2.exp(i).q, FB2.exp(i).lambda_Carreau, FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW_L, 'MarkerSize', FB2.MS_L, 'DisplayName', FB2.exp(i).label);
+                end
+            end
+
+            for ax_active = axs_n
+                patch(ax_active, 'Faces', 1:4, 'LineStyle', ':', 'Vertices', box_n_vs_q, 'FaceAlpha',0,'EdgeAlpha',1,'LineWidth',1.5);
+                for i = 1:length(FB1.exp)
+                    legend_set_c(i) = plot(ax_active, FB1.exp(i).q, FB1.exp(i).n_Carreau, FB1.exp(i).specs,'Color', FB1.exp(i).color, 'LineWidth', FB1.LW_L, 'MarkerSize', FB1.MS_L, 'DisplayName', FB1.exp(i).label);
+                end
+                for i = 1:length(FB2.exp)
+                    legend_set_d(i) = plot(ax_active, FB2.exp(i).q, FB2.exp(i).n_Carreau, FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW_L, 'MarkerSize', FB2.MS_L, 'DisplayName', FB2.exp(i).label);
+                end
+            end
+
+            textbox_a = annotation('textbox', [0.28 0.28 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_b = annotation('textbox', [0.19 0.73 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_c = annotation('textbox', [0.60 0.28 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'c)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_d = annotation('textbox', [0.52 0.73 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'd)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_e = annotation('textbox', [0.93 0.28 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'e)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_f = annotation('textbox', [0.84 0.73 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'f)', 'LineStyle', 'none', 'FontSize', 16);
+
+            set([axs_m axs_l],'YScale', 'log');
+
+            set(axs_m(1), 'YTick', [1e0,1e1,1e2,1e3,1e4])
+            set(axs_m(2), 'YTick', [1e0,1e2,1e4])
+            set(axs_l(1), 'YTick', [1e-1,1e0,1e1,1e2,1e3])
+            set(axs_l(2), 'YTick', [1e-1,1e1,1e3])
+
+            ylabel(axs_m, '$$\mu_0$$ [Pa.s]', 'Interpreter', 'LaTeX','FontSize',12)
+            ylabel(axs_l, '$$\lambda$$ [s]', 'Interpreter', 'LaTeX','FontSize',12)
+            ylabel(axs_n(1), '$$n$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+            ylabel(axs_n(2), '$$n$$', 'Interpreter', 'LaTeX','FontSize',12)
+
+            xlabel(axs_FB2_qlims, '$$q = Q/Q_{inc}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs_FB1_qlims, '$$q = Q/Q_{inc}$$', 'Interpreter', 'LaTeX','FontSize',12)
+
+            % legend(axs(1), legend_set_a,'Location', 'NorthEast', 'Interpreter', 'Latex', 'NumColumns', 2);
+            % legend(axs(2), legend_set_b,'Location', 'NorthEast', 'Interpreter', 'Latex', 'NumColumns', 2);
+
+            % qrange_FB1 = [0 2];
+            % qrange_FB2 = [0 16];
+            %
+            ylim(axs_m, m_lims);
+            ylim(axs_l, l_lims);
+            ylim(axs_n, n_lims);
+            xlim(axs_FB1_qlims, qlims_FB1);
+            xlim(axs_FB2_qlims, qlims_FB2);
+
             fig_out = AYfig_;
         end
         function fig_out = FB_alpha_vs_omega_q(obj, AYfig_, FB1, FB2, EC000, EC050, EC075, EC100)
@@ -626,9 +1246,14 @@ classdef main_plots
 
             fig_out=AYfig_;
         end
-        function fig_out = FB_dimensional_regime_plot(obj,AYfig_,FB1, FB2)
-            run figure_properties.m
+        function fig_out = FB_dimensional_regime_plot(obj,AYfig_,FB1, FB2, label_flag_)
+            if (nargin==4)
+                label_flag = 'names_only';
+            else
+                label_flag = label_flag_;
+            end
 
+            run figure_properties.m
             color_ttv = [255 220 0]/255;
             color_fgm = [0 190 0]/255;
             color_sgf = [60 255 255]/255;
@@ -646,11 +1271,7 @@ classdef main_plots
             axs = AYfig_.ax_tile;
             hold(axs, 'on');
             box(axs,'on');
-            % olims = [1e-2 1.5e2];
             olims = [1e-2 2e3];
-            % qlims_mat = [0 2.0; 0 15.0];
-            % qlims_mat = [0 2.0; 0 5.0];
-            % qlims_mat = [0 15.0; 0 15.0];
             qlims_mat = [0 3.0; 0 3.0];
             qlims_mat_plot = [0 3.0; 0 3.0];
 
@@ -728,7 +1349,6 @@ classdef main_plots
                              ocrit_fgm_ql/ofac qcrit_fgm; ...
                              ocrit_fgm_ql qcrit_fgm; ...
                              ocrit_fgm_qh qlims(2)];
-
                 sgf_2_fgm = [olims(1) qcrit_fgm; ...
                              ocrit_fgm_ql/ofac qcrit_fgm; ...
                              ocrit_fgm_ql qcrit_fgm; ...
@@ -740,7 +1360,9 @@ classdef main_plots
                 frs_2_ttv = [ocrit_3 qcrit_ttv; ...
                              ocrit_dgf_qh qcrit_ttv; ...
                              olims(2) qcrit_ttv; ...
-                             olims(2) qcrit_sgf; ...
+                             % olims(2) 0.5*(qcrit_sgf+qcrit_ttv); ...
+                             % olims(2) qcrit_sgf; ...
+                             olims(2) qcrit_3_dgf_2_sgf; ...
                              olims(2) qlims(1); ...
                              ocrit_dgf_ql qlims(1); ...
                              ocrit_dgf_qh qcrit_sgf];
@@ -753,63 +1375,128 @@ classdef main_plots
                              ocrit_3 qcrit_3_dgf_2_sgf; ...
                              olims(1) qcrit_3_dgf_2_sgf];
 
-                alpha_boundaries_base = 0;
+                c_fgm_2_ttv = [ color_fgm; ...
+                                color_fgm; ...
+                                color_ttv; ...
+                                color_ttv];
+                c_sgf_2_fgm = [ color_fgm; ...
+                                color_fgm; ...
+                                color_ttv; ...
+                                color_ttv; ...
+                                color_ttv; ... % color_frs; ...
+                                color_sgf; ...
+                                color_sgf; ...
+                                color_sgf];
+                c_frs_2_ttv = [ color_ttv; ...
+                                color_ttv; ...
+                                color_ttv; ...
+                                % color_ttv; ...
+                                % color_ttv; ...
+                                color_ttv; ... % color_frs; ...
+                                color_frs; ...
+                                color_frs; ...
+                                color_ttv]; % color_frs];
+                c_dgf_2_sgf = [ color_sgf; ...
+                                color_sgf; ...
+                                color_ttv; ... % color_frs; ...
+                                color_frs; ...
+                                color_dgf; ...
+                                color_dgf; ...
+                                color_dgf; ...
+                                color_dgf];
 
-                patch(axs(iFB), 'Faces', 1:size(dgf,1), 'Vertices', dgf, 'FaceColor',color_dgf,'EdgeAlpha',alpha_boundaries_base);
-                patch(axs(iFB), 'Faces', 1:size(sgf,1), 'Vertices', sgf, 'FaceColor',color_sgf,'EdgeAlpha',alpha_boundaries_base);
-                patch(axs(iFB), 'Faces', 1:size(fgm,1), 'Vertices', fgm, 'FaceColor',color_fgm,'EdgeAlpha',alpha_boundaries_base);
-                patch(axs(iFB), 'Faces', 1:size(frs,1), 'Vertices', frs, 'FaceColor',color_frs,'EdgeAlpha',alpha_boundaries_base);
-                patch(axs(iFB), 'Faces', 1:size(ttv,1), 'Vertices', ttv, 'FaceColor',color_ttv,'EdgeAlpha',alpha_boundaries_base);
+                abb = 0;
+                fa = 1;
 
-                alpha_boundaries = 0;
+                patch(axs(iFB), 'Faces', 1:size(dgf,1), 'Vertices', dgf, 'FaceColor',color_dgf,'EdgeAlpha',abb,'FaceAlpha',fa);
+                patch(axs(iFB), 'Faces', 1:size(sgf,1), 'Vertices', sgf, 'FaceColor',color_sgf,'EdgeAlpha',abb,'FaceAlpha',fa);
+                patch(axs(iFB), 'Faces', 1:size(fgm,1), 'Vertices', fgm, 'FaceColor',color_fgm,'EdgeAlpha',abb,'FaceAlpha',fa);
+                patch(axs(iFB), 'Faces', 1:size(frs,1), 'Vertices', frs, 'FaceColor',color_frs,'EdgeAlpha',abb,'FaceAlpha',fa);
+                patch(axs(iFB), 'Faces', 1:size(ttv,1), 'Vertices', ttv, 'FaceColor',color_ttv,'EdgeAlpha',abb,'FaceAlpha',fa);
 
-                patch(axs(iFB), 'Faces', 1:size(fgm_2_ttv,1), 'Vertices', fgm_2_ttv, 'FaceColor','interp','EdgeAlpha',alpha_boundaries, ...
-                'FaceVertexCData',[color_fgm; color_fgm; color_ttv; color_ttv]);
-                patch(axs(iFB), 'Faces', 1:size(sgf_2_fgm,1), 'Vertices', sgf_2_fgm, 'FaceColor','interp','EdgeAlpha',alpha_boundaries, ...
-                'FaceVertexCData',[color_fgm; color_fgm; ; color_ttv; color_ttv; color_frs; color_sgf; color_sgf; color_sgf]);
-                patch(axs(iFB), 'Faces', 1:size(frs_2_ttv,1), 'Vertices', frs_2_ttv, 'FaceColor','interp','EdgeAlpha',alpha_boundaries, ...
-                'FaceVertexCData',[color_ttv; color_ttv; color_ttv; color_frs; color_frs; color_frs; color_frs]);
-                patch(axs(iFB), 'Faces', 1:size(dgf_2_sgf,1), 'Vertices', dgf_2_sgf, 'FaceColor','interp','EdgeAlpha',alpha_boundaries, ...
-                'FaceVertexCData',[color_sgf; color_sgf; color_frs; color_frs; color_dgf; color_dgf; color_dgf; color_dgf]);
+                ab = 0;
+                mrk='none';
+                mrk2='o';
 
-                patch(axs(iFB), 'Faces', 1:size(frs,1), 'LineStyle', '--', 'Vertices', frs, 'FaceAlpha',0);
-                patch(axs(iFB), 'Faces', 1:size(ttv,1), 'LineStyle', '--', 'Vertices', ttv, 'FaceAlpha',0);
-                patch(axs(iFB), 'Faces', 1:size(dgf,1), 'LineStyle', '--', 'Vertices', dgf, 'FaceAlpha',0);
-                patch(axs(iFB), 'Faces', 1:size(sgf,1), 'LineStyle', '--', 'Vertices', sgf, 'FaceAlpha',0);
-                patch(axs(iFB), 'Faces', 1:size(fgm,1), 'LineStyle', '--', 'Vertices', fgm, 'FaceAlpha',0);
+                patch(axs(iFB), 'Faces', 1:size(fgm_2_ttv,1), 'Vertices', fgm_2_ttv, ...
+                'FaceColor','interp','EdgeAlpha',ab,'FaceVertexCData',c_fgm_2_ttv,'Marker',mrk);
+                patch(axs(iFB), 'Faces', 1:size(sgf_2_fgm,1), 'Vertices', sgf_2_fgm, ...
+                'FaceColor','interp','EdgeAlpha',ab,'FaceVertexCData',c_sgf_2_fgm,'Marker',mrk);
+                patch(axs(iFB), 'Faces', 1:size(frs_2_ttv,1), 'Vertices', frs_2_ttv, ...
+                'FaceColor','interp','EdgeAlpha',ab,'FaceVertexCData',c_frs_2_ttv,'Marker',mrk);
+                patch(axs(iFB), 'Faces', 1:size(dgf_2_sgf,1), 'Vertices', dgf_2_sgf, ...
+                'FaceColor','interp','EdgeAlpha',ab,'FaceVertexCData',c_dgf_2_sgf,'Marker',mrk);
 
+                l_s = ':';
+                abl = 1;
 
-                textbox_FGM_row1 = annotation('textbox',tx_row1(1,:), 'Interpreter', 'LaTeX', ...
-                'String', 'FGM: $$ \tau \propto \omega_i^{\alpha}, $$', 'LineStyle', 'none', 'FontSize', 12);
-                textbox_SGF_row1 = annotation('textbox',tx_row1(2,:), 'Interpreter', 'LaTeX', ...
-                'String', 'SGF: $$ \tau \neq f(\omega_i), $$', 'LineStyle', 'none', 'FontSize', 12);
-                textbox_DGF_row1 = annotation('textbox',tx_row1(3,:), 'Interpreter', 'LaTeX', ...
-                'String', 'DGF: $$ \tau \approx \tau_{q = 0} \cdot ( 1 - q ), $$', 'LineStyle', 'none', 'FontSize', 12);
-                textbox_TTV_row1 = annotation('textbox',tx_row1(4,:), 'Interpreter', 'LaTeX', ...
-                'String', 'TTV: $$ \tau \propto \omega_i^{\alpha}, $$', 'LineStyle', 'none', 'FontSize', 12);
-                textbox_FRS_row1 = annotation('textbox',tx_row1(5,:), 'Interpreter', 'LaTeX', ...
-                'String', 'FRS: $$ \tau \propto \omega_i^{\alpha}, $$', 'LineStyle', 'none', 'FontSize', 12);
+                patch(axs(iFB), 'Faces', 1:size(frs,1), 'LineStyle', l_s, 'Vertices', frs, 'FaceAlpha',0,'EdgeAlpha',abl);
+                patch(axs(iFB), 'Faces', 1:size(ttv,1), 'LineStyle', l_s, 'Vertices', ttv, 'FaceAlpha',0,'EdgeAlpha',abl);
+                patch(axs(iFB), 'Faces', 1:size(dgf,1), 'LineStyle', l_s, 'Vertices', dgf, 'FaceAlpha',0,'EdgeAlpha',abl);
+                patch(axs(iFB), 'Faces', 1:size(sgf,1), 'LineStyle', l_s, 'Vertices', sgf, 'FaceAlpha',0,'EdgeAlpha',abl);
+                patch(axs(iFB), 'Faces', 1:size(fgm,1), 'LineStyle', l_s, 'Vertices', fgm, 'FaceAlpha',0,'EdgeAlpha',abl);
 
-                textbox_FGM_row2 = annotation('textbox',tx_row2(1,:), 'Interpreter', 'LaTeX', ...
-                'String', '$$ 0 < | \alpha | < 1, $$', 'LineStyle', 'none', 'FontSize', 12);
-                textbox_SGF_row2 = annotation('textbox',tx_row2(2,:), 'Interpreter', 'LaTeX', ...
-                'String', '$$ 0.55 < \phi < 0.57 $$', 'LineStyle', 'none', 'FontSize', 12);
-                textbox_DGF_row2 = annotation('textbox',tx_row2(3,:), 'Interpreter', 'LaTeX', ...
-                'String', '$$ 0.57 < \phi < 0.58 $$', 'LineStyle', 'none', 'FontSize', 12);
-                textbox_TTV_row2 = annotation('textbox',tx_row2(4,:), 'Interpreter', 'LaTeX', ...
-                'String', '$$ \alpha > 1.5, $$', 'LineStyle', 'none', 'FontSize', 12);
-                textbox_frs_row2 = annotation('textbox',tx_row2(5,:), 'Interpreter', 'LaTeX', ...
-                'String', '$$ 0 < \alpha < 1, $$', 'LineStyle', 'none', 'FontSize', 12);
+                if (strcmp(label_flag,'names_only'))
+                    textbox_FGM_row1 = annotation('textbox',tx_row1(1,:), 'Interpreter', 'LaTeX', ...
+                    'String', 'Fluidized granular', 'LineStyle', 'none', 'FontSize', 12);
+                    textbox_SGF_row1 = annotation('textbox',tx_row1(2,:), 'Interpreter', 'LaTeX', ...
+                    'String', 'Sheared granular', 'LineStyle', 'none', 'FontSize', 12);
+                    textbox_DGF_row1 = annotation('textbox',tx_row1(3,:), 'Interpreter', 'LaTeX', ...
+                    'String', 'Dense granular', 'LineStyle', 'none', 'FontSize', 12);
+                    textbox_TTV_row1 = annotation('textbox',tx_row1(4,:), 'Interpreter', 'LaTeX', ...
+                    'String', 'Turbulent', 'LineStyle', 'none', 'FontSize', 12);
+                    textbox_FRS_row1 = annotation('textbox',tx_row1(5,:), 'Interpreter', 'LaTeX', ...
+                    'String', 'Frictional', 'LineStyle', 'none', 'FontSize', 12);
 
-                textbox_DGF_row3 = annotation('textbox',tx_row3(1,:), 'Interpreter', 'LaTeX', ...
-                'String', '$$ 0.51 < \phi < 0.55 $$', 'LineStyle', 'none', 'FontSize', 12);
-                textbox_TTV_row3 = annotation('textbox',tx_row3(4,:), 'Interpreter', 'LaTeX', ...
-                'String', '$$ 0.51 < \phi < 0.55 $$', 'LineStyle', 'none', 'FontSize', 12);
-                textbox_FRS_row3 = annotation('textbox',tx_row3(5,:), 'Interpreter', 'LaTeX', ...
-                'String', '$$ \phi > 0.55, $$', 'LineStyle', 'none', 'FontSize', 12);
+                    textbox_FGM_row2 = annotation('textbox',tx_row2(1,:), 'Interpreter', 'LaTeX', ...
+                    'String', 'material (FGM)', 'LineStyle', 'none', 'FontSize', 12);
+                    textbox_SGF_row2 = annotation('textbox',tx_row2(2,:), 'Interpreter', 'LaTeX', ...
+                    'String', 'flow (SGF)', 'LineStyle', 'none', 'FontSize', 12);
+                    textbox_DGF_row2 = annotation('textbox',tx_row2(3,:), 'Interpreter', 'LaTeX', ...
+                    'String', 'flow (DGF)', 'LineStyle', 'none', 'FontSize', 12);
+                    textbox_TTV_row2 = annotation('textbox',tx_row2(4,:), 'Interpreter', 'LaTeX', ...
+                    'String', 'toroidal vortices', 'LineStyle', 'none', 'FontSize', 12);
+                    textbox_frs_row2 = annotation('textbox',tx_row2(5,:), 'Interpreter', 'LaTeX', ...
+                    'String', 'suspension', 'LineStyle', 'none', 'FontSize', 12);
 
-                textbox_FRS_row4 = annotation('textbox',tx_row4(5,:), 'Interpreter', 'LaTeX', ...
-                'String', '$$ \phi < 0.57 $$', 'LineStyle', 'none', 'FontSize', 12);
+                    textbox_TTV_row3 = annotation('textbox',tx_row3(4,:), 'Interpreter', 'LaTeX', ...
+                    'String', '(TTV)', 'LineStyle', 'none', 'FontSize', 12);
+                    textbox_FRS_row3 = annotation('textbox',tx_row3(5,:), 'Interpreter', 'LaTeX', ...
+                    'String', '(FRS)', 'LineStyle', 'none', 'FontSize', 12);
+
+                else
+                    textbox_FGM_row1 = annotation('textbox',tx_row1(1,:), 'Interpreter', 'LaTeX', ...
+                    'String', 'FGM: $$ \tau \propto \omega_i^{\alpha}, $$', 'LineStyle', 'none', 'FontSize', 12);
+                    textbox_SGF_row1 = annotation('textbox',tx_row1(2,:), 'Interpreter', 'LaTeX', ...
+                    'String', 'SGF: $$ \tau \neq f(\omega_i), $$', 'LineStyle', 'none', 'FontSize', 12);
+                    textbox_DGF_row1 = annotation('textbox',tx_row1(3,:), 'Interpreter', 'LaTeX', ...
+                    'String', 'DGF: $$ \tau \approx \tau_{q = 0} \cdot ( 1 - q ), $$', 'LineStyle', 'none', 'FontSize', 12);
+                    textbox_TTV_row1 = annotation('textbox',tx_row1(4,:), 'Interpreter', 'LaTeX', ...
+                    'String', 'TTV: $$ \tau \propto \omega_i^{\alpha}, $$', 'LineStyle', 'none', 'FontSize', 12);
+                    textbox_FRS_row1 = annotation('textbox',tx_row1(5,:), 'Interpreter', 'LaTeX', ...
+                    'String', 'FRS: $$ \tau \propto \omega_i^{\alpha}, $$', 'LineStyle', 'none', 'FontSize', 12);
+
+                    textbox_FGM_row2 = annotation('textbox',tx_row2(1,:), 'Interpreter', 'LaTeX', ...
+                    'String', '$$ 0 < | \alpha | < 1, $$', 'LineStyle', 'none', 'FontSize', 12);
+                    textbox_SGF_row2 = annotation('textbox',tx_row2(2,:), 'Interpreter', 'LaTeX', ...
+                    'String', '$$ 0.55 < \phi < 0.57 $$', 'LineStyle', 'none', 'FontSize', 12);
+                    textbox_DGF_row2 = annotation('textbox',tx_row2(3,:), 'Interpreter', 'LaTeX', ...
+                    'String', '$$ 0.57 < \phi < 0.58 $$', 'LineStyle', 'none', 'FontSize', 12);
+                    textbox_TTV_row2 = annotation('textbox',tx_row2(4,:), 'Interpreter', 'LaTeX', ...
+                    'String', '$$ \alpha > 1.5, $$', 'LineStyle', 'none', 'FontSize', 12);
+                    textbox_frs_row2 = annotation('textbox',tx_row2(5,:), 'Interpreter', 'LaTeX', ...
+                    'String', '$$ 0 < \alpha < 1, $$', 'LineStyle', 'none', 'FontSize', 12);
+
+                    textbox_DGF_row3 = annotation('textbox',tx_row3(1,:), 'Interpreter', 'LaTeX', ...
+                    'String', '$$ 0.51 < \phi < 0.55 $$', 'LineStyle', 'none', 'FontSize', 12);
+                    textbox_TTV_row3 = annotation('textbox',tx_row3(4,:), 'Interpreter', 'LaTeX', ...
+                    'String', '$$ 0.51 < \phi < 0.55 $$', 'LineStyle', 'none', 'FontSize', 12);
+                    textbox_FRS_row3 = annotation('textbox',tx_row3(5,:), 'Interpreter', 'LaTeX', ...
+                    'String', '$$ \phi > 0.55, $$', 'LineStyle', 'none', 'FontSize', 12);
+
+                    textbox_FRS_row4 = annotation('textbox',tx_row4(5,:), 'Interpreter', 'LaTeX', ...
+                    'String', '$$ \phi < 0.57 $$', 'LineStyle', 'none', 'FontSize', 12);
+                end
 
                 iFB = iFB + 1;
             end
@@ -821,6 +1508,7 @@ classdef main_plots
             xlabel(axs, '$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',14)
             ylabel(axs(1), '$$q= Q/Q_{inc}$$', 'Interpreter', 'LaTeX','FontSize',14)
             xlim(axs, olims);
+            set(axs, 'XTick', [1e-2,1e-1,1e0,1e1,1e2,1e3])
             ylim(axs(1), qlims_mat_plot(1,:));
             ylim(axs(2), qlims_mat_plot(2,:));
 
@@ -921,6 +1609,46 @@ classdef main_plots
             end
         end
     end
+end
+function ax_out = set_taustar_vs_Gamma_compact_axes(AYfig_)
+    ax_out = gobjects(2,1);
+    figure(AYfig_.fig.Number);
+    ax_out(1) = AYfig_.ax;
+    ax_out(2) = axes('Position', [0.4 0.6 0.3 0.3]);
+    box(ax_out(1), 'on');
+    hold(ax_out, 'on');
+end
+function ax_out = set_Carreau_params_vs_q_compact_axes(AYfig_)
+    ax_out = gobjects(6, 1);
+    figure(AYfig_.fig.Number);
+    ax_out(1) = axes('Position', [0.075 0.150 0.255 0.625]);
+    ax_out(3) = axes('Position', [0.400 0.150 0.255 0.625]);
+    ax_out(5) = axes('Position', [0.730 0.150 0.255 0.625]);
+    ax_out(2) = axes('Position', [0.180 0.725 0.160 0.250]);
+    ax_out(4) = axes('Position', [0.510 0.725 0.160 0.250]);
+    ax_out(6) = axes('Position', [0.830 0.725 0.160 0.250]);
+    hold(ax_out, 'on');
+end
+function ax_out = set_mup_tyr_vs_q_compact_axes(AYfig_)
+    ax_out = gobjects(4, 1);
+    figure(AYfig_.fig.Number);
+    ax_out(2) = axes('Position', [0.075 0.15 0.4 0.8]);
+    ax_out(4) = axes('Position', [0.575 0.15 0.4 0.8]);
+    ax_out(1) = axes('Position', [0.2225 0.675 0.270 0.30]);
+    ax_out(3) = axes('Position', [0.7225 0.675 0.270 0.30]);
+    hold(ax_out, 'on');
+end
+function ax_out = set_FB_Bingham_Grat_vs_Reb_axes(AYfig_)
+    ax_out = gobjects(6, 1);
+    figure(AYfig_.fig.Number);
+    ax_out(1) = subplot(2,2,1);
+    ax_out(2) = subplot(2,2,2);
+    ax_out(3) = subplot(4,2,5);
+    ax_out(4) = subplot(4,2,6);
+    ax_out(5) = subplot(4,2,7);
+    ax_out(6) = subplot(4,2,8);
+    hold(ax_out, 'on');
+    box(ax_out, 'on');
 end
 function ax_out = set_FB_Bingham_Carreau_axes(AYfig_)
     ax_out = gobjects(10, 1);

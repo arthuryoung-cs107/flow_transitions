@@ -66,7 +66,7 @@ figs(fig_num) = tfp.FB1_FB2_Bingham_fits_spread(FB_Bingham_fits_tau_vs_omegai_lo
 fig_num = fig_num + 1;
 fig_specs{fig_num} = {'Name', 'FB_Bingham_params'; 'Renderer', 'painters'; 'Position', [1 1 tfp.dim22_tall];};
 FB_Bingham_params_AYfig = AYfig(fig_specs{fig_num}, true);
-figs(fig_num) = tfp.FB1_FB2_Bingham_fluid_params_fitcheck(FB_Bingham_params_AYfig,FB1,FB2);
+figs(fig_num) = tfp.FB1_FB2_Bingham_fluid_params_fitcheck(FB_Bingham_params_AYfig,FB1,FB2,{EC000;EC050;EC075;EC100});
 
 %%%%%%%%%%%%%%% figure 10
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -79,10 +79,10 @@ figs(fig_num) = tfp.FB_Bingham_fits_Grat_vs_Reb(FB_Bingham_fits_Grat_vs_Reb_AYfi
 %%%%%%%%%%%%%%% figure 11
 %%%%%%%%%%%%%%%%%%%%%%%%
 fig_num = fig_num + 1;
-fig_specs{fig_num} = {'Name', 'PL_NB_UB_XB_FB_G_vs_Reb'; 'Renderer', 'painters'; 'Position', [tfp.pos_spread(2, :), tfp.dim222];};
+fig_specs{fig_num} = {'Name', 'PL_NB_UB_XB_FB_G_vs_Reb'; 'Renderer', 'painters'; 'Position', [tfp.pos_spread(2, :), tfp.dim222_short];};
 ALL_G_vs_Reb_AYfig = AYfig(fig_specs{fig_num}, false);
 % figs(fig_num) = tfp.ALL_G_vs_Reb(ALL_G_vs_Reb_AYfig, [FB1, FB2], {PF1;PFR}, NBall, UBall, XBall, {EC000;EC050;EC075;EC100});
-figs(fig_num) = tfp.ALL_G_vs_Reb(ALL_G_vs_Reb_AYfig, [FB1, FB2], {PF1;PFR}, NBall, UBall, XBall);
+figs(fig_num) = tfp.ALL_G_vs_Reb(ALL_G_vs_Reb_AYfig, [FB1, FB2], {PF1;PFR}, NBall, UBall, XBall, {EC000;EC050;EC075;EC100});
 
 %%%%%%%%%%%%%%% figure 12
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -187,4 +187,4 @@ for FB = [FB1 FB2]
     end
 end
 
-tfp.write_figures(figs, save_dir, save_type);
+% tfp.write_figures(figs, save_dir, save_type);

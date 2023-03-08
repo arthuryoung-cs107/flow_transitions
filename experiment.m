@@ -81,6 +81,8 @@ classdef experiment < handle
         mu_p_Bingham;
         gamma_Bingham;
         Re_b_Bingham;
+        Re_s_Bingham;
+        S_Bingham;
         cf_Bingham;
         G_b_Bingham;
         G_rat_Bingham;
@@ -94,6 +96,28 @@ classdef experiment < handle
     function obj = experiment(exp_list_in)
       obj.exp = exp_list_in;
       obj.len = length(exp_list_in);
+    end
+    function rho_rel_out = comp_rho_rel(obj)
+        rho_b = obj.comp_rho_b(obj.phi_m);
+        rho_rel_out = rho_b - obj.rho_f;
+    end
+    function rho_b_out = comp_rho_b(obj, phi_)
+        if (nargin==1)
+            phi = obj.phi;
+        else
+            phi = phi_;
+        end
+        rho_b_out = obj.rho_p * phi + obj.rho_f*(1.0-phi);
+    end
+    function [Res_out Grat_out] = comp_Grat_Res_KD(obj,phi_)
+        [r_i r_o h] = deal(fluid.r_i_def, fluid.r_o_def, fluid.h_def);
+        rho_b = obj.comp_rho_b(phi_);
+        mu = obj.Krieger_Dougherty(obj.mu_f,phi_,obj.phi_m);
+        nu = mu/rho_b;
+        gammai = 2*r_o*r_o*(obj.omega)/(r_o*r_o - r_i*r_i);
+        [b eta] = deal(r_o-r_i,r_i/r_o);
+        Res_out = b*b*eta*(gammai)/nu;
+        Grat_out = obj.mu_torque./(2*pi*r_i*r_i*h*mu*gammai);
     end
     function tau_out = tau_comp(obj)
         tau_out = obj.mu_torque/(2*pi*(fluid.r_i_def*fluid.r_i_def)*fluid.h_def);
@@ -154,6 +178,26 @@ classdef experiment < handle
         ti = glass_particles.taui_pred_Bingham(obj.mu_p_Bingham,obj.tau_y_Bingham,obj.omega);
         obj.gamma_Bingham = (ti-obj.tau_y_Bingham)/obj.mu_p_Bingham;
         obj.rc_Bingham = glass_particles.determine_rc_Bingham(obj.mu_p_Bingham, obj.tau_y_Bingham, obj.omega);
+
+        [o_ rc] = deal(obj.omega, obj.rc_Bingham);
+        [h ri ro] = deal(fluid.h_def, fluid.r_i_def, fluid.r_o_def);
+        [mp_ ty_] = deal(obj.mu_p_Bingham, obj.tau_y_Bingham);
+        rho_b = obj.comp_rho_b;
+
+        rc2 = rc.*rc;
+        rt = sqrt(ri * rc);
+        rt2 = rt.*rt;
+        etac = ri./rc;
+        etac2 = etac.*etac;
+        d = rc-ri;
+
+        obj.Re_b_Bingham = rho_b*(obj.omega*ri*(ro-ri))/mp_;
+        obj.S_Bingham = (((2./rt2).*((mp_*o_-ty_*log(etac)))./(1/(ri*ri) - 1./(rc2)))-ty_)/mp_;
+        obj.Re_s_Bingham = rho_b*(obj.S_Bingham.*(d.*d))/mp_;
+        obj.cf_Bingham = obj.mu_torque./(2*pi*ri*ri*h*obj.S_Bingham.*obj.S_Bingham.*d.*d);
+        obj.G_b_Bingham = (rho_b/(h*mp_*mp_))*obj.mu_torque;
+        obj.G_rat_Bingham = (obj.mu_torque.*(rc.*rc-ri*ri))./(4*pi*ri*ri*h*(rc.*rc).*(mp_*o_ + ty_*log(rc/ri)));
+
     end
     function gen_powerfit(obj)
       r_i = 0.01208;

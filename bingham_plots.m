@@ -487,10 +487,35 @@ classdef bingham_plots < main_plots
 
             fig_out = AYfig_;
         end
-        function fig_out = FB1_FB2_Bingham_fluid_params_fitcheck(obj,AYfig_,FB1,FB2)
+        function fig_out = FB1_FB2_Bingham_fluid_params_fitcheck(obj,AYfig_,FB1,FB2,FBext)
             [tdim1,tdim2] = deal(2,2);
             axs=prep_tiles(AYfig_,[tdim1 tdim2]);
             axi=0;
+
+            if (nargin==5)
+                explen=length(FBext);
+                [tauy_vec mup_vec q_vec] = deal(nan(explen,1));
+                [mup_bounds_mat tauy_bounds_mat] = deal(nan(explen,3));
+                color_mat=nan(explen,3);
+                for i=1:(explen)
+                    expi=FBext{i};
+
+                    [tauy_vec(i) mup_vec(i)] = deal(expi.tau_y_Bingham, expi.mu_p_Bingham);
+                    mup_bounds_mat(i,:) = expi.Bingham_mup_bounds;
+                    tauy_bounds_mat(i,:) = expi.Bingham_tauy_bounds;
+                    [color_mat(i,:) q_vec(i)] = deal(expi.color, expi.q);
+                end
+
+                scatter(axs(axi+1), q_vec, tauy_vec, FB1.specs,'CData',color_mat,'LineWidth',FB1.LW_L,'SizeData',3*FB1.MS_L*FB1.MS_L);
+                scatter(axs(axi+1), q_vec, tauy_bounds_mat(:,1), 'v','CData',[0 0 0],'LineWidth',2*FB1.LW_L,'SizeData',15);
+                scatter(axs(axi+1), q_vec, tauy_bounds_mat(:,2), 'p','CData',[0 0 0],'LineWidth',2*FB1.LW_L,'SizeData',15);
+                scatter(axs(axi+1), q_vec, tauy_bounds_mat(:,3), '^','CData',[0 0 0],'LineWidth',2*FB1.LW_L,'SizeData',15);
+
+                scatter(axs(axi+3), q_vec, mup_vec, FB1.specs,'CData',color_mat,'LineWidth',FB1.LW_L,'SizeData',3*FB1.MS_L*FB1.MS_L);
+                scatter(axs(axi+3), q_vec, mup_bounds_mat(:,1), 'v','CData',[0 0 0],'LineWidth',2*FB1.LW_L,'SizeData',15);
+                scatter(axs(axi+3), q_vec, mup_bounds_mat(:,2), 'p','CData',[0 0 0],'LineWidth',2*FB1.LW_L,'SizeData',15);
+                scatter(axs(axi+3), q_vec, mup_bounds_mat(:,3), '^','CData',[0 0 0],'LineWidth',2*FB1.LW_L,'SizeData',15);
+            end
 
             for FB = [FB1 FB2]
                 explen=length(FB.exp);

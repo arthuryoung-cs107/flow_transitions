@@ -114,6 +114,18 @@ classdef AYfig < handle
         end
     end
     methods (Static)
+        function pos_out = get_pos_spread(mid_,dims_)
+            monitors = get(0, 'MonitorPositions');
+            window = monitors(mid_,:);
+            [origin wsize rows cols] = deal(window(1:2), window(3:4), dims_(1), dims_(2));
+            xcoords = floor(floor(wsize(1)/cols)*(0:(cols-1)) + origin(1));
+            ycoords = flip(reshape(floor(floor(wsize(2)/rows)*(0:(rows-1)) + origin(2)),[],1));
+
+            xcol = reshape((xcoords.*ones(dims_))',[],1);
+            ycol = reshape((ycoords.*ones(dims_))',[],1);
+
+            pos_out = [xcol ycol];
+        end
         function fig_out = figure(props_in_)
             fig_out = figure;
             for i=1:size(props_in_, 1)

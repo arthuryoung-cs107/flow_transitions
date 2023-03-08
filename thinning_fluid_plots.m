@@ -6,6 +6,153 @@ classdef thinning_fluid_plots < bingham_plots
         function obj = thinning_fluid_plots(write_figs_, write_all_figs_, figs_to_write_)
             obj@bingham_plots(write_figs_, write_all_figs_, figs_to_write_);
         end
+        function fig_out = FB_Carreau_mueffi_vs_omegai(obj,AYfig_,FBall,muinf_flag)
+            axs_full=prep_tiles(AYfig_,[1 2]);
+
+            axi=1;
+            for FB = FBall
+                explen = length(FB.exp);
+                for i=1:explen
+                    expi = FB.exp(i);
+                    if (muinf_flag)
+                        pari = expi.Carreau_fit_muinf_params;
+                        [mu0i, lambdai, ni, ki, muinfi] = deal(pari(1),pari(2),pari(3),pari(4),pari(5));
+                        [ti,gi,mui] = expi.comp_Carreau_fluid(expi.omega, mu0i, lambdai, ni, ki, muinfi);
+                    else
+                        mui = expi.mu_effi_Carreau;
+                    end
+
+                    plot(axs_full(axi), expi.omega, mui, FB.specs, 'Color', FB.exp(i).color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', FB.exp(i).label);
+                end
+                axi = axi+1;
+            end
+            ylabel(axs_full, '$$\mu_{C}(\omega_i)$$ [Pa.s]', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs_full, '$$\omega_i$$ [rad.s]', 'Interpreter', 'LaTeX','FontSize',12)
+            set(axs_full, 'YScale', 'log', 'XScale', 'log');
+
+            fig_out = AYfig_;
+        end
+        function fig_out = FB_Carreau_fluid_params(obj,AYfig_,FBall,muinf_flag)
+            if (muinf_flag)
+                [tdim1,tdim2] = deal(4,2);
+            else
+                [tdim1,tdim2] = deal(3,2);
+            end
+            axs=prep_tiles(AYfig_,[tdim1 tdim2]);
+            axi=0;
+            for FB = FBall
+                explen=length(FB.exp);
+                Cparam_tens = nan(explen,4,4);
+                q_vec = nan(explen,1);
+                color_mat=nan(explen,3);
+                for i=1:(explen)
+                    expi=FB.exp(i);
+                    if (muinf_flag)
+                        Cparam_i = expi.Carreau_fit_muinf_params;
+                        [mu0_b lambda_b n_b k_b muinf_b] = expi.determine_Carreau_fluid_bounds_muinf(expi.omega_fit_Bingham, expi.tau_fit_Bingham);
+
+                        Cparam_tens(i,:,1) = [Cparam_i(1) mu0_b];
+                        Cparam_tens(i,:,2) = [Cparam_i(2) lambda_b];
+                        Cparam_tens(i,:,3) = [Cparam_i(3) n_b];
+                        Cparam_tens(i,:,4) = [Cparam_i(5) muinf_b];
+                    else
+                        Cparam_i = expi.Carreau_fit_params;
+                        [mu0_b lambda_b n_b k_b muinf_b] = expi.determine_Carreau_fluid_bounds(expi.omega_fit_Carreau_muinf, expi.tau_fit_Carreau_muinf);
+
+                        Cparam_tens(i,:,1) = [Cparam_i(1) mu0_b];
+                        Cparam_tens(i,:,2) = [Cparam_i(2) lambda_b];
+                        Cparam_tens(i,:,3) = [Cparam_i(3) n_b];
+                    end
+
+                    [color_mat(i,:) q_vec(i)] = deal(FB.exp(i).color, FB.exp(i).q);
+                end
+
+                for j = 1:3
+                    scatter(axs(axi+((j-1)*tdim2)+1), q_vec, Cparam_tens(:,1,j), 'p','CData',color_mat,'LineWidth',2,'SizeData',5);
+                    scatter(axs(axi+((j-1)*tdim2)+1), q_vec, Cparam_tens(:,2,j), 'v','CData',color_mat,'LineWidth',2,'SizeData',5);
+                    scatter(axs(axi+((j-1)*tdim2)+1), q_vec, Cparam_tens(:,3,j), 'o','CData',color_mat,'LineWidth',2,'SizeData',5);
+                    scatter(axs(axi+((j-1)*tdim2)+1), q_vec, Cparam_tens(:,4,j), '^','CData',color_mat,'LineWidth',2,'SizeData',5);
+                end
+                if (muinf_flag)
+                    scatter(axs(axi+(3*tdim2)+1), q_vec, Cparam_tens(:,1,4), 'p','CData',color_mat,'LineWidth',2,'SizeData',5);
+                    scatter(axs(axi+(3*tdim2)+1), q_vec, Cparam_tens(:,2,4), 'v','CData',color_mat,'LineWidth',2,'SizeData',5);
+                    scatter(axs(axi+(3*tdim2)+1), q_vec, Cparam_tens(:,3,4), 'o','CData',color_mat,'LineWidth',2,'SizeData',5);
+                    scatter(axs(axi+(3*tdim2)+1), q_vec, Cparam_tens(:,4,4), '^','CData',color_mat,'LineWidth',2,'SizeData',5);
+                end
+                axi=axi+1;
+            end
+            set(axs(1:4),'YScale','log')
+            xlabel(axs, '$$q= Q/Q_{inc}$$', 'Interpreter', 'LaTeX','FontSize',14)
+            ylabel(axs(1:2), '$$\mu_0$$', 'Interpreter', 'LaTeX','FontSize',14)
+            ylabel(axs(3:4), '$$\lambda$$', 'Interpreter', 'LaTeX','FontSize',14)
+            ylabel(axs(5:6), '$$n$$', 'Interpreter', 'LaTeX','FontSize',14)
+            if (muinf_flag)
+                set(axs(7:8),'YScale','log')
+                ylabel(axs(7:8), '$$\mu_{\infty}$$', 'Interpreter', 'LaTeX','FontSize',14)
+            end
+
+            fig_out=AYfig_;
+        end
+        function fig_out = FB_Carreau_fits_spread(obj,AYfig_,FBall,muinf_flag,log_flag_)
+            if (nargin==4)
+                log_flag = false;
+            else
+                log_flag = log_flag_;
+            end
+
+            if (log_flag)
+                axscale = 'log';
+                omega_test = logspace(-2, 2, 100);
+            else
+                axscale = 'linear';
+            end
+
+            axs_full=prep_tiles(AYfig_,[4 6]);
+
+            axs=axs_full;
+            for FB = FBall
+                explen = length(FB.exp);
+                for i=1:explen
+                    if (muinf_flag)
+                        % par_i = FB.exp(i).fit_Carreau_model_muinf;
+                        % FB.exp(i).Carreau_fit_muinf_params = par_i;
+                        par_i = FB.exp(i).Carreau_fit_muinf_params;
+                        omega_fit = FB.exp(i).omega_fit_Carreau_muinf;
+                        tau_fit = FB.exp(i).tau_fit_Carreau_muinf;
+                    else
+                        par_i = FB.exp(i).Carreau_fit_params;
+                        omega_fit = FB.exp(i).omega_fit_Carreau;
+                        tau_fit = FB.exp(i).tau_fit_Carreau;
+                    end
+
+                    if (log_flag)
+                        ti = glass_particles.taui_pred_Carreau(par_i,omega_test);
+
+                        plot(axs(i), omega_test, ti, '-', 'Color', FB.exp(i).color, 'LineWidth', 2, 'DisplayName', FB.exp(i).label);
+                        plot(axs(i), omega_fit, tau_fit, 'o', 'Color', [0 0 0], 'LineWidth', 1, 'MarkerSize', 5, 'DisplayName', FB.exp(i).label);
+
+                        [omega_not_fit i_nf] = setdiff(FB.exp(i).omega, omega_fit);
+                        tau_not_fit = FB.exp(i).tau(i_nf);
+
+                        plot(axs(i), omega_not_fit, tau_not_fit, 'x', 'Color', [0 0 0], 'LineWidth', 1, 'MarkerSize', 8, 'DisplayName', FB.exp(i).label);
+                    else
+                        omega_test = linspace(0, max(omega_fit), 100);
+                        ti = glass_particles.taui_pred_Carreau(par_i,omega_test);
+
+                        plot(axs(i), omega_test, ti, '-', 'Color', FB.exp(i).color, 'LineWidth', 2, 'DisplayName', FB.exp(i).label);
+                        plot(axs(i), omega_fit, tau_fit, FB.specs, 'Color', FB.exp(i).color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', FB.exp(i).label);
+                    end
+                    title(axs(i), FB.exp(i).label, 'Interpreter', 'Latex', 'Fontsize', 14)
+                end
+                axs=axs_full(explen+2:end);
+            end
+            ylabel(axs_full, '$$\tau_w$$ [Pa]', 'Interpreter', 'LaTeX','FontSize',12)
+            xlabel(axs_full, '$$\omega_i$$ [rad.s]', 'Interpreter', 'LaTeX','FontSize',12)
+
+            set(axs_full, 'YScale', axscale, 'XScale', axscale);
+
+            fig_out = AYfig_;
+        end
         function fig_out = FB_Carreau_err_vs_omegai(obj,AYfig_,FB1,FB2)
             axs_full=prep_tiles(AYfig_,[4 6]);
 
@@ -28,64 +175,6 @@ classdef thinning_fluid_plots < bingham_plots
             end
             ylabel(axs_full, '$$\tau_w$$ [Pa]', 'Interpreter', 'LaTeX','FontSize',12)
             xlabel(axs_full, '$$\omega_i$$ [rad.s]', 'Interpreter', 'LaTeX','FontSize',12)
-
-            fig_out = AYfig_;
-        end
-        function fig_out = FB1_FB2_Carreau_fits_spread(obj,AYfig_,FB1,FB2,log_flag_)
-            if (nargin==4)
-                log_flag = false;
-            else
-                log_flag = log_flag_;
-            end
-
-            if (log_flag)
-                axscale = 'log';
-                omega_test = logspace(-2, 2, 100);
-            else
-                axscale = 'linear';
-            end
-
-            AYfig_.init_tiles([4,6]);
-            axs_full = AYfig_.ax_tile;
-            hold(axs_full, 'on');
-            box(axs_full,'on');
-
-            axs=axs_full;
-            for FB = [FB1 FB2]
-                explen = length(FB.exp);
-                for i=1:explen
-                    par = [FB.exp(i).mu_p_Bingham FB.exp(i).tau_y_Bingham];
-                    omega_fit = FB.exp(i).omega_fit_Bingham;
-                    tau_fit = FB.exp(i).tau_fit_Bingham;
-
-                    if (log_flag)
-                        ti = glass_particles.taui_pred_Bingham(par(1),par(2),omega_test);
-                        plot(axs(i), omega_test, ti, '-', 'Color', FB.exp(i).color, 'LineWidth', 2, 'DisplayName', FB.exp(i).label);
-                        plot(axs(i), omega_fit, tau_fit, 'o', 'Color', [0 0 0], 'LineWidth', 1, 'MarkerSize', 5, 'DisplayName', FB.exp(i).label);
-
-                        [omega_not_fit i_nf] = setdiff(FB.exp(i).omega, omega_fit);
-                        tau_not_fit = FB.exp(i).tau(i_nf);
-
-                        plot(axs(i), omega_not_fit, tau_not_fit, 'x', 'Color', [0 0 0], 'LineWidth', 1, 'MarkerSize', 8, 'DisplayName', FB.exp(i).label);
-
-                        [oc tc] = glass_particles.get_plug_crit(par(1),par(2));
-                        plot(axs(i), [min(omega_fit) oc oc], [tc tc min(tau_fit)], '--', 'Color', [0 0 0], 'LineWidth', 1, 'MarkerSize', 1);
-
-                    else
-                        omega_test = linspace(0, max(omega_fit), 100);
-                        ti = glass_particles.taui_pred_Bingham(par(1),par(2),omega_test);
-                        plot(axs(i), omega_test, ti, '-', 'Color', FB.exp(i).color, 'LineWidth', 2, 'DisplayName', FB.exp(i).label);
-                        plot(axs(i), omega_fit, tau_fit, FB.specs, 'Color', FB.exp(i).color, 'LineWidth', FB.LW, 'MarkerSize', FB.MS, 'DisplayName', FB.exp(i).label);
-                    end
-
-                    title(axs(i), FB.exp(i).label, 'Interpreter', 'Latex', 'Fontsize', 14)
-                end
-                axs=axs_full(explen+2:end);
-            end
-            ylabel(axs_full, '$$\tau_w$$ [Pa]', 'Interpreter', 'LaTeX','FontSize',12)
-            xlabel(axs_full, '$$\omega_i$$ [rad.s]', 'Interpreter', 'LaTeX','FontSize',12)
-
-            set(axs_full, 'YScale', axscale, 'XScale', axscale);
 
             fig_out = AYfig_;
         end

@@ -41,7 +41,7 @@ figs(fig_num) = mp.UB_XB_cf_alpha_vs_Res(UB_XB_cf_alpha_vs_Res_AYfig, UB1, UB2, 
 %%%%%%%%%%%%%%% figure 6
 %%%%%%%%%%%%%%%%%%%%%%%%
 fig_num = fig_num + 1;
-fig_specs{fig_num} = {'Name', 'PL_NB_UB_XB_FB_G_vs_Res'; 'Renderer', 'painters'; 'Position', [mp.pos_spread(6, :), mp.dim222];};
+fig_specs{fig_num} = {'Name', 'PL_NB_UB_XB_FB_G_vs_Res'; 'Renderer', 'painters'; 'Position', [mp.pos_spread(6, :), mp.dim222_short];};
 ALL_G_vs_Res_AYfig = AYfig(fig_specs{fig_num}, false);
 figs(fig_num) = mp.ALL_G_vs_Res(ALL_G_vs_Res_AYfig, PF1, PFR, NB1, NB2, NB3, UB1, UB2, XB1, XB2, FB1, FB2, NBall, UBall, XBall);
 
@@ -100,7 +100,7 @@ figs(fig_num) = mp.UXB_NB_PL_Grat_vs_Res(UXB_NB_PL_Grat_vs_Res_AYfig,UB1,UB2,XB1
 %%%%%%%%%%%%%%% figure 14
 %%%%%%%%%%%%%%%%%%%%%%%%
 fig_num = fig_num + 1;
-fig_specs{fig_num} = {'Name', 'PL_NB_UB_XB_FB_G_vs_Reb'; 'Renderer', 'painters'; 'Position', [mp.pos_spread(12, :), mp.dim222];};
+fig_specs{fig_num} = {'Name', 'PL_NB_UB_XB_FB_G_vs_Reb'; 'Renderer', 'painters'; 'Position', [mp.pos_spread(12, :), mp.dim222_short];};
 ALL_G_vs_Reb_AYfig = AYfig(fig_specs{fig_num}, false);
 figs(fig_num) = mp.ALL_G_vs_Reb(ALL_G_vs_Reb_AYfig, [FB1, FB2], {PF1;PFR}, NBall, UBall, XBall);
 
@@ -116,7 +116,7 @@ figs(fig_num) = mp.FB_Bingham_fits_Grat_vs_Reb(FB_Bingham_fits_Grat_vs_Reb_AYfig
 fig_num = fig_num + 1;
 fig_specs{fig_num} = {'Name', 'FB_mup_tauy_vs_q_compact'; 'Renderer', 'painters'; 'Position', [mp.pos_spread(4, :), mp.dim2];};
 FB_tauyrat_mup_vs_q_compact_AYfig = AYfig(fig_specs{fig_num}, false);
-figs(fig_num) = mp.FB_tauyrat_mup_vs_q_compact(FB_tauyrat_mup_vs_q_compact_AYfig, FB1, FB2);
+figs(fig_num) = mp.FB_tauyrat_mup_vs_q_compact(FB_tauyrat_mup_vs_q_compact_AYfig, FB1, FB2, {EC000;EC050;EC075;EC100});
 
 %%%%%%%%%%%%%%% figure 17
 %%%%%%%%%%%%%%%%%%%%%%%%

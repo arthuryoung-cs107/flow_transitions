@@ -9,6 +9,9 @@ classdef glass49 < glass_particles
     RU_rpm;
     omega_min = 1e-2;
 
+    omega_full;
+    tau_full;
+
     fix_tauy_flag=true;
     % fix_tauy_flag=false;
 
@@ -47,6 +50,7 @@ classdef glass49 < glass_particles
 
       % obj.qcrit_Bingham2Carreau = 1;
       obj.qcrit_Bingham2Carreau = obj.qcrit_fgm;
+      obj.FB_phi_low = glass_particles.FB2_phi_low;
     end
     function process_raw(obj,raw_,i_)
       obj.exp_id = i_;
@@ -73,6 +77,9 @@ classdef glass49 < glass_particles
       obj.tau = obj.mu_torque/(2*pi*(obj.r_i^2)*obj.h);
 
       ind_use =  obj.omega > obj.omega_min;
+
+      obj.omega_full = obj.omega;
+      obj.tau_full = obj.tau;
 
       obj.mu_torque = obj.mu_torque(ind_use);
       obj.sigma_torque = obj.sigma_torque(ind_use);
@@ -111,6 +118,7 @@ classdef glass49 < glass_particles
 
       obj.fit_Carreau_model;
       obj.fit_Bingham_model(obj.omega_cap_Bingham_use,obj.omega,obj.tau);
+      obj.Carreau_fit_muinf_params = obj.fit_Carreau_model_muinf;
       % obj.mu_p_Bingham = obj.FB_fitted_Bingham_pars(i_,1);
       % obj.tau_y_Bingham = obj.FB_fitted_Bingham_pars(i_,2);
 

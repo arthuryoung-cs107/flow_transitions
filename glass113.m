@@ -49,6 +49,7 @@ classdef glass113 < glass_particles
 
       % obj.qcrit_Bingham2Carreau = 1;
       obj.qcrit_Bingham2Carreau = obj.qcrit_fgm;
+      obj.FB_phi_low = glass_particles.FB1_phi_low;
     end
     function [Tf_clean nf_clean qf_clean if_clean] = get_clean_data(obj)
         [obj.Tf_raw obj.nf_raw obj.qf_raw obj.if_raw] = concat_sort_raw(obj.true_raw);
@@ -121,6 +122,7 @@ classdef glass113 < glass_particles
 
       obj.fit_Carreau_model;
       obj.fit_Bingham_model(obj.omega_cap_Bingham_use,obj.omega,obj.tau);
+      obj.Carreau_fit_muinf_params = obj.fit_Carreau_model_muinf;
       % obj.mu_p_Bingham = obj.FB_fitted_Bingham_pars(i_,1);
       % obj.tau_y_Bingham = obj.FB_fitted_Bingham_pars(i_,2);
 

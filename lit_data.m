@@ -43,12 +43,22 @@ classdef lit_data < handle
     gamma_Bingham;
     rc_Bingham;
     Re_b_Bingham;
+    Re_s_Bingham;
+    S_Bingham;
+    cf_Bingham;
     G_b_Bingham;
+    G_rat_Bingham;
+
+    phi_low;
 
   end
   methods
     function obj = lit_data()
 
+    end
+    function rho_rel_out = comp_rho_rel(obj)
+        rho_b = obj.rho_p * obj.phi_low + obj.rho_f*(1 - obj.phi_low);
+        rho_rel_out = rho_b - obj.rho_f;
     end
     function tau_out = tau_comp(obj)
         tau_out = obj.mu_torque/(2*pi*(fluid.r_i_def*fluid.r_i_def)*fluid.h_def);
@@ -199,6 +209,7 @@ classdef lit_data < handle
           obj.Bingham_mup_bounds = glass_particles.FB1_EC_Bingham_mup_bounds(1,:);
           obj.Bingham_omega_cap = glass_particles.FB1_EC_Bingham_omega_cap(1);
           obj.Bingham_omega_floor = glass_particles.FB1_EC_Bingham_omega_floor(1);
+          obj.phi_low = glass_particles.FB1_EC_phi_low(1);
           obj.color = color_;
         case '0.5'
           obj.omega = [10.4709010659071e+000; 20.9399438904452e+000; 31.4116957049155e+000; 41.8818824189874e+000; 52.3530884648949e+000; 62.8615129285921e+000; 73.2961174017939e+000; 83.7691695018464e+000; 94.2413796740110e+000; 104.713836647983e+000; 115.184393124975e+000];
@@ -213,6 +224,7 @@ classdef lit_data < handle
           obj.Bingham_mup_bounds = glass_particles.FB1_EC_Bingham_mup_bounds(2,:);
           obj.Bingham_omega_cap = glass_particles.FB1_EC_Bingham_omega_cap(2);
           obj.Bingham_omega_floor = glass_particles.FB1_EC_Bingham_omega_floor(2);
+          obj.phi_low = glass_particles.FB1_EC_phi_low(2);
           obj.color = color_;
         case '0.75'
           obj.omega = [10.4690873336664e+000; 20.9398989811737e+000; 31.4103473786741e+000; 41.8836885762354e+000; 52.3542572470467e+000; 62.7937343757488e+000; 73.3008562351569e+000; 83.7718621197607e+000; 94.2419811050370e+000; 104.714018606973e+000; 115.182473834160e+000];
@@ -227,6 +239,7 @@ classdef lit_data < handle
           obj.Bingham_mup_bounds = glass_particles.FB1_EC_Bingham_mup_bounds(3,:);
           obj.Bingham_omega_cap = glass_particles.FB1_EC_Bingham_omega_cap(3);
           obj.Bingham_omega_floor = glass_particles.FB1_EC_Bingham_omega_floor(3);
+          obj.phi_low = glass_particles.FB1_EC_phi_low(3);
           obj.color = color_;
         case '1.0'
           obj.omega = [10.4699789320195e+000; 20.9395442164895e+000; 31.4124990189983e+000; 41.8819195780697e+000; 52.3541108976392e+000; 62.8128732194048e+000; 73.2969934970426e+000; 83.7704938135510e+000; 94.2413730152678e+000; 104.715806901865e+000; 115.181944751061e+000];
@@ -241,15 +254,29 @@ classdef lit_data < handle
           obj.Bingham_mup_bounds = glass_particles.FB1_EC_Bingham_mup_bounds(4,:);
           obj.Bingham_omega_cap = glass_particles.FB1_EC_Bingham_omega_cap(4);
           obj.Bingham_omega_floor = glass_particles.FB1_EC_Bingham_omega_floor(4);
+          obj.phi_low = glass_particles.FB1_EC_phi_low(4);
           obj.color = color_;
       end
       obj.fit_Bingham_model;
       [h ri ro mp_ ty_] = deal(fluid.h_def, fluid.r_i_def, fluid.r_o_def, obj.mu_p_Bingham, obj.tau_y_Bingham);
       obj.rc_Bingham = glass_particles.determine_rc_Bingham(mp_,ty_,obj.omega);
+      [o_ rc] = deal(obj.omega, obj.rc_Bingham);
+
+      rho_b = obj.rho_b; 
+      rc2 = rc.*rc;
+      rt = sqrt(ri * rc);
+      rt2 = rt.*rt;
+      etac = ri./rc;
+      etac2 = etac.*etac;
+      d = rc-ri;
+
       obj.Re_b_Bingham = (obj.rho_b*obj.omega*ri*(ro-ri))/mp_;
       % obj.Re_b_Bingham = (obj.rho_b*obj.omega*ri.*(obj.rc_Bingham-ri))/mp_;
+      obj.S_Bingham = (((2./rt2).*((mp_*o_-ty_*log(etac)))./(1/(ri*ri) - 1./(rc2)))-ty_)/mp_;
+      obj.Re_s_Bingham = rho_b*(obj.S_Bingham.*(d.*d))/mp_;
+      obj.cf_Bingham = obj.mu_torque./(2*pi*ri*ri*h*obj.S_Bingham.*obj.S_Bingham.*d.*d);
       obj.G_b_Bingham = (obj.rho_b/(h*mp_*mp_))*obj.mu_torque;
-
+      obj.G_rat_Bingham = (obj.mu_torque.*(rc.*rc-ri*ri))./(4*pi*ri*ri*h*(rc.*rc).*(mp_*o_ + ty_*log(rc/ri)));
     end
   end
 end

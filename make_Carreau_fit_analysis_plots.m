@@ -73,3 +73,5 @@ fig_num = fig_num + 1;
 fig_specs{fig_num} = {'Name', 'FB_Carreau_par_vs_q_compact'; 'Renderer', 'painters'; 'Position', [tfp.pos_spread(12, :), tfp.dim2];};
 FB_Carreau_par_vs_q_compact_AYfig = AYfig(fig_specs{fig_num}, false);
 figs(fig_num) = tfp.FB_Carreau_par_vs_q_compact(FB_Carreau_par_vs_q_compact_AYfig, FB1, FB2);
+
+tfp.write_figures(figs, save_dir, save_type);

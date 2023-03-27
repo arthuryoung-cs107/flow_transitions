@@ -81,7 +81,8 @@ classdef thinning_fluid_plots < bingham_plots
                 end
                 axi=axi+1;
             end
-            set(axs(1:4),'YScale','log')
+            % set(axs(1:4),'YScale','log')
+            set(axs,'XScale', 'log','YScale','log')
             xlabel(axs, '$$q= Q/Q_{inc}$$', 'Interpreter', 'LaTeX','FontSize',14)
             ylabel(axs(1:2), '$$\mu_0$$', 'Interpreter', 'LaTeX','FontSize',14)
             ylabel(axs(3:4), '$$\lambda$$', 'Interpreter', 'LaTeX','FontSize',14)
@@ -135,6 +136,12 @@ classdef thinning_fluid_plots < bingham_plots
                         tau_not_fit = FB.exp(i).tau(i_nf);
 
                         plot(axs(i), omega_not_fit, tau_not_fit, 'x', 'Color', [0 0 0], 'LineWidth', 1, 'MarkerSize', 8, 'DisplayName', FB.exp(i).label);
+
+                        omega_crit = 1/(par_i(4)*par_i(2));
+                        if ((omega_crit>omega_test(1))&&(omega_crit<omega_test(end)))
+                            tau_crit = glass_particles.taui_pred_Carreau(par_i,omega_crit);
+                            plot(axs(i), omega_crit*ones(1,2), [min([min(ti) min(tau_fit)]) tau_crit], '- p', 'Color', [0 0 0], 'LineWidth', 1, 'MarkerSize', 8);
+                        end
                     else
                         omega_test = linspace(0, max(omega_fit), 100);
                         ti = glass_particles.taui_pred_Carreau(par_i,omega_test);

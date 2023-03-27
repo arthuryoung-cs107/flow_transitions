@@ -179,10 +179,10 @@ classdef main_plots
             fplot(axs(4), @(Re) beta_plot_R*(Re).^alpha_plot_R, Res_TTV_lims,':','Color',[0 0 0], 'LineWidth',2,'DisplayName','$$ G/G_{cc} \propto Re_s^{0.7} $$');
             fplot(axs(4), @(Re) beta_plot_S*(Re).^alpha_plot_S, Res_TTV_lims,'-.','Color',[0 0 0], 'LineWidth',1,'DisplayName','$$ G/G_{cc} \propto Re_s^{0.7} $$');
 
-            textbox_a = annotation('textbox', [0.09 0.86 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_b = annotation('textbox', [0.56 0.86 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_c = annotation('textbox', [0.09 0.38 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'c)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_d = annotation('textbox', [0.56 0.38 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'd)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_a = annotation('textbox', [0.09 0.86 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(a)}', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_b = annotation('textbox', [0.56 0.86 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(b)}', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_c = annotation('textbox', [0.09 0.38 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(c)}', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_d = annotation('textbox', [0.56 0.38 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(d)}', 'LineStyle', 'none', 'FontSize', 16);
 
             set(axs,'YScale', 'log', 'XScale', 'log');
 
@@ -225,10 +225,10 @@ classdef main_plots
             legend_set_d(1) = plot(axs(4), XB1.omega, XB1.mu_torque, XB1.specs,'Color', XB1.color, 'LineWidth', XB1.LW, 'MarkerSize', XB1.MS, 'DisplayName', XB1.label);
             legend_set_d(2) = plot(axs(4), XB2.omega, XB2.mu_torque, XB2.specs,'Color', XB2.color, 'LineWidth', XB2.LW, 'MarkerSize', XB2.MS, 'DisplayName', XB2.label);
 
-            textbox_a = annotation('textbox', [0.09 0.86 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_b = annotation('textbox', [0.56 0.86 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_c = annotation('textbox', [0.09 0.38 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'c)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_d = annotation('textbox', [0.56 0.38 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'd)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_a = annotation('textbox', [0.09 0.86 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(a)}', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_b = annotation('textbox', [0.56 0.86 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(b)}', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_c = annotation('textbox', [0.09 0.38 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(c)}', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_d = annotation('textbox', [0.56 0.38 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(d)}', 'LineStyle', 'none', 'FontSize', 16);
 
             set(axs,'YScale', 'log', 'XScale', 'log');
 
@@ -353,7 +353,7 @@ classdef main_plots
 
             fig_out = AYfig_;
         end
-        function fig_out = UXB_FB_Grat_Reb_shift_compact(obj,AYfig_,UBall,XBall,FBall,FBext)
+        function fig_out = UXB_FB_Grat_Rebstar_compact(obj,AYfig_,UBall,XBall,FBall,FBext)
             axs_full = set_taustar_vs_Gamma_compact_axes(AYfig_);
 
             [UB1 UB2] = deal(UBall.UB1_in, UBall.UB2_in);
@@ -489,8 +489,8 @@ classdef main_plots
             axis(axs_full(2), [box_x_b box_y_b])
             set(axs_full(2), 'XTick', [1e-3,1e-2,1e-1,1e-0])
 
-            textbox_a = annotation('textbox', [0.15 0.125 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_b = annotation('textbox', [0.425 0.775 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_a = annotation('textbox', [0.150 0.125 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(a)}', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_b = annotation('textbox', [0.425 0.775 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(b)}', 'LineStyle', 'none', 'FontSize', 16);
 
             fig_out = AYfig_;
         end
@@ -788,13 +788,16 @@ classdef main_plots
 
             alpha_plot_R = 1.7;
             alpha_plot_S = 1.5;
+            alpha_plot_try = 2.0;
             beta_plot_R = (obj.G_obs_Reb_slope*Reb_c_plot)/(Reb_c_plot^alpha_plot_R);
             beta_plot_S = (obj.G_obs_Reb_slope*Reb_c_plot)/(Reb_c_plot^alpha_plot_S);
+            beta_plot_try = (obj.G_obs_Reb_slope*Reb_c_plot)/(Reb_c_plot^alpha_plot_try);
 
             for i = 1:6
                 fplot(axs(i), @(Re) obj.G_obs_Reb_slope*(Re), Reb_CC_lims,'--', 'Color', [0 0 0],'Linewidth', 2, 'DisplayName', '$$ \frac{4 \pi r_i r_o^2}{(r_o + r_i) \cdot (r_o-r_i)^2} Re_b $$')
-                fplot(axs(i), @(Re) beta_plot_R*(Re).^alpha_plot_R, Reb_TTV_lims,':','Color',[0 0 0], 'LineWidth',2,'DisplayName','$$ G/G_{cc} \propto Re_s^{0.7} $$');
-                fplot(axs(i), @(Re) beta_plot_S*(Re).^alpha_plot_S, Reb_TTV_lims,'-.','Color',[0 0 0], 'LineWidth',1,'DisplayName','$$ G/G_{cc} \propto Re_s^{0.7} $$');
+                fplot(axs(i), @(Re) beta_plot_R*(Re).^alpha_plot_R, Reb_TTV_lims,':','Color',[0 0 0], 'LineWidth',2,'DisplayName','$$ G/G_{cc} \propto Re_b^{0.7} $$');
+                fplot(axs(i), @(Re) beta_plot_S*(Re).^alpha_plot_S, Reb_TTV_lims,'-.','Color',[0 0 0], 'LineWidth',1,'DisplayName','$$ G/G_{cc} \propto Re_b^{0.7} $$');
+                % fplot(axs(i), @(Re) beta_plot_try*(Re).^alpha_plot_try, Reb_TTV_lims,'-','Color',[0 0 0], 'LineWidth',1,'DisplayName','$$ G/G_{cc} \propto Re_b^{0.7} $$');
             end
 
             %% handling pure fluid plot component
@@ -829,12 +832,12 @@ classdef main_plots
               legend_set_f(i) = plot(axs(6), FB2.exp(i).get_Re_b, FB2.exp(i).get_G, FB2.specs, 'Color', FB2.exp(i).color,'LineWidth', FB2.LW, 'MarkerSize', FB2.MS, 'DisplayName', FB2.exp(i).label);
             end
 
-            textbox_a = annotation('textbox', [0.09 0.86 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_b = annotation('textbox', [0.56 0.86 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_c = annotation('textbox', [0.09 0.60 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'c)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_d = annotation('textbox', [0.56 0.60 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'd)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_e = annotation('textbox', [0.09 0.34 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'e)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_f = annotation('textbox', [0.56 0.33 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'f)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_a = annotation('textbox', [0.09 0.86 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(a)}', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_b = annotation('textbox', [0.56 0.86 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(b)}', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_c = annotation('textbox', [0.09 0.60 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(c)}', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_d = annotation('textbox', [0.56 0.60 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(d)}', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_e = annotation('textbox', [0.09 0.33 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(e)}', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_f = annotation('textbox', [0.56 0.33 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(f)}', 'LineStyle', 'none', 'FontSize', 16);
 
             set(axs,'YScale', 'log', 'XScale', 'log');
 
@@ -842,6 +845,7 @@ classdef main_plots
             xlabel(axs(5:6), '$$Re_b = \rho \omega_i r_i (r_o-r_i) / \mu$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
 
             set(axs, 'XTick', [1e-2,1e-1,1e0,1e1,1e2,1e3,1e4])
+            set(axs, 'YTick', [1e0,1e1,1e2,1e3,1e4,1e5])
 
             legend(axs(1), legend_set_a,'Location', 'SouthEast', 'Interpreter', 'Latex');
             legend(axs(2), legend_set_b,'Location', 'SouthEast', 'Interpreter', 'Latex');
@@ -920,8 +924,8 @@ classdef main_plots
             textbox_b = annotation('textbox', [0.56 0.86 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none', 'FontSize', 16);
             textbox_c = annotation('textbox', [0.09 0.54 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'c)', 'LineStyle', 'none', 'FontSize', 16);
             textbox_d = annotation('textbox', [0.56 0.54 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'd)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_e = annotation('textbox', [0.09 0.23 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'e)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_f = annotation('textbox', [0.56 0.23 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'f)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_e = annotation('textbox', [0.09 0.21 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'e)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_f = annotation('textbox', [0.56 0.21 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'f)', 'LineStyle', 'none', 'FontSize', 16);
 
             set(axs,'YScale', 'log', 'XScale', 'log');
 
@@ -1043,6 +1047,7 @@ classdef main_plots
             zlabel('$$\phi$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
             ylabel('$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',12)
             xlabel('$$q = \frac{Q}{Q_{inc}}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+            set(axs(1),'YScale','log','YTick',[1e-2 1e-1 1e0 1e1 1e2])
             cbar = colorbar(axs(1));
             cbar.Label.String = '$$ \phi $$';
             cbar.Label.Interpreter = 'Latex';
@@ -1321,8 +1326,8 @@ classdef main_plots
                 legend_set_b(i) = errorbar(axs(2), FB2.exp(i).omega, FB2.exp(i).mu_torque, FB2.exp(i).sigma_torque, FB2.exp(i).specs, 'Color', FB2.exp(i).color, 'LineWidth', FB2.LW, 'MarkerSize', FB2.MS, 'DisplayName', FB2.exp(i).label);
             end
 
-            textbox_a = annotation('textbox', obj.textbox_pos2_a_SW, 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_b = annotation('textbox', obj.textbox_pos2_b_SW, 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_a = annotation('textbox', obj.textbox_pos2_a_SW, 'Interpreter', 'LaTeX', 'String', '\textit{(a)}', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_b = annotation('textbox', obj.textbox_pos2_b_SW, 'Interpreter', 'LaTeX', 'String', '\textit{(b)}', 'LineStyle', 'none', 'FontSize', 16);
 
             set(axs,'YScale', 'log', 'XScale', 'log');
 
@@ -1565,10 +1570,10 @@ classdef main_plots
             fplot(axs_tyr(1), @(q) 1-q, [0 0.9], '--', 'Color', [0 0 0], 'LineWidth', 1, 'DisplayName', '$$ 1 - q $$');
             fplot(axs_tyr(2), @(q) 1-q, [0 0.9], '--', 'Color', [0 0 0], 'LineWidth', 1, 'DisplayName', '$$ 1 - q $$');
 
-            textbox_a = annotation('textbox', [0.425 0.20 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_b = annotation('textbox', [0.25 0.7 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_c = annotation('textbox', [0.925 0.20 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'c)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_d = annotation('textbox', [0.75 0.85 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'd)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_a = annotation('textbox', [0.425 0.20 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(a)}', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_b = annotation('textbox', [0.25 0.7 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(b)}', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_c = annotation('textbox', [0.925 0.20 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(c)}', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_d = annotation('textbox', [0.75 0.85 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(d)}', 'LineStyle', 'none', 'FontSize', 16);
 
             set(axs_tyr,'YScale', 'log');
             set(axs_tyr(1), 'YTick', [1e-4,1e-2,1e0])
@@ -1710,12 +1715,12 @@ classdef main_plots
                 end
             end
 
-            textbox_a = annotation('textbox', [0.28 0.28 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'a)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_b = annotation('textbox', [0.19 0.73 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'b)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_c = annotation('textbox', [0.60 0.28 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'c)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_d = annotation('textbox', [0.52 0.73 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'd)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_e = annotation('textbox', [0.93 0.28 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'e)', 'LineStyle', 'none', 'FontSize', 16);
-            textbox_f = annotation('textbox', [0.84 0.73 0.1 0.1], 'Interpreter', 'LaTeX', 'String', 'f)', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_a = annotation('textbox', [0.28 0.28 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(a)}', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_b = annotation('textbox', [0.19 0.73 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(b)}', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_c = annotation('textbox', [0.60 0.28 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(c)}', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_d = annotation('textbox', [0.52 0.73 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(d)}', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_e = annotation('textbox', [0.93 0.28 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(e)}', 'LineStyle', 'none', 'FontSize', 16);
+            textbox_f = annotation('textbox', [0.84 0.73 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(f)}', 'LineStyle', 'none', 'FontSize', 16);
 
             set([axs_m axs_l],'YScale', 'log');
 
@@ -2096,8 +2101,8 @@ classdef main_plots
                 iFB = iFB + 1;
             end
 
-            title(axs(1), '$$ 113 $$ micron', 'Interpreter', 'LaTeX', 'FontSize', 14);
-            title(axs(2), '$$ 49 $$ micron', 'Interpreter', 'LaTeX', 'FontSize', 14);
+            title(axs(1), '\textit{FB1}, $$ 113 $$ $$\mu$$m', 'Interpreter', 'LaTeX', 'FontSize', 14);
+            title(axs(2), '\textit{FB2}, $$ 49 $$ $$\mu$$m', 'Interpreter', 'LaTeX', 'FontSize', 14);
 
             set(axs,'YScale','linear','XScale','log');
             xlabel(axs, '$$\omega_i$$ [rad/s]', 'Interpreter', 'LaTeX','FontSize',14)

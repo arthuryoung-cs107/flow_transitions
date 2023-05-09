@@ -20,7 +20,7 @@ classdef glass49 < glass_particles
   methods
     function obj = glass49(name_, color_)
       obj@glass_particles(name_, color_);
-      obj.tag = 'FB2';
+      obj.tag = '\textit{FB2}';
       obj.phi = 0.50;
       obj.q_inc = 0.2;
       obj.tau_static = 159.582557507215e+000;

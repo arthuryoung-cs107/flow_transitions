@@ -16,7 +16,7 @@ classdef NB3_experiment < experiment
   methods
     function obj = NB3_experiment(exp_list_in, color_, specs_)
       obj@experiment(exp_list_in);
-      obj.label = 'NB3';
+      obj.label = '\textit{NB3}';
       obj.color = color_;
       obj.specs = specs_;
       fig_pos = fig_pos_gen(2, 6);

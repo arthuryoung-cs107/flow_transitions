@@ -487,6 +487,7 @@ classdef main_plots
             legend_a = legend(axs_full(1), legend_set_a,'Location','NorthWest', 'Interpreter', 'Latex','NumColumns',1);
 
             axis(axs_full(2), [box_x_b box_y_b])
+            axs_full(1).YLim(2) = 1e1;
             set(axs_full(2), 'XTick', [1e-3,1e-2,1e-1,1e-0])
 
             textbox_a = annotation('textbox', [0.150 0.125 0.1 0.1], 'Interpreter', 'LaTeX', 'String', '\textit{(a)}', 'LineStyle', 'none', 'FontSize', 16);
@@ -845,7 +846,7 @@ classdef main_plots
             xlabel(axs(5:6), '$$Re_b = \rho \omega_i r_i (r_o-r_i) / \mu$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
 
             set(axs, 'XTick', [1e-2,1e-1,1e0,1e1,1e2,1e3,1e4])
-            set(axs, 'YTick', [1e0,1e1,1e2,1e3,1e4,1e5])
+            set(axs, 'YTick', [1e0,1e1,1e2,1e3,1e4,1e5,1e6])
 
             legend(axs(1), legend_set_a,'Location', 'SouthEast', 'Interpreter', 'Latex');
             legend(axs(2), legend_set_b,'Location', 'SouthEast', 'Interpreter', 'Latex');

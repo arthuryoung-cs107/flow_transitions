@@ -75,7 +75,7 @@ classdef PF_rough < super_experiment
 
             obj.color = red5;
             obj.specs = ' o';
-            obj.label = 'PL2';
+            obj.label = '\textit{PL2}';
         end
         function gen_powerfit(obj)
             obj.gen_powerfit_internal(70);

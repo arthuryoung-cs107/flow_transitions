@@ -5,7 +5,7 @@ classdef UB1_experiment < experiment
   methods
     function obj = UB1_experiment(exp_list_in, color_, specs_)
       obj@experiment(exp_list_in);
-      obj.label = 'UB1';
+      obj.label = '\textit{UB1}';
       obj.color = color_;
       obj.specs = specs_;
       fig_pos = fig_pos_gen(2, 6);

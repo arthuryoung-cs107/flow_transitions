@@ -5,7 +5,7 @@ classdef PF1_experiment < experiment
     methods
         function obj = PF1_experiment(exp_list_in, color_, specs_)
             obj@experiment(exp_list_in);
-            obj.label = 'PL1';
+            obj.label = '\textit{PL1}';
             obj.color = color_;
             obj.specs = specs_;
             fig_pos = fig_pos_gen(2, 6);

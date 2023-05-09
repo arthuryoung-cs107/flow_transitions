@@ -717,9 +717,9 @@ classdef glass_particles < fluid
     end
     function string_out = label(obj)
       if round( obj.q, 1) >= 10.0
-        string_out = [obj.tag, ' q=', num2str(round(obj.q, 1),2)];
+        string_out = [obj.tag, ' \textit{q}=', num2str(round(obj.q, 1),2)];
       else
-        string_out = [obj.tag, ' q=', num2str(round(obj.q, 1),'%.1f')];
+        string_out = [obj.tag, ' \textit{q}=', num2str(round(obj.q, 1),'%.1f')];
       end
     end
     function gen_powerfit(obj)

@@ -21,7 +21,7 @@ classdef glass113 < glass_particles
   methods
     function obj = glass113(name_, color_, phi_)
       obj@glass_particles(name_, color_);
-      obj.tag = 'FB1';
+      obj.tag = '\textit{FB1}';
       obj.phi = phi_;
       obj.q_inc = 1.4;
       obj.tau_static = 225.046219998818e+000;

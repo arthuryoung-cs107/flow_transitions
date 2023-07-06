@@ -186,7 +186,7 @@ classdef main_plots
 
             set(axs,'YScale', 'log', 'XScale', 'log');
 
-            ylabel(axs(1:2:3), '$$G_{rat} = G/G_{cc}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
+            ylabel(axs(1:2:3), '$$\mathcal{G}_{cc} = T_z/T_{cc}$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
             xlabel(axs(3:4), '$$Re_s$$ [dimensionless]', 'Interpreter', 'LaTeX','FontSize',12)
 
             legend(axs(1), legend_set_a,'Location', 'NorthEast', 'Interpreter', 'Latex');
@@ -478,7 +478,8 @@ classdef main_plots
             patch(axs_full(1), 'Faces', 1:4, 'LineStyle', ':', 'Vertices', box_a, 'FaceAlpha',0,'EdgeAlpha',1,'LineWidth',1.5);
             patch(axs_full(2), 'Faces', 1:4, 'LineStyle', ':', 'Vertices', box_b, 'FaceAlpha',0,'EdgeAlpha',1,'LineWidth',1.5);
 
-            ylabel(axs_full(1), '$$ G_{rat} = T_z / T_B(\omega_i) $$ [dimensionless]', 'Interpreter', 'Latex')
+            % ylabel(axs_full(1), '$$ G_{rat} = T_z / T_B(\omega_i) $$ [dimensionless]', 'Interpreter', 'Latex')
+            ylabel(axs_full(1), '$$ \mathcal{G}_{B} = T_z / T_B(\omega_i) $$ [dimensionless]', 'Interpreter', 'Latex')
             xlabel(axs_full(1), '$$ Re_b^* = \rho_b \omega_i r_i (r_c - r_i) / \mu_p$$ [dimensionless]', 'Interpreter', 'Latex')
 
             ylabel(axs_full(2), '$$ \tau^* = \tau_i / \tau_y $$', 'Interpreter', 'Latex')

@@ -86,6 +86,8 @@ classdef FB1_phi_experiment < handle
                             reshape(phicell{3},[],1) reshape(ocell{3},[],1) reshape(qcell{3},[],1); ...
                             reshape(phicell{4},[],1) reshape(ocell{4},[],1) reshape(qcell{4},[],1)];
 
+
+
             obj.raw_full = raw_full;
             obj.raw = raw;
             obj.isets = isets;
@@ -96,6 +98,17 @@ classdef FB1_phi_experiment < handle
             obj.ocell=ocell;
             obj.qcell=qcell;
             obj.phi_o_q_mat=phi_o_q_mat;
+        end
+        function [poq1 poq2 poq3] = get_3_speeds(obj,poq_, o_slices)
+            [phi_full omega_full q_full] = deal(poq_(:,1),poq_(:,2),poq_(:,3));
+
+            i1 = (omega_full>(0.9*o_slices(1)))&(omega_full<(1.1*o_slices(1)));
+            i2 = (omega_full>(0.9*o_slices(2)))&(omega_full<(1.1*o_slices(2)));
+            i3 = (omega_full>(0.9*o_slices(3)))&(omega_full<(1.1*o_slices(3)));
+
+            poq1 = [phi_full(i1) omega_full(i1) q_full(i1)];
+            poq2 = [phi_full(i2) omega_full(i2) q_full(i2)];
+            poq3 = [phi_full(i3) omega_full(i3) q_full(i3)];
         end
         function process_raw_old(obj)
             q_raw = zeros(1, length(range_array));

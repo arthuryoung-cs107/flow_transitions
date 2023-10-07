@@ -66,8 +66,23 @@ fig_specs{fig_num} = {'Name', 'UXB_FB_Grat_Rebstar_compact'; 'Renderer', 'painte
 UXB_FB_Grat_Rebstar_compact_AYfig = AYfig(fig_specs{fig_num}, true);
 figs(fig_num) = mp.UXB_FB_Grat_Rebstar_compact(UXB_FB_Grat_Rebstar_compact_AYfig,UBall,XBall,[FB1 FB2],{EC000;EC050;EC075;EC100});
 
+%%%%%%%%%%%%%%% graphical abstract
+%%%%%%%%%%%%%%%%%%%%%%%%
+fig_num = fig_num + 1;
+fig_specs{fig_num} = {'Name', 'FB1_dimensional_regime_map'; 'Renderer', 'painters'; 'Units', 'centimeters'; 'Position', mp.posdim1_graphical_abstract;};
+FB1_dimensional_regime_plot_AYfig = AYfig(fig_specs{fig_num}, true);
+figs(fig_num) = mp.FB1_dimensional_regime_plot(FB1_dimensional_regime_plot_AYfig, FB1);
+
+%%%%%%%%%%%%%%% FB1 solid fraction, sliced
+%%%%%%%%%%%%%%%%%%%%%%%%
+fig_num = fig_num + 1;
+fig_specs{fig_num} = {'Name', 'FB1_phi_vs_omegai_vs_q_slices'; 'Renderer', 'painters'; 'Position', [mp.pos_spread(11, :), mp.dim22_tall];};
+FB1_phi_vs_omegai_vs_q_slices_AYfig = AYfig(fig_specs{fig_num}, false);
+figs(fig_num) = mp.FB_phi_vs_omegai_vs_q_slices(FB1_phi_vs_omegai_vs_q_slices_AYfig, FB1_phi_exp);
+
+
 %%%%%%%% --------------------------------------------------------------------------------------------
 %%%%%%%% ----------------------------------  end plots  ---------------------------------------------
 %%%%%%%% --------------------------------------------------------------------------------------------
 
-mp.write_figures(figs, save_dir, save_type);
+% mp.write_figures(figs, save_dir, save_type);

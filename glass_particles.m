@@ -1326,17 +1326,22 @@ classdef glass_particles < fluid
 
         bounds = [ty_,1e3];
 
-        if (isempty(gcp('nocreate')))
-            for i = reshape(i_full(i_plug),1,[])
-                solve_i = @(t) abs(bingham_solve(t,o_(i)));
-                t_out(i) = fminbnd(solve_i,bounds(1),bounds(2));
-            end
-        else
-            parfor i = reshape(i_full(i_plug),1,[])
-                solve_i = @(t) abs(bingham_solve(t,o_(i)));
-                t_out(i) = fminbnd(solve_i,bounds(1),bounds(2));
-            end
+        for i = reshape(i_full(i_plug),1,[])
+            solve_i = @(t) abs(bingham_solve(t,o_(i)));
+            t_out(i) = fminbnd(solve_i,bounds(1),bounds(2));
         end
+
+        % if (isempty(gcp('nocreate')))
+        %     for i = reshape(i_full(i_plug),1,[])
+        %         solve_i = @(t) abs(bingham_solve(t,o_(i)));
+        %         t_out(i) = fminbnd(solve_i,bounds(1),bounds(2));
+        %     end
+        % else
+        %     parfor i = reshape(i_full(i_plug),1,[])
+        %         solve_i = @(t) abs(bingham_solve(t,o_(i)));
+        %         t_out(i) = fminbnd(solve_i,bounds(1),bounds(2));
+        %     end
+        % end
     end
     function t_out = taui_pred_Carreau(mu0_,l_,n_,k_,muinf_,o_)
         if (nargin==2)

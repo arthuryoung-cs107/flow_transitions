@@ -132,6 +132,6 @@ figs(fig_num) = mp.FB_Carreau_par_vs_q_compact(FB_Carreau_par_vs_q_compact_AYfig
 
 
 ftt = flow_transitions_tables();
-ftt.write_FB_fit_results(FB1,FB2,'FB_Bingham_Carreau_results')
+% ftt.write_FB_fit_results(FB1,FB2,'FB_Bingham_Carreau_results')
 
-mp.write_figures(figs, save_dir, save_type);
+% mp.write_figures(figs, save_dir, save_type);
